@@ -1,0 +1,10 @@
+# numpy / cv stack is for later reconstruction. jsonschema+pyyaml are used now.
+numpy>=1.26
+opencv-python-headless>=4.9
+pillow>=10.0
+scipy>=1.11
+shapely>=2.0
+matplotlib>=3.8
+pyyaml>=6.0
+jsonschema>=4.21
+pytest>=8.0
