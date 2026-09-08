@@ -23,3 +23,11 @@ class OutputValidationError(CozmoFloorPlanError):
 
 class EvaluationInputError(CozmoFloorPlanError):
     """An evaluation input cannot be read or does not match the schema."""
+
+
+class ReconstructionError(CozmoFloorPlanError):
+    """A capture adapter cannot produce geometry from the supplied files."""
+
+    def __init__(self, message: str, *, warning_code: str = "incomplete_scan") -> None:
+        super().__init__(message)
+        self.warning_code = warning_code

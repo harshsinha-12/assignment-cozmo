@@ -15,6 +15,17 @@ Format:
 
 ---
 
+## 2026-09-08 — T6 RoomPlan path complete; raw Record3D blocked
+
+- Context: T14 is committed; no private sensor capture exists yet. The guaranteed Route 2 uses Record3D, so the whole LiDAR task cannot honestly be called done.
+- Done: implemented portable RoomPlan JSON v1 ingestion with separate typed parsing, transform projection, wall polygonization, LiDAR uncertainty config, measurement construction, and FloorPlan assembly. Added a two-room metric fixture and six LiDAR tests.
+- Output: the fixture produces 2 rooms, 8 walls, an 80×210 cm shared door, areas, ceilings, adjacency, intervals, and provenance. Multi-room status remains `partial` because T9 drift correction is deliberately not faked.
+- Boundaries: `.r3d`/metadata and USDZ are detected and return structured unsupported warnings. T6 is blocked on T3 for real Record3D depth/pose files and later hardening.
+- Verified: `make test` passes 27 tests; `ruff check src tests` and compileall pass. The CLI output has 0 synthetic wall/area/opening error on the shared truth fixture; repeat, drift, incumbent, and yield remain red/missing honestly.
+- Next unblocked engineering task: T15 whole-property SVG renderer using the RoomPlan output.
+
+---
+
 ## 2026-09-08 — T14 official-gate eval harness complete
 
 - Context: T13 was committed; T14 was the highest unblocked engineering task.

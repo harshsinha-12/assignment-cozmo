@@ -58,6 +58,8 @@ Done when: empty pipeline is valid JSON against schema; eval reports red on synt
 
 ## Phase 3 — LiDAR tier
 
+**Status:** partial — portable RoomPlan JSON works; raw Record3D/USDZ wait on T3 capture.
+
 - Ingest Record3D / RoomPlan / USDZ as available
 - Metric walls, openings, ceiling, area
 - Single-room then multi-room

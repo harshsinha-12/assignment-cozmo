@@ -10,7 +10,7 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R2 | Device matrix | `docs/device-matrix.md` | Hardware × tier × claimed interval | partial (draft) |
 | R3 | Photos tier, 2–8 stills, no depth/poses, per-room folders, whole-property stitch | `src/` (not started) | JSON + SVG from photo job | missing |
 | R4 | Video tier, handheld walkthrough | `src/` | JSON + SVG from video job | missing |
-| R5 | LiDAR tier, depth+poses+intrinsics | `src/` | JSON + SVG from LiDAR job | missing |
+| R5 | LiDAR tier, depth+poses+intrinsics | `recon/lidar.py` | RoomPlan JSON → metric FloorPlan works; Record3D raw + real validation pending | partial |
 | R6 | Per-room: walls, ceiling, area, openings | schema + pipeline | `floorplan.json` | missing |
 | R7 | Stitched multi-room adjacency | stitch module | stitch graph + SVG | missing |
 | R8 | Damage regions, class + metric extent | agent + tools (`docs/agent-layer.md`) | v0.2 `damage[]` schema ready; generation pending | partial |

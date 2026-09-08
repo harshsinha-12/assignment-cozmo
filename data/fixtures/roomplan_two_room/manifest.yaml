@@ -1,0 +1,5 @@
+job_id: roomplan_two_room
+tier: lidar
+device: synthetic iPhone Pro
+capture_format: roomplan-json-v1
+notes: Synthetic portable RoomPlan export; dimensions and transforms are metres.

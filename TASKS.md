@@ -17,7 +17,7 @@ Product: local CLI + **disclosed LLM tool-calling agent**. Score policy: max eve
 | T2 | done | Synthetic two-room fixture | — | 2026-09-07 |
 | T4 | done | Reconcile plan with official prompt | T1 | 2026-09-08 ingest |
 | T3 | todo | Human benchmark capture | human + Pro phone | See Unblocked; parallel with engineering |
-| T6 | todo | LiDAR export → FloorPlan | T12, T13 | Record3D / RoomPlan / USDZ |
+| T6 | blocked | LiDAR export → FloorPlan | T3 real Record3D export | RoomPlan JSON works; raw Record3D/USDZ must be hardened on captured files |
 | T15 | todo | SVG whole-property renderer | T12 | Product surface |
 | T9 | todo | Stitch + drift correction + on/off ablation | T6 | Auto-fail if poses used as-is |
 | T7 | todo | Video path | T6 | ±3% walls with CIs |
@@ -55,7 +55,7 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-**T6** LiDAR export adapter. Human **T3**. Do not skip photos/video. T16 is the **agent + tools** layer (required). T21 only if Xcode exists.
+**T15** SVG renderer while T6 raw Record3D waits on human **T3**. Do not skip photos/video. T16 is the **agent + tools** layer (required). T21 only if Xcode exists.
 
 ---
 

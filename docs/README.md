@@ -27,6 +27,7 @@ Read `AGENTS.md` first, not this folder.
 | `inbox.md` | Misc notes |
 | `prompts/` | Kickoff + ingest |
 | `schemas/floorplan.schema.json` | IR |
+| `formats/roomplan-json.md` | Tested portable RoomPlan surface JSON accepted by T6 |
 | `briefs/ai-backend-engineer.pdf` | Original JD |
 
 When implementation starts, `writeup.md` is the ≤6 page report (Phase 11).

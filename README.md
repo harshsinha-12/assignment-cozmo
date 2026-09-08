@@ -18,7 +18,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 **Human (tonight):** capture the benchmark — [`docs/capture-protocol.md`](docs/capture-protocol.md). 3+ rooms + hallway, photos/video/LiDAR, two damage classes, tape, Polycam or magicplan on two rooms. Short list: [`START-TOMORROW.md`](START-TOMORROW.md).
 
-**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). Top code task is **T6** (LiDAR adapter). Do not pre-concede photo/video gates.
+**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). Top unblocked code task is **T15** (SVG renderer). T6 raw Record3D waits on a real capture.
 
 ## Repo map
 
@@ -43,7 +43,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 ## Current status
 
-**Phase 1 ingest, T12 schema, T13 CLI, and T14 eval harness are done. T6 LiDAR is next. No reconstructor yet.**
+**Schema, CLI, eval, and the RoomPlan JSON LiDAR path work. Raw Record3D/USDZ await real fixtures; T15 SVG is next.**
 
 See [`roadmap.md`](roadmap.md).
 
@@ -56,7 +56,15 @@ pip install -r requirements.txt
 make test
 ```
 
-Expected today: schema and CLI tests. `run` emits a schema-valid structured failure until a reconstruction adapter is implemented.
+`run` emits schema-valid structured failures for capture tiers or file formats whose reconstruction adapter is not implemented.
+
+The synthetic RoomPlan job now emits dimensioned geometry:
+
+```bash
+python -m cozmo_floorplan run data/fixtures/roomplan_two_room --out out/roomplan_two_room
+```
+
+It returns `partial` until T9 adds multi-room drift correction. See `docs/formats/roomplan-json.md` for accepted input and current Record3D/USDZ boundaries.
 
 Evaluate any output with `python -m cozmo_floorplan eval --pred PRED --truth TRUTH --out OUT`. Missing repeat and drift-ablation evidence stays visibly red.
 

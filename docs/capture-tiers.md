@@ -60,3 +60,5 @@ A restoration walk is often LiDAR on the adjuster’s iPhone plus homeowner JPEG
 ## What we will implement first
 
 LiDAR JSON → IR → SVG → eval. Everything else reuses extract + stitch.
+
+**Current implementation:** portable RoomPlan JSON v1 → FloorPlan works against `data/fixtures/roomplan_two_room`. See `docs/formats/roomplan-json.md`. Raw Record3D depth/pose fusion and USDZ remain pending a real exported fixture; the CLI detects them and fails structurally rather than inventing geometry.

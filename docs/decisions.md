@@ -4,6 +4,16 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-08 — Normalize RoomPlan JSON; do not guess raw Record3D bytes
+
+**Context:** No real LiDAR capture exists yet. Apple exposes metric RoomPlan surfaces but does not define one universal third-party JSON layout. Record3D exposes depth, confidence, intrinsics, and poses, while the on-disk `.r3d` path needs a captured fixture to validate decompression and frame conventions.
+
+**Decision:** T6 implements and tests a portable RoomPlan JSON v1 contract (`docs/formats/roomplan-json.md`) with metric surface dimensions and transforms. The adapter accepts single- and multi-room wrappers and produces FloorPlan v0.2. Raw Record3D metadata/depth and USDZ are detected but return structured unsupported warnings until Harsh supplies real exports.
+
+**Consequence:** RoomPlan geometry is usable now for the renderer and eval. The guaranteed Route 2 LiDAR path is not called complete or walk-in-ready. T6 remains blocked on T3 for raw Record3D hardening.
+
+---
+
 ## 2026-09-08 — FloorPlan IR v0.2 uses interval-bearing measurement objects
 
 **Context:** The official contract requires a confidence interval on every measurement. The provisional v0.1 schema used bare numeric dimensions and only offered an optional wall `error_interval`.
