@@ -21,7 +21,6 @@ Product: local CLI + **disclosed LLM tool-calling agent**. Score policy: max eve
 | T9 | todo | Stitch + drift correction + on/off ablation | T6 | Auto-fail if poses used as-is |
 | T7 | todo | Video path | T6 | ±3% walls with CIs |
 | T8 | todo | Photos path, 2–8 stills, folder stitch | T9 | Target ±8% walls **and** opening/ceiling/detection gates |
-| T16 | todo | Agent layer: LLM tool calling + fallback for damage / concealed / scope | T12 | `docs/agent-layer.md`. Numbers still from recon tools |
 | T21 | todo | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | Parallel. Scored route stays Route 2 until install works |
 | T17 | todo | Device matrix + capture-route polish | T3 | Fill measured intervals after eval |
 | T18 | todo | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | Beat/tie ≥ 70% shared dims |
@@ -54,12 +53,13 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-**T16** agent + tools while T6 raw Record3D waits on human **T3**. The LLM classifies damage and selects rules/actions; geometry tools remain the only source of measured quantities. T21 only if Xcode exists.
+**T21** thin iOS RoomPlan/ARKit exporter if Xcode is available. Keep Route 2 as the scored route until a clean 10-minute install is proven. T6 raw Record3D remains blocked on human **T3**.
 
 ---
 
 ## Done
 
+- **2026-09-08 T16** — Live OpenAI Responses tool-calling agent plus transactional deterministic fallback; strict damage, concealed-rule, and scope tools; metric observation contract; live synthetic smoke test.
 - **2026-09-08 T15** — Deterministic whole-property SVG renderer, paired atomically-written JSON/SVG artifacts, measured wall intervals, openings, scale bar, status/provenance summary, and failed-run placeholder.
 - **2026-09-08 T14** — Official-gate eval package and CLI: red empty predictions, openings, ceilings, repeatability, drift ablation, photo stitch, photo/video walls, calibration, yield, and LiDAR head-to-head.
 - **2026-09-08 T13** — Modular installable CLI, normalized job loading, schema validation, atomic `floorplan.json`, structured failure paths, code map, and command tests.

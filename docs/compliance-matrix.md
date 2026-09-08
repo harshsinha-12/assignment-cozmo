@@ -13,9 +13,9 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R5 | LiDAR tier, depth+poses+intrinsics | `recon/lidar.py` | RoomPlan JSON → metric FloorPlan works; Record3D raw + real validation pending | partial |
 | R6 | Per-room: walls, ceiling, area, openings | schema + pipeline | `floorplan.json` | missing |
 | R7 | Stitched multi-room adjacency | stitch module | stitch graph + SVG | missing |
-| R8 | Damage regions, class + metric extent | agent + tools (`docs/agent-layer.md`) | v0.2 `damage[]` schema ready; generation pending | partial |
-| R9 | Concealed-damage flags + rule id | agent `fire_concealed_rule` | v0.2 `concealed_flags[]` requires `rule_id`; generation pending | partial |
-| R10 | Scope line items keyed to surfaces | agent `add_scope_line` (qty from geometry) | v0.2 `scope[]` schema ready; generation pending | partial |
+| R8 | Damage regions, class + metric extent | `agent/openai_agent.py` + `agent/tools.py` | live/fallback `damage[]` works on synthetic observations; real images pending | partial |
+| R9 | Concealed-damage flags + rule id | `agent/tools.py::fire_concealed_rule` | policy-validated `concealed_flags[]` generated live and offline | done |
+| R10 | Scope line items keyed to surfaces | `agent/tools.py::add_scope_line` | quantity copied from metric damage observation; generated live and offline | done |
 | R11 | Confidence interval on every measurement | schema | v0.2 `{value, unit, interval}` measurement objects | implemented |
 | R12 | One command per capture | `src/cozmo_floorplan/cli.py` | command runs and emits structured JSON; successful adapters pending | partial |
 | R13 | JSON to published schema | `docs/schemas/floorplan.schema.json` | our IR until they attach one | partial |
@@ -31,5 +31,5 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R23 | Reproduction bundle | `Makefile` + caches | regenerable numbers | missing |
 | R24 | Technical report ≤ 6 pages | `docs/writeup.md` | PDF or md | missing |
 | R25 | Mirrors / glass / wet / low light | report + fallbacks | warnings | missing |
-| R26 | No calls to our infrastructure | code | local + disclosed models | not started |
+| R26 | No calls to our infrastructure | `agent/openai_agent.py` + fallback | local processing; disclosed direct OpenAI API or offline rules | done |
 | R27 | Process evidence | git history | commits as we work | doing |

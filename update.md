@@ -13,6 +13,16 @@ Format:
 - Next
 ```
 
+## 2026-09-08 — T16 agent + tools complete
+
+- Implemented a live OpenAI Responses API tool loop plus deterministic fallback for damage, concealed-rule flags, and scope.
+- Split configuration, prompts, strict tool definitions, tool execution, provider/fallback agents, observations, bounded image encoding, environment loading, and orchestration into focused modules documented in `docs/code-map.md`.
+- Metric damage extents enter through `damage_observations.json`; the model cannot pass quantities to `apply_damage`. Concealed rule ids and scope actions are policy-validated, and scope quantity is copied by tools.
+- Live mutations are transactional. Provider failure or incomplete tool use discards the working copy and replays the same tools through deterministic rules with an `agent_fallback` warning.
+- Added two explicitly synthetic observations to the RoomPlan fixture. No real-image accuracy claim is made.
+- Verified 34 tests, ruff, compileall, and `git diff --check`. A real configured-key smoke test completed through `gpt-5-mini` with 7 tool calls, 2 damage regions, 1 concealed flag, 2 scope lines, `store: false`, and no fallback warning.
+- Next: T21 if Xcode is installed. T6 raw Record3D and real damage validation still wait on T3 capture.
+
 ## 2026-09-08 — T15 whole-property SVG renderer
 
 - Completed a deterministic, accessible SVG product surface for FloorPlan v0.2.

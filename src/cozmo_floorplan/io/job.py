@@ -6,7 +6,12 @@ from typing import Any
 
 import yaml
 
-from cozmo_floorplan.config import MANIFEST_FILENAME, SUPPORTED_TIERS, TIER_INPUT_DIRECTORIES
+from cozmo_floorplan.config import (
+    AGENT_OBSERVATIONS_FILENAME,
+    MANIFEST_FILENAME,
+    SUPPORTED_TIERS,
+    TIER_INPUT_DIRECTORIES,
+)
 from cozmo_floorplan.errors import JobLoadError
 
 
@@ -81,6 +86,8 @@ def _required_string(manifest: dict[str, Any], key: str) -> str:
 
 def _collect_input_refs(root: Path, input_dir_name: str | None) -> tuple[str, ...]:
     refs = [MANIFEST_FILENAME]
+    if (root / AGENT_OBSERVATIONS_FILENAME).is_file():
+        refs.append(AGENT_OBSERVATIONS_FILENAME)
     if input_dir_name:
         input_dir = root / input_dir_name
         refs.extend(

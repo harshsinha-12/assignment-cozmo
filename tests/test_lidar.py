@@ -22,7 +22,11 @@ def test_roomplan_fixture_loads_as_a_lidar_job():
     job = load_job(JOB_DIR)
 
     assert job.tier == "lidar"
-    assert job.input_refs == ("manifest.yaml", "lidar/roomplan.json")
+    assert job.input_refs == (
+        "manifest.yaml",
+        "damage_observations.json",
+        "lidar/roomplan.json",
+    )
 
 
 def test_roomplan_two_room_reconstructs_metric_floorplan():
@@ -41,6 +45,9 @@ def test_roomplan_two_room_reconstructs_metric_floorplan():
     assert document["openings"][0]["width"]["value"] == 80
     assert document["openings"][0]["height"]["value"] == 210
     assert document["openings"][0]["offset_along_wall"]["value"] == 150
+    assert len(document["damage"]) == 2
+    assert len(document["concealed_flags"]) == 1
+    assert len(document["scope"]) == 2
     assert document["stitch"]["drift_correction"] == {
         "enabled": False,
         "method": "none",

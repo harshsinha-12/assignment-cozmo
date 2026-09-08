@@ -12,11 +12,11 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Completed **T15 whole-property SVG rendering** and paired run-artifact persistence.
-- The CLI now writes both `floorplan.json` and `floorplan.svg` for successful, partial, and structured-failure runs.
-- Split visual constants, coordinate layout, SVG composition, and artifact persistence into focused modules; documented every file in `docs/code-map.md`.
-- Added renderer tests for rooms, openings, measured confidence intervals, determinism, XML escaping, and empty-geometry placeholders.
-- Rendered the synthetic two-room artifact through macOS Quick Look and visually checked its plan geometry, labels, dimensions, opening, scale bar, and summary.
+- Completed **T16 claims agent + tools** with a live OpenAI Responses path and deterministic offline fallback.
+- Added separate modules for config/policies, prompts, strict tool definitions, mutation tools, observations, image inputs, live agent, fallback agent, models, orchestration, and `.env` loading; all roles are in `docs/code-map.md`.
+- Added `damage_observations.json` as the surface-mapped metric proposal boundary. The LLM cannot pass a quantity into `apply_damage`; tools copy extents and intervals.
+- Added two explicitly synthetic staged-damage observations to the RoomPlan fixture and documented that they are contract data, not real-image evidence.
+- Live `gpt-5-mini` smoke test succeeded with 7 tool calls, 2 damage records, 1 concealed-rule flag, 2 scope lines, and no fallback warning.
 
 ### What is true now
 
@@ -27,42 +27,45 @@ The current agent overwrites the **Current handoff** section at the end of every
 - Schema v0.2 and its synthetic fixture validate.
 - `python -m cozmo_floorplan run JOB --out OUT` writes paired JSON/SVG artifacts. Unavailable adapters honestly emit a failed JSON and explanatory SVG placeholder, then exit 2.
 - `python -m cozmo_floorplan run data/fixtures/roomplan_two_room --out OUT` emits a schema-valid, dimensioned LiDAR FloorPlan and readable whole-property SVG.
+- With observations present, the pipeline enriches claims through direct OpenAI tool calling when configured or the same validated tools offline. Live mutations roll back before fallback on any provider/tool-loop failure.
+- The synthetic fixture emits 2 damage regions, 1 concealed flag with `CONCEALED_WATER_MIGRATION_001`, and 2 scope lines. Scope quantities exactly copy metric observation extents.
 - Multi-room output is intentionally `partial`: global RoomPlan transforms are used as-is and T9 must add drift correction/ablation.
 - Available synthetic metric gates have zero wall/area/opening error; repeat, drift, incumbent, and pipeline yield remain red or missing as expected.
-- All 30 tests pass; ruff and compileall pass.
+- All 34 tests pass; ruff, compileall, and `git diff --check` pass.
 - Raw Record3D/USDZ are not implemented or live-validated. No private sensor capture exists yet.
 
 ### Blockers
 
 - Human T3 capture.
 - Raw Record3D `.r3d`/metadata/depth fixture for the guaranteed Route 2 LiDAR path.
-- API key for the live agent path (theirs at walk-in; Harsh’s locally). Never commit `.env`.
+- Real damage images/crops and calibrated metric observation generation. The current observations are explicitly synthetic.
 - Cozmo published schema still missing.
 
 ### Next agent should
 
-1. **T16** agent + tools: damage classification, concealed-damage rule ids, scope, public-provider tool calling, and deterministic no-key fallback.
+1. **T21** check for Xcode, then build the thin RoomPlan/ARKit exporter only if it can preserve the 10-minute install goal.
 2. Resume T6 raw Record3D fusion as soon as T3 supplies the real export.
-3. Do not skip T16 (agent). Do not let the LLM invent wall lengths.
+3. Keep Route 2 as the scored capture route until Route 1 installation is proven.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `docs/agent-layer.md`
-3. `docs/code-map.md`
-4. `docs/schemas/floorplan.schema.json`
-5. `src/cozmo_floorplan/io/artifacts.py`
+2. `docs/capture-route.md`
+3. `docs/capture-protocol.md`
+4. `docs/code-map.md`
+5. `docs/agent-layer.md`
 
 ### Exact next command
 
 ```text
-T16: implement the disclosed public-provider tool-calling agent and deterministic fallback for damage, concealed rule ids, and scope. Geometry tools are the only source of quantities; no LLM-guessed centimetres.
+T21: check whether Xcode is available. If it is, implement a minimal iOS RoomPlan/ARKit exporter whose JSON matches `docs/formats/roomplan-json.md`; keep Route 2 primary until a clean install takes under 10 minutes.
 ```
 
 ---
 
 ## History
 
+- **2026-09-08** — T16 live OpenAI tool calling + offline fallback complete; live synthetic smoke and 34 tests pass.
 - **2026-09-08** — T15 JSON/SVG artifact pair complete; synthetic visual QA and 30 tests pass.
 - **2026-09-08** — T6 RoomPlan JSON path works; raw Record3D/USDZ blocked on T3; 27 tests pass.
 - **2026-09-08** — T14 official-gate eval CLI complete; 20 tests pass.

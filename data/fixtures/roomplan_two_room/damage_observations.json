@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "observations": [
+    {
+      "id": "staged-water-stain",
+      "surface": { "kind": "wall", "id": "a_north" },
+      "fallback_class": "water_stain",
+      "confidence": 0.94,
+      "extent": {
+        "value": 1800,
+        "unit": "cm2",
+        "interval": { "low": 1530, "high": 2070, "confidence": 0.9 },
+        "method": "synthetic_surface_projection",
+        "evidence_refs": ["synthetic://staged-water-stain-mask"]
+      },
+      "region": [[40, 80], [100, 80], [100, 110], [40, 110]],
+      "evidence_refs": ["synthetic://staged-water-stain"]
+    },
+    {
+      "id": "staged-impact",
+      "surface": { "kind": "wall", "id": "b_north" },
+      "fallback_class": "impact_damage",
+      "confidence": 0.91,
+      "extent": {
+        "value": 450,
+        "unit": "cm2",
+        "interval": { "low": 360, "high": 540, "confidence": 0.9 },
+        "method": "synthetic_surface_projection",
+        "evidence_refs": ["synthetic://staged-impact-mask"]
+      },
+      "region": [[120, 90], [145, 90], [145, 108], [120, 108]],
+      "evidence_refs": ["synthetic://staged-impact"]
+    }
+  ]
+}

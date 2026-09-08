@@ -49,3 +49,11 @@ Invalid tool args → structured error, agent retries. Final JSON must still pas
 ## Eval
 
 Agent quality is scored on damage/scope/concealed **contract**, not on chatting. Geometry gates stay classical eval vs tape.
+
+## Implemented T16 runtime
+
+The live path uses the OpenAI Responses API with `gpt-5-mini` by default, strict function definitions, sequential calls, stateless replay, and `store: false`. `COZMO_AGENT_MODEL` and `OPENAI_BASE_URL` are configurable. Official API references: [Responses create](https://developers.openai.com/api/reference/cli/resources/responses/methods/create) and [GPT-5 Mini](https://developers.openai.com/api/docs/models/gpt-5-mini).
+
+`damage_observations.json` is the metric proposal boundary documented in `docs/formats/damage-observations.md`. The model cannot pass an extent to `apply_damage`; extra arguments are rejected. `fire_concealed_rule` accepts only the policy rule for the applied class, and `add_scope_line` copies its quantity from the stored damage extent.
+
+Live calls mutate a private copy. A timeout, provider error, invalid tool sequence, or incomplete run discards that copy and reruns the deterministic agent through the same `FloorPlanTools`. Audit mode, provider, model, and successful tool-call count are appended to provenance. Tests force fallback mode even when a developer has a key in `.env`.

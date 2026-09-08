@@ -3,6 +3,7 @@
 from pathlib import Path
 from typing import Any
 
+from cozmo_floorplan.agent import enrich_floorplan
 from cozmo_floorplan.floorplan import build_failed_floorplan
 from cozmo_floorplan.errors import ReconstructionError
 from cozmo_floorplan.io.job import Job, load_job
@@ -21,7 +22,7 @@ def run_loaded_job(job: Job) -> dict[str, Any]:
 
     if job.tier == "lidar":
         try:
-            return reconstruct_lidar(job)
+            return enrich_floorplan(job, reconstruct_lidar(job))
         except ReconstructionError as exc:
             return build_failed_floorplan(
                 job_id=job.job_id,

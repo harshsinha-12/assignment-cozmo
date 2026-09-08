@@ -5,6 +5,7 @@ from enum import IntEnum
 FLOORPLAN_SCHEMA_VERSION = "0.2.0"
 EVAL_REPORT_VERSION = "0.1.0"
 MANIFEST_FILENAME = "manifest.yaml"
+AGENT_OBSERVATIONS_FILENAME = "damage_observations.json"
 OUTPUT_FILENAME = "floorplan.json"
 SVG_OUTPUT_FILENAME = "floorplan.svg"
 EVAL_OUTPUT_FILENAME = "eval.json"

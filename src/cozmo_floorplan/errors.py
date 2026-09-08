@@ -31,3 +31,7 @@ class ReconstructionError(CozmoFloorPlanError):
     def __init__(self, message: str, *, warning_code: str = "incomplete_scan") -> None:
         super().__init__(message)
         self.warning_code = warning_code
+
+
+class AgentError(CozmoFloorPlanError):
+    """Claims enrichment could not complete through the requested agent path."""

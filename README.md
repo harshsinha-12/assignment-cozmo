@@ -18,7 +18,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 **Human (tonight):** capture the benchmark — [`docs/capture-protocol.md`](docs/capture-protocol.md). 3+ rooms + hallway, photos/video/LiDAR, two damage classes, tape, Polycam or magicplan on two rooms. Short list: [`START-TOMORROW.md`](START-TOMORROW.md).
 
-**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). Top unblocked code task is **T16** (agent + tools). T6 raw Record3D waits on a real capture.
+**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). Top unblocked code task is **T21** (thin iOS exporter, if Xcode is available). T6 raw Record3D waits on a real capture.
 
 ## Repo map
 
@@ -43,7 +43,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 ## Current status
 
-**Schema, CLI, eval, RoomPlan JSON LiDAR, and paired JSON/SVG output work. Raw Record3D/USDZ await real fixtures; T16 agent + tools is next.**
+**Schema, CLI, eval, RoomPlan JSON LiDAR, paired JSON/SVG output, and T16 claims agent/tools work. Raw Record3D/USDZ and real damage images await capture.**
 
 See [`roadmap.md`](roadmap.md).
 
@@ -56,6 +56,8 @@ pip install -r requirements.txt
 make test
 ```
 
+For live claims enrichment, copy `.env.example` to the ignored `.env` and set `OPENAI_API_KEY`. The default `COZMO_AGENT_MODE=auto` uses OpenAI when the key exists and the same deterministic tools otherwise. Set `COZMO_AGENT_MODE=fallback` to force an offline run. Never commit `.env`.
+
 `run` emits `floorplan.json` and a self-contained `floorplan.svg`, including a readable placeholder for structured failures.
 
 The synthetic RoomPlan job now emits dimensioned geometry:
@@ -65,6 +67,8 @@ python -m cozmo_floorplan run data/fixtures/roomplan_two_room --out out/roomplan
 ```
 
 It returns `partial` until T9 adds multi-room drift correction. The SVG shows room polygons, measured wall intervals, openings, a metric scale bar, and provenance summary. See `docs/formats/roomplan-json.md` for accepted input and current Record3D/USDZ boundaries.
+
+The optional `damage_observations.json` contract supplies surface-mapped metric extents to the claims stage. The LLM can select damage classes, concealed-rule ids, and allowed actions, but tools copy all quantities. See `docs/formats/damage-observations.md`.
 
 Evaluate any output with `python -m cozmo_floorplan eval --pred PRED --truth TRUTH --out OUT`. Missing repeat and drift-ablation evidence stays visibly red.
 

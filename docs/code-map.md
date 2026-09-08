@@ -23,6 +23,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/floorplan.py` | Creates stable FloorPlan documents, including the schema-valid failed result used before adapters exist. |
 | `src/cozmo_floorplan/schema.py` | Loads and compiles the canonical JSON Schema and validates generated documents. |
 | `src/cozmo_floorplan/utils/paths.py` | Finds repository runtime assets and handles the explicit schema-path override. |
+| `src/cozmo_floorplan/utils/env.py` | Loads simple local `.env` values without overriding variables already exported by the caller. |
 | `docs/schemas/floorplan.schema.json` | Canonical external data contract. This remains the single schema source of truth. |
 
 ## Geometry and LiDAR reconstruction
@@ -59,6 +60,23 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/render/svg.py` | Builds the accessible, self-contained whole-property SVG: rooms, measured wall intervals, openings, scale bar, status, and provenance summary. |
 | `src/cozmo_floorplan/render/__init__.py` | Exposes the renderer as a small package API. |
 
+## Claims agent and tools
+
+| File | Responsibility |
+| --- | --- |
+| `src/cozmo_floorplan/agent/config.py` | Provider environment settings, allowed damage classes, concealed-rule ids, and allowed scope actions. |
+| `src/cozmo_floorplan/agent/prompts.py` | Versioned model instructions and the non-secret plan/observation context. |
+| `src/cozmo_floorplan/agent/tool_definitions.py` | Strict OpenAI-compatible JSON schemas for every callable FloorPlan tool. |
+| `src/cozmo_floorplan/agent/tools.py` | Validates tool arguments and exclusively owns claims mutations and metric quantity copying. |
+| `src/cozmo_floorplan/agent/models.py` | Immutable damage-observation and agent-run records shared across implementations. |
+| `src/cozmo_floorplan/agent/observations.py` | Parses and validates optional `damage_observations.json` metric proposals. |
+| `src/cozmo_floorplan/agent/images.py` | Safely loads bounded job-relative image evidence for vision input. |
+| `src/cozmo_floorplan/agent/openai_agent.py` | Stateless OpenAI Responses API function-calling loop with structured tool errors and `store: false`. |
+| `src/cozmo_floorplan/agent/fallback_agent.py` | Deterministic rule agent that uses the exact same mutation tools without network access. |
+| `src/cozmo_floorplan/agent/orchestrator.py` | Selects live/fallback mode transactionally, rolls back partial live mutations, validates output, and records audit metadata. |
+| `src/cozmo_floorplan/agent/__init__.py` | Exposes claims enrichment to the main pipeline. |
+| `docs/formats/damage-observations.md` | Input boundary between calibrated CV/manual proposals and agent classification/policy decisions. |
+
 ## Tests and fixtures
 
 | File | Responsibility |
@@ -70,6 +88,8 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `data/fixtures/roomplan_two_room/` | Synthetic RoomPlan-format LiDAR job that reconstructs the same metric room dimensions. |
 | `tests/test_lidar.py` | Tests single/multi-room discovery, RoomPlan conversion, intervals, metric gates, CLI output, and honest unsupported fallbacks. |
 | `tests/test_render.py` | Tests parseable whole-property SVG, dimensions, openings, deterministic output, XML escaping, and failed-run placeholders. |
+| `tests/test_agent.py` | Tests fallback and mocked-live agents, metric ownership, rule validation, transactional rollback, and schema-valid claims output. |
+| `tests/conftest.py` | Forces offline fallback during tests so local API keys are never used and tests never spend credits. |
 
 ## Planned modules
 
@@ -78,6 +98,5 @@ Later tasks add real modules only when they contain working behavior:
 - `recon/video.py` and `recon/photos.py` — video and photo adapters.
 - Additional `geom/` modules — point-cloud, plane, and pose-graph operations as required.
 - `stitch/` — room adjacency, pose graph, and drift correction.
-- `agent/` — LLM tool calling plus deterministic damage/scope fallback.
 
 Do not create empty placeholders for these directories. Add each one with its implementing task and document its files here.
