@@ -24,11 +24,25 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/utils/paths.py` | Finds repository runtime assets and handles the explicit schema-path override. |
 | `docs/schemas/floorplan.schema.json` | Canonical external data contract. This remains the single schema source of truth. |
 
+## Evaluation
+
+| File | Responsibility |
+| --- | --- |
+| `src/cozmo_floorplan/eval/config.py` | Official numerical thresholds plus the explicitly labeled internal interval-calibration tolerance. |
+| `src/cozmo_floorplan/eval/models.py` | Deterministic `GateResult` and `EvaluationReport` objects serialized into `eval.json`. |
+| `src/cozmo_floorplan/eval/matching.py` | ID-first entity matching with Hungarian geometry fallbacks; keeps array order and arbitrary predicted IDs out of scoring. |
+| `src/cozmo_floorplan/eval/measurements.py` | Reads v0.2 measurement values and computes confidence-interval coverage. |
+| `src/cozmo_floorplan/eval/metrics.py` | Reusable absolute, relative, median, and p95 error calculations. |
+| `src/cozmo_floorplan/eval/geometry.py` | Whole-property footprint, room-overlap, and adjacency calculations. |
+| `src/cozmo_floorplan/eval/evaluator.py` | Composes official gates: openings, ceilings, repeatability, drift ablation, photo stitch, tier wall accuracy, calibration, yield, and head-to-head. |
+| `src/cozmo_floorplan/eval/io.py` | Loads schema-valid FloorPlans and atomically writes `eval.json`. |
+
 ## Tests and fixtures
 
 | File | Responsibility |
 | --- | --- |
 | `tests/test_cli.py` | Tests job validation, structured failures, schema-valid output, and the exact module command. |
+| `tests/test_eval.py` | Tests red empty predictions, detection misses/phantoms, repeatability evidence, photo stitching, head-to-head, and the eval command. |
 | `tests/test_schema.py` | Tests the FloorPlan v0.2 contract and its required interval/claims fields. |
 | `data/fixtures/synthetic_two_room/` | Small public-safe metric truth used by schema and later evaluation tests. |
 
@@ -40,7 +54,6 @@ Later tasks add real modules only when they contain working behavior:
 - `geom/` — coordinate transforms, units, plane and polygon operations.
 - `stitch/` — room adjacency, pose graph, and drift correction.
 - `render/` — whole-property SVG output.
-- `eval/` — official gates, calibration, repeatability, and ablations.
 - `agent/` — LLM tool calling plus deterministic damage/scope fallback.
 
 Do not create empty placeholders for these directories. Add each one with its implementing task and document its files here.

@@ -21,11 +21,11 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R13 | JSON to published schema | `docs/schemas/floorplan.schema.json` | our IR until they attach one | partial |
 | R14 | Rendered plan | renderer | `floorplan.svg` | missing |
 | R15 | Benchmark: 3+ rooms + connector, all tiers, damage, repeat, tape GT | `data/fixtures/` | raw + GT | missing |
-| R16 | Opening width gate | eval | table | missing |
-| R17 | Ceiling height + repeatability gates | eval | table | missing |
-| R18 | Drift ablation | report + `eval --ablate-drift` | on/off footprints | missing |
-| R19 | Photo-tier whole-property stitch ±8% | eval | table | missing |
-| R20 | Head-to-head vs incumbent, 2 rooms, LiDAR | `docs/writeup.md` / benchmark report | table | missing |
+| R16 | Opening width gate | `eval/evaluator.py` | ≤2 cm, ≥85%, misses/phantoms scored; real data pending | partial |
+| R17 | Ceiling height + repeatability gates | `eval/evaluator.py` | thresholds and missing-evidence reporting implemented; captures pending | partial |
+| R18 | Drift ablation | `eval --ablation-off` | on/off methods and footprints reported; adapter outputs pending | partial |
+| R19 | Photo-tier whole-property stitch ±8% | `eval/evaluator.py` | adjacency, overlap, footprint, and wall gates implemented; photos pending | partial |
+| R20 | Head-to-head vs incumbent, 2 rooms, LiDAR | `eval --incumbent` | shared-dimension win-rate implemented; two-room exports pending | partial |
 | R21 | Fix loop: declaration, before, after, diff | `docs/fix-loop.md` | bundle | missing |
 | R22 | README 15 min clean machine | `README.md` | — | partial |
 | R23 | Reproduction bundle | `Makefile` + caches | regenerable numbers | missing |

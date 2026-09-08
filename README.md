@@ -18,7 +18,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 **Human (tonight):** capture the benchmark — [`docs/capture-protocol.md`](docs/capture-protocol.md). 3+ rooms + hallway, photos/video/LiDAR, two damage classes, tape, Polycam or magicplan on two rooms. Short list: [`START-TOMORROW.md`](START-TOMORROW.md).
 
-**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). Top code task is **T14** (red eval harness). Do not pre-concede photo/video gates.
+**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). Top code task is **T6** (LiDAR adapter). Do not pre-concede photo/video gates.
 
 ## Repo map
 
@@ -43,7 +43,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 ## Current status
 
-**Phase 1 ingest, T12 schema, and T13 CLI are done. T14 red eval is next. No reconstructor yet.**
+**Phase 1 ingest, T12 schema, T13 CLI, and T14 eval harness are done. T6 LiDAR is next. No reconstructor yet.**
 
 See [`roadmap.md`](roadmap.md).
 
@@ -57,6 +57,8 @@ make test
 ```
 
 Expected today: schema and CLI tests. `run` emits a schema-valid structured failure until a reconstruction adapter is implemented.
+
+Evaluate any output with `python -m cozmo_floorplan eval --pred PRED --truth TRUTH --out OUT`. Missing repeat and drift-ablation evidence stays visibly red.
 
 ## Design in one paragraph
 

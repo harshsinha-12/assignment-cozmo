@@ -3,8 +3,10 @@
 from enum import IntEnum
 
 FLOORPLAN_SCHEMA_VERSION = "0.2.0"
+EVAL_REPORT_VERSION = "0.1.0"
 MANIFEST_FILENAME = "manifest.yaml"
 OUTPUT_FILENAME = "floorplan.json"
+EVAL_OUTPUT_FILENAME = "eval.json"
 PIPELINE_NAME = "cozmo-floorplan/t13-cli-stub"
 SCHEMA_ENV_VAR = "COZMO_FLOORPLAN_SCHEMA"
 
@@ -22,3 +24,4 @@ class ExitCode(IntEnum):
     OK = 0
     INTERNAL_ERROR = 1
     STRUCTURED_FAILURE = 2
+    EVALUATION_FAILED = 3

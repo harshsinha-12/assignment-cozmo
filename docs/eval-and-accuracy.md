@@ -67,13 +67,23 @@ Calibration is scored at every tier. Confident garbage on thin input caps the sc
 
 **Superseded.** Use the official table above as pass targets. After eval, fill `docs/device-matrix.md` with measured numbers. If a gate fails, that is a fix-loop input, not a plan-time skip.
 
-## Eval CLI (planned)
+## Eval CLI
 
 ```text
-python -m cozmo_floorplan eval --pred out/floorplan.json --truth data/fixtures/.../ground_truth.json
+python -m cozmo_floorplan eval \
+  --pred out/floorplan.json \
+  --truth data/fixtures/.../ground_truth.json \
+  --repeat out/repeat/floorplan.json \
+  --ablation-off out/poses-as-is/floorplan.json \
+  --incumbent out/incumbent/floorplan.json \
+  --out out/eval
 ```
 
-Writes `eval.json`. `make test` runs this on synthetic data.
+T14 implements this command and writes deterministic `eval.json`. Optional evidence is never silently ignored: missing repeat, drift-ablation, or LiDAR incumbent inputs appear as `missing_evidence` gates. A non-passing report exits 3; invalid input exits 1.
+
+Entity matching uses exact ids first, then Hungarian geometry matching for walls and rooms. Openings are matched by kind, supporting wall, offset, and width. Missed and phantom openings both enter the accuracy denominator.
+
+The report distinguishes `pass`, `fail`, `missing_evidence`, and `not_applicable`. Empty geometry therefore produces explicit red opening, ceiling, yield, and calibration gates rather than zeros that look successful.
 
 ## Calibration honesty
 

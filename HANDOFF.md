@@ -12,10 +12,10 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Completed **T13**: an installable, modular `cozmo_floorplan` CLI package.
-- Separated config, domain errors, job loading, schema validation, atomic output, FloorPlan factories, pipeline orchestration, path utilities, and CLI parsing.
-- Added `docs/code-map.md`, which explains what every implementation file owns and must stay current as code is added.
-- Added CLI tests for valid layouts, missing manifests/directories, structured output, and the exact module command.
+- Completed **T14**: a modular official-gate evaluation package and `eval` CLI.
+- Added separate threshold config, report models, entity matching, measurement metrics, property geometry, evaluator, and eval I/O modules; all are documented in `docs/code-map.md`.
+- Encoded yield, openings, ceilings, repeatability, drift ablation, photo stitch, photo/video walls, interval calibration, and LiDAR incumbent comparison.
+- Added tests for red empty output, missing evidence, misses/phantoms, geometry-based adjacency matching, a perfect synthetic pass, head-to-head, and CLI output.
 
 ### What is true now
 
@@ -25,8 +25,9 @@ The current agent overwrites the **Current handoff** section at the end of every
 - Capture phone: iPhone 17 Pro.
 - Schema v0.2 and its synthetic fixture validate.
 - `python -m cozmo_floorplan run JOB --out OUT` exists. Until adapters land, it honestly writes `status: failed`, a typed warning, empty geometry/claims arrays, and provenance, then exits 2.
-- `make test` disables unrelated global pytest plugins and passes all 12 tests.
-- Still no reconstruction code. T14 is now the next engineering task.
+- `python -m cozmo_floorplan eval --pred PRED --truth TRUTH --out OUT` writes deterministic `eval.json`; repeat, ablation-off, and incumbent evidence are optional CLI inputs but missing evidence remains red where applicable.
+- `make test` disables unrelated global pytest plugins and passes all 20 tests.
+- Still no reconstruction code. T6 LiDAR is now the next engineering task.
 
 ### Blockers
 
@@ -36,28 +37,29 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### Next agent should
 
-1. **T14** red eval harness for the official gates.
-2. Keep eval separate from reconstruction; empty predictions must fail honestly.
+1. **T6** LiDAR export → FloorPlan adapter.
+2. Keep capture-format parsing separate from geometry extraction and shared FloorPlan construction.
 3. Do not skip T16 (agent). Do not let the LLM invent wall lengths.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `docs/code-map.md`
-3. `docs/eval-and-accuracy.md`
+2. `docs/capture-tiers.md`
+3. `docs/research.md`
 4. `docs/schemas/floorplan.schema.json`
-5. `tests/test_cli.py`
+5. `docs/code-map.md`
 
 ### Exact next command
 
 ```text
-T14: implement a red eval harness for the official gates against FloorPlan v0.2. Empty predictions must report failures. Human: T3 capture.
+T6: implement LiDAR export → FloorPlan v0.2 against a documented Record3D/RoomPlan fixture. No real sensor capture exists in `data/private/` yet, so do not claim live validation. Human: T3 capture remains urgent.
 ```
 
 ---
 
 ## History
 
+- **2026-09-08** — T14 official-gate eval CLI complete; 20 tests pass.
 - **2026-09-08** — T13 modular CLI and job contract complete; 12 tests pass.
 - **2026-09-08** — T12 FloorPlan IR v0.2 frozen; 8 schema tests pass.
 - **2026-09-08** — Agent layer required (tool calling / public LLM API + fallback).

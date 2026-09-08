@@ -15,6 +15,17 @@ Format:
 
 ---
 
+## 2026-09-08 — T14 official-gate eval harness complete
+
+- Context: T13 was committed; T14 was the highest unblocked engineering task.
+- Done: added a modular eval package, official threshold config, ID-first/Hungarian matching, measurement and geometry utilities, deterministic report models, validated input/output I/O, and the `eval` CLI subcommand.
+- Gates: pipeline yield, openings including miss/phantom denominator, ceiling accuracy/spread, repeatability, drift on/off evidence, photo adjacency/overlap/footprint, photo/video wall error, interval calibration, and LiDAR head-to-head.
+- Behavior: missing repeat/ablation/incumbent inputs are explicit `missing_evidence`; non-applicable tier gates are distinct; failed reports exit 3 and invalid inputs exit 1.
+- Verified: `make test` passes 20 tests; compileall passes; the installed command wrote a deterministic red `eval.json` from the T13 empty prediction.
+- Next: T6 LiDAR export → FloorPlan. Human T3 capture remains parallel and urgent.
+
+---
+
 ## 2026-09-08 — T13 modular CLI stub complete
 
 - Context: T12 was committed; T13 was the highest unblocked engineering task.

@@ -19,3 +19,7 @@ class SchemaLocationError(CozmoFloorPlanError):
 
 class OutputValidationError(CozmoFloorPlanError):
     """Generated output does not satisfy the FloorPlan contract."""
+
+
+class EvaluationInputError(CozmoFloorPlanError):
+    """An evaluation input cannot be read or does not match the schema."""
