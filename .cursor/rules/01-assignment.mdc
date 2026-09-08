@@ -5,9 +5,12 @@ alwaysApply: true
 
 # Floor plan assignment
 
-- Three input tiers: photos, video, LiDAR. One FloorPlan IR: `docs/schemas/floorplan.schema.json`.
+- Three input tiers: photos, video, LiDAR. All are pass targets. One FloorPlan IR: `docs/schemas/floorplan.schema.json`.
 - Linux Cloud Agents cannot run Apple RoomPlan. Ingest JSON/USDZ/PLY exports.
-- Monocular SfM has no metric scale. Photos without a prior must use `units: relative` plus `missing_scale`.
-- Prefer classical geometry over an LLM that guesses dimensions.
+- Photos emit **centimetres** with calibrated `error_interval` (official ±8% wall gate). Do not use `units: relative` as the graded output. Do not pre-concede opening/ceiling gates.
+- Prefer classical geometry over an LLM that guesses **dimensions**. An LLM **with tools** is required for damage/scope (`docs/agent-layer.md`).
+- Disclosed public LLM API allowed. Do not call our servers. Fallback if the key is missing.
 - ESX/Xactimate export is out of scope unless `docs/takehome.md` requires it.
+- Do not build a website. Route 1 iOS app is in-scope until `docs/cut-later.md`.
 - Tests must run headless (`opencv-python-headless`).
+- Score policy: max every official row; cut only tomorrow night.

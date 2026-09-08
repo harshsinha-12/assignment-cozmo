@@ -2,24 +2,26 @@
 
 Copy everything below the line into a new Cursor Cloud Agent (or a local agent chat) on `assignment-cozmo`.
 
+Also paste `docs/prompts/session-brief.md` if the previous chat died (full product/score/architecture dump).
+
 ---
 
 You are continuing the Cozmo AI take-home repo `assignment-cozmo`.
 
 Read, in order, and then stop before coding:
 
-1. `AGENTS.md`
-2. `HANDOFF.md`
-3. the latest entry in `update.md`
-4. `TASKS.md`
-5. `docs/takehome.md`
+1. `docs/prompts/session-brief.md`
+2. `AGENTS.md`
+3. `HANDOFF.md`
+4. the latest entry in `update.md`
+5. `TASKS.md`
 
 Rules:
 
-- If `docs/takehome.md` is still a stub, you are in planning/fixture mode. Do not implement SfM, SLAM, or RoomPlan integration. The top unblocked engineering task is usually the synthetic fixture in `TASKS.md` (T2), unless the user pasted a prompt in this chat — then put that prompt into `docs/takehome.md` first and follow `docs/prompts/ingest-takehome.md`.
-- Do not rewrite `plan.md`, `roadmap.md`, or research docs unless the official prompt contradicts them.
-- Do not re-scrape hellocozmo.ai or re-extract the Brynz PDF. Facts are already in `update.md` and `docs/job-brief.md`.
+- If `docs/takehome.md` is a stub, planning/fixture mode only. It is **not** a stub. Execute `TASKS.md` top unblocked item (T12). Target every official gate; do not skip photos/video. Cuts only as `docs/cut-later.md`.
+- Do not rewrite `plan.md` unless the prompt or Harsh’s score policy changed.
+- Do not re-scrape hellocozmo.ai or re-extract the Brynz PDF.
 - End the session by updating `HANDOFF.md`, appending `update.md`, and ticking `TASKS.md`.
-- Commit and push on the existing working branch. Do not create a parallel planning rewrite.
+- Commit and push on the existing working branch.
 
-When you are done reading, state: (a) whether the official prompt exists, (b) which TASK id you will execute, (c) what you will not do. Then execute that one task.
+When you are done reading, state: (a) official prompt exists, (b) TASK id, (c) what you will not do (website, pre-conceding gates). Then execute that one task.

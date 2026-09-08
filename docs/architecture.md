@@ -1,23 +1,27 @@
 # Architecture
 
-Provisional. Implementation lives under `src/cozmo_floorplan/` only after `docs/takehome.md` is filled.
+Aligned with Round 2. Implementation: `src/cozmo_floorplan/` after T12 schema freeze. Not a website — CLI + JSON + SVG. Optional HTTP only if leftover and JSON already works.
 
 ## Layers
 
 ```text
 ┌──────────────────────────────────────────────────────────┐
-│  CLI / optional HTTP  (run job, emit JSON+SVG+eval)      │
+│  CLI  python -m cozmo_floorplan run JOB --out OUT        │
 ├──────────────────────────────────────────────────────────┤
-│  FloorPlan IR  (docs/schemas/floorplan.schema.json)      │
-│  stitch · dimension · provenance · warnings              │
+│  Agent + tools  (disclosed LLM API)                      │
+│  damage class · concealed rule ids · scope lines         │
+│  fallback: same tools, no API                            │
+├──────────────────────────────────────────────────────────┤
+│  FloorPlan IR  walls · openings · stitch · intervals     │
+│  (numbers come from recon, not from the model)           │
 ├─────────────┬──────────────┬─────────────────────────────┤
-│ LiDAR map   │ Video recon  │ Photo SfM + scale policy    │
+│ LiDAR map   │ Video recon  │ Photo recon + scale/CIs     │
 ├─────────────┴──────────────┴─────────────────────────────┤
 │  Capture normalizer  (job dir, manifest, ffmpeg, EXIF)   │
 └──────────────────────────────────────────────────────────┘
                          │
                          ▼
-                   eval vs fixtures
+              eval (official gates) vs tape GT
 ```
 
 ## Job directory
@@ -55,6 +59,7 @@ privacy: "no faces"
 - `recon.lidar` / `recon.video` / `recon.photos`
 - `extract.walls` — slice, RANSAC, Manhattan
 - `stitch`
+- `agent` — tool-calling loop + fallback (`docs/agent-layer.md`)
 - `render.svg`
 - `eval`
 
@@ -74,11 +79,4 @@ A LiDAR demo, a COLMAP demo, and a vanishing-point demo will not stitch and will
 
 ## Optional HTTP
 
-Only if the prompt wants an API:
-
-- `POST /jobs` multipart job dir or zip
-- `GET /jobs/{id}` status
-- `GET /jobs/{id}/floorplan.json`
-- `GET /jobs/{id}/floorplan.svg`
-
-Skip auth, skip queue, skip GPU workers unless they demand scale theatre.
+Not required. Do not add Redis, Postgres, or our own API. The walk-in is this CLI on their laptop. LLM calls go to a **disclosed public provider**, not to us.

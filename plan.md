@@ -1,160 +1,147 @@
-# Plan (provisional)
+# Plan (aligned with official prompt)
 
-Status: **provisional** until `docs/takehome.md` contains the official prompt.  
-Last updated: 2026-09-07.
+Status: **aligned with `docs/takehome.md` (Round 2, Aug 2026).**  
+Last updated: 2026-09-08.  
+Product explanation: `docs/product.md`. ADR: `docs/decisions.md` (2026-09-08).
 
-This is the working technical plan for the Cozmo take-home as we understand it today. When the official packet arrives, reconcile it here in one pass (`docs/prompts/ingest-takehome.md`). Do not fork a second plan in chat.
+This is not a website. It is a **local one-command pipeline**: phone job folder → dimensioned stitched plan JSON + SVG + damage/scope, plus a capture route they follow at the walk-in.
 
-## 1. What we are actually being asked
+**Score policy:** target **every** official row at full marks. LiDAR-first is build order, not “photos are optional.” Cuts happen only tomorrow night (`docs/cut-later.md`).
 
-Not “make a floor-plan picture.”
+## 1. What Round 2 is asking
 
-Produce a **metric, stitched, structured floor plan** from a phone, with accuracy that can be discussed in centimetres, across three capture qualities:
+Round 2 inherits the full Round 1 output contract, then adds: you own capture, all three tiers, five extra gates, a live walk-in, a shipped fix loop, and a head-to-head vs Polycam/magicplan.
 
-| Tier | Typical capture | What physics you get | Honest accuracy |
-| --- | --- | --- | --- |
-| LiDAR | iPhone Pro RoomPlan / ARKit mesh, or Android depth where it exists | Metric scale almost for free | Target **cm-level** on walls that were scanned |
-| Video | Handheld walkthrough MP4, maybe IMU / ARKit poses in the container | Scale from VO+IMU or from a calibrated camera + known height | Often **2–10 cm** on clean Manhattan rooms if scale is good; worse on textureless walls |
-| Photos | Burst of stills, possibly from a homeowner, possibly no overlap | SfM up to similarity (no scale) unless you add a prior | **Do not claim cm** without a scale prior + overlap. Report intervals |
+| Capture (submit one) | Pipeline (implement all, aim to pass) |
+| --- | --- |
+| Route 2 protocol always ready. Route 1 iOS app in parallel; switch scored route only if 10-min install works | Photos, video, **and** LiDAR. Same JSON. Photo folders still stitch. Every numbered gate is a **pass target**, including openings/ceiling/repeatability |
 
-Cozmo’s real product need (why this is not a random CV puzzle): a restoration crew or a homeowner at 2am sends visual evidence, and the desk still has to **sketch rooms in Xactimate** before line items can be written. Dimensions drive drywall, baseboard, flooring, and paint. Wrong walls waste an adjuster’s hour and fail carrier review.
+They provide **no captures**. We build the benchmark. They later capture a room we have never seen.
 
-## 2. Design thesis
+## 2. Design thesis (unchanged, now required)
 
-**Three frontends, one intermediate representation, one eval.**
-
-```text
-photos ─┐
-video  ─┼─► Capture Normalizer ─► Reconstruction ─► FloorPlan IR ─► stitch ─► render + eval
-lidar  ─┘         │                      │
-                  ▼                      ▼
-            provenance              scale + gravity
-```
-
-If the take-home is a weekend packet, this thesis still wins the technical discussion: you show you can degrade gracefully instead of building three disconnected demos.
-
-## 3. FloorPlan IR (the actual product)
-
-Canonical schema: `docs/schemas/floorplan.schema.json`.
-
-Minimum contents:
-
-- **Units:** centimetres in the public API, metres internally if a library demands it. Convert at the boundary. Never mix.
-- **Rooms:** id, label, polygon on a floor plane, ceiling height if known, area.
-- **Walls:** id, room ids, start/end in floor coordinates, length_cm, thickness if known, confidence.
-- **Openings:** doors, windows, cased openings; parent wall; width_cm; offset along wall.
-- **Stitch graph:** rooms as nodes, openings/shared walls as edges, SE(2) transforms.
-- **Provenance:** tier, scale source, gravity source, input hashes, algorithm versions, per-measurement error if computed.
-- **Warnings:** missing scale, non-Manhattan, disconnected components, walls below confidence.
-
-Downstream (even if we never emit ESX): this is the shape of data you would hand to an estimate agent. That is the Cozmo-shaped part.
-
-## 4. Pipeline by stage
-
-### 4.1 Capture normalizer
-
-Accept a job directory, not a single file:
+**Three frontends, one IR, one renderer, one eval.**
 
 ```text
-job/
-  manifest.yaml          # tier, device, claimed ceiling height, tape measures
-  photos/                # jpg/heic
-  video/                 # mp4/mov
-  lidar/                 # captured_room.json, usdz, ply, pcd
-  extras/                # arkit poses, imu csv, known-object notes
+phone (Camera / Record3D)
+        │
+        ▼
+job folder ─► normalizer ─► recon (L | V | P) ─► FloorPlan (metric)
+                                                    │
+                          stitch + drift fix ───────┤
+                          agent + tools (LLM API) ──┤  damage, concealed rules, scope
+                          same tools if API down ───┤
+                                                    ▼
+                                         JSON + SVG + eval
 ```
 
-Emit a `NormalizedCapture` object: frames (timestamp, image path, optional pose, optional depth), intrinsics, gravity if any, LiDAR primitives if any.
+Degrade with **calibrated intervals**, not fake centimetres. The LLM does not invent wall lengths.
 
-HEIC and iPhone `.MOV` with spatial metadata are likely. Cloud Agents should use `pillow`/`opencv` plus `ffmpeg`; add `pillow-heif` only if fixtures need it.
+## 3. Output contract (IR)
 
-### 4.2 Reconstruction (tier-specific)
+Canonical schema: `docs/schemas/floorplan.schema.json` (extend in Phase 2; they did not attach a published schema).
 
-**LiDAR (do this first once coding starts).**  
-Parse Apple `CapturedRoom` JSON: `walls`, `doors`, `windows`, `openings`, `objects`, each with `dimensions` (metres) and a 4×4 `transform`. Project wall segments onto the floor plane (gravity = scan up vector). This already *is* a floor plan. Work is: schema mapping, multi-room `CapturedStructure` merge, confidence filtering, export.
+Every capture must emit:
 
-**Video.**  
-Preferred path if poses exist: use them, do not re-solve SfM from scratch.  
-Fallback: ORB-SLAM-style or OpenCV + sequential SfM on sampled frames, then floor-plane fit using gravity (IMU) or the largest horizontal plane. Scale from (in order): LiDAR hybrid, ARKit/ARCore poses, IMU, known door/ceiling, user tape measure in `manifest.yaml`.
+- Rooms: polygon, ceiling height, floor area, openings
+- Walls with lengths
+- Stitched adjacency (the product surface is the **whole-property** drawing)
+- Per-surface damage: class + metric extent
+- Concealed-damage flags with **the rule that fired**
+- Scope line items keyed to surfaces
+- **Confidence interval on every measurement**
+- Provenance (tier, scale source, pipeline)
+- Rendered plan (`floorplan.svg`)
 
-**Photos.**  
-Classical SfM (COLMAP when the environment can bear it; OpenCV incremental SfM as the Cloud-Agent-friendly fallback). Recover Manhattan vanishing points for wall directions. Scale is mandatory and usually missing — require `manifest.yaml` scale priors or refuse metric output and return **unitless + warning**.
+Public command:
 
-### 4.3 Floor extraction
+```text
+python -m cozmo_floorplan run path/to/job --out path/to/out
+```
 
-Once you have a metric point cloud or wall primitives:
+Runs on their machine. No calls to **our** servers. **Disclosed LLM API with tool calling is in-scope** (`docs/agent-layer.md`); pretrained models/APIs allowed with disclosure. Walk-in: their API key or the local tool fallback.
 
-1. Estimate gravity / floor plane.
-2. Slice a band at ~10–120 cm above floor (skip clutter, skip ceiling).
-3. Project to 2D occupancy or line primitives.
-4. Fit Manhattan (or piecewise-linear) wall loops with RANSAC.
-5. Detect openings as gaps in walls or as LiDAR opening primitives.
-6. Regularize: right angles, snap near-collinear segments, close loops.
+## 4. Capture (human) vs pipeline (code)
 
-Do not skip regularization. Raw SfM walls look drunk and will lose the interview.
+**Human, tonight if possible** (`docs/capture-protocol.md` for the benchmark; `docs/capture-route.md` is what *they* follow):
 
-### 4.4 Stitch
+- 3+ rooms plus a connector
+- Same spaces at photos, video, and LiDAR
+- One furnished room, two staged damage classes
+- One room captured twice at the **same** tier (required: LiDAR pair). Also recapture photos and video of that room if time — repeatability is a scored gate, not LiDAR-only in the prompt.
+- Laser or tape on everything
+- Incumbent export (Polycam or magicplan, named version) on two rooms
+- iPhone 15+ ; Pro required for LiDAR
 
-Rooms are not a slideshow. Build a pose graph:
+**Code order:**
 
-- LiDAR: use RoomPlan structure builder / shared-wall identities when present.
-- Video: time-ordered loop closures when the camera re-enters a doorway.
-- Photos: match openings by width + visual overlap, or require a capture protocol (“leave the previous room through the door, shoot the frame”).
+1. Schema + job layout + red eval (official gates)
+2. LiDAR → IR (metric, can hit tight opening/ceiling gates)
+3. Stitch + drift correction + on/off ablation
+4. SVG renderer
+5. Video adapter
+6. Photos adapter: 2–8 stills in, stitched plan out; **target** ±8% walls **and** opening/ceiling gates; CIs calibrated (tight when evidence is strong)
+7. Agent + tools: damage, concealed rules, scope (LLM API + fallback)
+8. Benchmark tables + fix loop (fail → ship → before/after)
+9. Compliance matrix, 6-page report, README 15 min
 
-Optimize SE(2) on the floor plane. Report residual error in cm.
+## 5. Reconstruction notes
 
-### 4.5 Dimensioning
+**LiDAR.** Record3D and/or RoomPlan JSON. Map walls/openings to the floor plane. **Pass targets:** openings ≤2 cm on ≥85% (detection scored), ceiling ≤1.5 cm, recapture spread ≤1 cm, walls 1 cm / 0.5%, beat incumbent on ≥70% shared dims.
 
-For every wall: Euclidean length in cm, rounded **after** eval, not before.  
-Carry a confidence interval when the scale source is weak (photos + assumed 80 cm door).  
-Ceiling height: LiDAR dimensions, or video/photo if vertical VP + known door height.
+**Video.** Sample frames. Use poses if present; else tracking. Scale from metric poses → IMU → protocol prior. **Pass targets:** walls ±3% with calibrated intervals; same opening/ceiling/stitch contract as the other tiers.
 
-## 5. Eval (non-negotiable)
+**Photos.** 2–8 stills, no depth, no poses. Must not crash. Per-room folders → one plan, correct adjacency, no overlaps, footprint ±8%. **Pass targets:** walls ±8% with calibrated intervals; chase opening detection (miss/phantom count); metric cm (not `units: relative`). Use VP/Manhattan, COLMAP if it helps, door-in-frame scale, the full 8-photo budget. If a gate still fails, that is a **fix-loop candidate**, not a plan-time concession.
 
-`docs/eval-and-accuracy.md` is the full write-up. The plan in one sentence: **synthetic rooms first, one real taped room second, never screenshots alone.**
+**Stitch.** Pose graph on the floor plane. **Must** correct accumulated drift (loop closure / plane-anchored snap). Ablation with correction on vs off is a named gate. “Poses used as-is” is an automatic fail.
 
-Metrics, all in cm:
+**Damage / scope (agent).** After recon, a tool-calling LLM (disclosed OpenAI-compatible or Anthropic API) proposes damage class from crops, fires named concealed-damage rules, and emits scope lines. Quantities still come from geometry tools. If the API is down, the **same tools** run as a rule engine so the CLI never depends on our servers. Details: `docs/agent-layer.md`.
 
-- Wall length absolute error (median, p95)
-- Room area error (cm² and %)
-- Opening width error
-- Stitch translation error at doorways
-- Failure rate (no plan produced)
+## 6. Gates — all are pass targets
 
-Gate: LiDAR fixture should be clearly better than video, video better than photos, or we explain why the fixture is too easy.
+| Gate | Bar | Target |
+| --- | --- | --- |
+| Openings | ≤ 2 cm on ≥ 85%; miss or phantom = miss | Pass on every tier we submit |
+| Ceiling | ≤ 1.5 cm; recapture spread ≤ 1 cm | Pass |
+| Repeatability | 1 cm or 0.5% per wall, two captures | Pass (LiDAR pair required; other tiers if captured) |
+| Drift | Method + ablation | Pass (must not use poses as-is) |
+| Photo stitch | Adjacency, no overlap, footprint ±8% | Pass |
+| Photo walls | ±8% + calibrated intervals | Pass |
+| Video walls | ±3% + calibrated intervals | Pass |
+| Head-to-head | Beat/tie incumbent on ≥ 70% shared LiDAR dims | Pass |
+| Walk-in | Cold run vs their laser, all three tiers | Pass |
+| Fix loop | Fail → shipped fix → regenerable delta | Full marks (freeze before early) |
+| Compliance | Every contract field | 100% coverage |
+| Capture route | 10-min install, unambiguous | Pass |
+| Process | Incremental git history | Pass |
 
-## 6. What we will ship as a repo (predicted)
+Physics can still lose a row. That is an eval result, not a reason to skip the work. Tomorrow-night cuts: `docs/cut-later.md`.
 
-Until the prompt says otherwise:
+## 7. What we will ship
 
 - `src/cozmo_floorplan/` Python package
-- CLI: `python -m cozmo_floorplan run path/to/job --out path/to/out`
-- JSON FloorPlan + SVG overlay + `eval.json`
-- `make test` on synthetic fixtures (Cloud Agent friendly)
-- A 1–3 page write-up in `docs/writeup.md` (create when coding starts)
+- CLI as above; `eval` subcommand for gates
+- JSON + SVG + `eval.json`
+- `docs/capture-route.md`, `docs/device-matrix.md`, `docs/compliance-matrix.md`
+- Benchmark data + report + fix-loop bundle
+- `docs/writeup.md` capped at ~6 pages
+- Git history with incremental commits
 
-Optional, only if time remains: FastAPI job endpoint, simple static SVG viewer. Not the main act.
+**Out of scope (does not score):** website/SaaS, ESX, training nets, calling Harsh’s servers.
 
-Out of scope unless the prompt demands it: training nets, ESX binary export, full Matterport clone, iOS app, realtime AR.
+**In scope until a tomorrow-night cut:** Route 1 iOS exporter, photo opening/ceiling chase, video ±3%, mirrors/glass/low-light handling.
 
-## 7. Risks
+## 8. 48-hour implementation order
 
-| Risk | Why it kills take-homes | Mitigation |
-| --- | --- | --- |
-| No official spec | Overbuilding the wrong output | IR + eval first; adapters later |
-| Scale blindness | “cm-level” from monocular photos | Provenance + refuse metric if no prior |
-| COLMAP too heavy for Cloud Agents | Env install never finishes | OpenCV path default; COLMAP optional extra |
-| Textureless indoor walls | SfM fails in bathrooms / painted drywall | LiDAR/video first; photos need overlap instructions |
-| Non-Manhattan / curves | Regularizer invents wrong walls | Detect, warn, keep polylines |
-| Timebox | Perfect photos tier, nothing runnable | LiDAR → eval → video → photos |
+See `roadmap.md`. Do not start photos SfM before LiDAR + schema + a renderer that can show a fake-but-valid JSON. The fix loop is 25% — do not leave it for the last hour.
 
-## 8. Decision policy
+## 9. Decision policy
 
-When two designs are equal, pick the one that is:
+When two designs are equal, pick the one that:
 
-1. Explainable in the technical discussion
-2. Runnable on a Linux Cloud Agent
-3. Degradable across tiers
-4. Closer to structured claims data
+1. Survives a cold walk-in (won’t crash on 2 photos, mirrors, low light)
+2. Is explainable with tools closed
+3. Emits intervals instead of confident garbage
+4. Runs on a clean Linux/macOS laptop in 15 minutes
 
-Record the choice in `docs/decisions.md`.
+Record choices in `docs/decisions.md`.

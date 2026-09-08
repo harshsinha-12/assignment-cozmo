@@ -4,37 +4,68 @@ Agents: pick the highest item whose status is `todo` and whose Blocked-by is emp
 
 Status key: `todo` · `doing` · `blocked` · `done`
 
+Product: local CLI + **disclosed LLM tool-calling agent**. Score policy: max every official row (`docs/cut-later.md`). Route 2 walk-in; Route 1 parallel (T21). See `docs/product.md` and `docs/agent-layer.md`.
+
 ---
 
 ## Now
 
 | ID | Status | Task | Blocked-by | Notes |
 | --- | --- | --- | --- | --- |
-| T0 | done | Orchestration kit (README, AGENTS, plan, roadmap, update, setup, schema, prompts) | — | 2026-09-07 |
-| T1 | done | Paste official take-home into `docs/takehome.md` when it arrives | human | 2026-09-08 prompt is in `docs/takehome.md` |
-| T2 | done | Synthetic two-room fixture + ground-truth FloorPlan JSON | — | 2026-09-07 `data/fixtures/synthetic_two_room/` |
-| T3 | todo | Optional real-room capture (photos + video + LiDAR if hardware exists) | human + phone | Now required by prompt: 3+ rooms, all 3 tiers, staged damage, tape GT |
-| T4 | todo | Reconcile plan with official prompt | — | Prompt arrived; ingest still pending (`docs/prompts/ingest-takehome.md`) |
-| T5 | blocked | Freeze schema + red eval harness (`make test` fails honestly) | T4 | |
-| T6 | blocked | LiDAR `CapturedRoom` → FloorPlan | T5 | First implementation |
-| T7 | blocked | Video path | T6 | |
-| T8 | blocked | Photos path with honest scale | T7 | |
-| T9 | blocked | Stitch + SVG + eval table | T6 (can start after LiDAR) | |
-| T10 | blocked | Write-up `docs/writeup.md` | T9 | |
-| T11 | blocked | Interview drill from the actual submission | T10 | |
+| T0 | done | Orchestration kit | — | 2026-09-07 |
+| T1 | done | Official prompt in `docs/takehome.md` | human | 2026-09-08 |
+| T2 | done | Synthetic two-room fixture | — | 2026-09-07 |
+| T4 | done | Reconcile plan with official prompt | T1 | 2026-09-08 ingest |
+| T12 | todo | Extend FloorPlan schema (intervals, damage, concealed, scope) + version bump | — | Phase 2; then freeze |
+| T13 | todo | Job layout + CLI stub `python -m cozmo_floorplan run` | T12 | Structured failed/partial JSON, never a traceback-only exit |
+| T14 | todo | Red eval harness for official gates | T12 | Openings, ceiling, repeatability, stitch, photo ±8% |
+| T3 | todo | Human benchmark capture | human + Pro phone | See Unblocked; parallel with T12–T14 |
+| T6 | todo | LiDAR export → FloorPlan | T12, T13 | Record3D / RoomPlan / USDZ |
+| T15 | todo | SVG whole-property renderer | T12 | Product surface |
+| T9 | todo | Stitch + drift correction + on/off ablation | T6 | Auto-fail if poses used as-is |
+| T7 | todo | Video path | T6 | ±3% walls with CIs |
+| T8 | todo | Photos path, 2–8 stills, folder stitch | T9 | Target ±8% walls **and** opening/ceiling/detection gates |
+| T16 | todo | Agent layer: LLM tool calling + fallback for damage / concealed / scope | T12 | `docs/agent-layer.md`. Numbers still from recon tools |
+| T21 | todo | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | Parallel. Scored route stays Route 2 until install works |
+| T17 | todo | Device matrix + capture-route polish | T3 | Fill measured intervals after eval |
+| T18 | todo | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | Beat/tie ≥ 70% shared dims |
+| T19 | todo | Fix loop bundle | T14 | Freeze **before** as soon as eval runs; ship fail→pass |
+| T10 | todo | Technical report ≤ 6 pages + benchmark tables | T19 | `docs/writeup.md` |
+| T20 | todo | README 15 min + reproduction bundle + compliance matrix | T10 | 100% contract coverage |
+| T11 | todo | Walk-in rehearsal on a new room, all three tiers | T20 | Follow submitted capture route |
 
 ---
 
 ## Unblocked detail
 
-### T3 — real capture
+### T3 — benchmark capture (human, start now)
 
-Only if Harsh has 20 minutes and a phone. Follow `docs/capture-protocol.md`. Check data into `data/fixtures/real_room_01/` **only if** it does not include other people’s faces, documents, or a home you do not want in git. Otherwise keep it local and note the path in `HANDOFF.md`.
+Not optional. Composition from the prompt:
+
+- 3+ rooms plus a connector
+- Same spaces at **photos, video, LiDAR**
+- Photos = per-room folders, **8 stills** per room (protocol maximum — max-score capture)
+- One furnished room with **two staged damage classes**
+- One room **twice at LiDAR** (required). Also twice at photos and twice at video if time.
+- Laser or tape on walls, openings, **ceilings**; photo of tape
+- Polycam **or** magicplan export on two rooms (name version). Do not use that app as the capture route.
+
+Protocol for *our* capture: `docs/capture-protocol.md`. Protocol *they* will use until T21 ships: `docs/capture-route.md`.
+
+Hardware: Harsh has **iPhone 17 Pro** (LiDAR). Walk-in may still be non-Pro.
+
+Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitignored + note the path in `HANDOFF.md`.
+
+### Next engineering task
+
+**T12** schema, then T13/T14. Human **T3**. Do not skip photos/video. T16 is the **agent + tools** layer (required). T21 only if Xcode exists.
 
 ---
 
 ## Done
 
-- **2026-09-08 T1** — Official case study pasted into `docs/takehome.md` (duplicate also at `data/private/takehome.md`). Session explained routes; did not rescope `plan.md`.
-- **2026-09-07 T0** — Agent orchestration kit committed on `cursor/agent-orchestration-docs-4470`.
+- **2026-09-08** — Max-score retarget: do not pre-concede tiers/gates; cuts only via `docs/cut-later.md`. T21 iOS exporter added as parallel track.
+- **2026-09-08 T4** — Ingest: plan/roadmap/TASKS aligned; ADR; product/compliance/route/device docs.
+- **2026-09-08 T1** — Official case study in `docs/takehome.md`.
+- **2026-09-07 T0** — Orchestration kit.
 - **2026-09-07 T2** — Synthetic two-room fixture + schema tests.

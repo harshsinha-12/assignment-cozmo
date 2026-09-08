@@ -1,6 +1,6 @@
 # Interview prep (technical discussion)
 
-The take-home is step 2. This file is for step 3. Fill `Your numbers` after evals exist. Do not memorize a script — memorize the physics and the product.
+Fill `Your numbers` after evals exist. Walk-in is 30%: all three tiers must run cold. Do not memorize a script — memorize the physics, the gates, and the fix-loop story.
 
 ## Opener (60 seconds)
 

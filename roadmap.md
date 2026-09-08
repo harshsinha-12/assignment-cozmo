@@ -1,149 +1,163 @@
 # Roadmap
 
-Phases are gated. Do not start a later phase just because it is more fun.
+Phases are gated by **dependencies**, not by “optional tiers.” Official prompt: `docs/takehome.md`. **Max-score policy:** pass every official row; cut only via `docs/cut-later.md`.
 
-Official prompt missing = you may only work **Phase 0** and the unblocked parts of **Phase 0.5**.
+Capture: Route 2 protocol always; Route 1 (T21) in parallel. Product: `docs/product.md`.
 
 ```text
-0 orchestration ──► 0.5 capture/fixtures ──► 1 ingest prompt
-                                              │
-                                              ▼
-                         2 contract + eval harness (red)
-                                              │
-                                              ▼
-                         3 LiDAR mapper (first green)
-                                              │
-                                              ▼
-                         4 video  ──► 5 photos (scale-honest)
-                                              │
-                                              ▼
-                         6 stitch + dimensions
-                                              │
-                                              ▼
-                         7 eval table + write-up + demo
-                                              │
-                                              ▼
-                         8 technical-discussion prep
+1 ingest (this session) ──► 2 schema + red eval + CLI stub
+                                │
+                                ▼
+                         3 LiDAR mapper + SVG
+                                │
+                                ▼
+                         4 stitch + drift ablation
+                                │
+                                ▼
+                         5 video ──► 6 photos (folder stitch, ±8% CIs)
+                                │
+                                ▼
+                         7 agent + tools (LLM API → damage/scope/rules)
+                                │
+                                ▼
+                         8 human benchmark capture (parallel from now)
+                                │
+                                ▼
+                         9 eval tables + head-to-head
+                                │
+                                ▼
+                         10 fix loop (before / after / diff)
+                                │
+                                ▼
+                         11 package: compliance, 6pp report, README 15 min
+                                │
+                                ▼
+                         12 walk-in rehearsal (all three tiers)
+                                │
+                                ▼
+                         T21 iOS exporter (parallel from Phase 2; promote only if 10-min install)
 ```
 
-## Phase 0 — Orchestration kit
-
-**Status:** done (2026-09-07)
-
-- Agent contract, handoff, plan, setup, schema stub, prompts
-- Job brief extracted from the Brynz PDF
-- Cloud Agent `install` via `.cursor/environment.json`
-
-Done when: a new agent can start from `AGENTS.md` and not re-read hellocozmo.ai.
-
-## Phase 0.5 — Fixtures and capture (unblocked without the prompt)
-
-**Status:** synthetic fixture done (2026-09-07). Real-room capture still open.
-
-Safe to do tomorrow morning even if the email has not arrived.
-
-- [x] One synthetic axis-aligned apartment (two rooms + door) as JSON ground truth
-- [ ] Optional: one real room captured per `docs/capture-protocol.md` (photos, a 30–60s video, LiDAR if an iPhone Pro is available)
-- [ ] Tape-measure a few walls and write them in `manifest.yaml`
-
-Synthetic fixture: `data/fixtures/synthetic_two_room/`. Eval *scoring* function still waits for Phase 2.
+Human capture (Phase 8) **starts tonight** and does not wait for Phase 3.
 
 ## Phase 1 — Ingest the official take-home
 
-**Status:** blocked on recruiter / Cozmo packet
+**Status:** done 2026-09-08
 
-Follow `docs/prompts/ingest-takehome.md`.
+- Prompt in `docs/takehome.md`
+- Plan aligned, TASKS rewritten, ADR written
 
-- Paste the prompt into `docs/takehome.md`
-- Diff it against this roadmap and `plan.md`
-- Update `docs/open-questions.md` with anything still missing
-- Freeze scope: what we will not build
+## Phase 2 — Contract, CLI stub, red evals
 
-Done when: `plan.md` is marked **aligned with official prompt** and `TASKS.md` is rewritten around that scope.
+- Extend FloorPlan schema: required intervals, damage, concealed flags, scope
+- Job directory + `manifest.yaml`
+- `python -m cozmo_floorplan run` returns `status: failed` with structured JSON until adapters exist
+- Eval CLI encodes official gates; `make test` fails honestly on empty preds
 
-## Phase 2 — Contract and red evals
-
-- Freeze `docs/schemas/floorplan.schema.json` (or replace it if the prompt dictates a schema)
-- Job directory layout + `manifest.yaml` schema
-- Eval CLI that scores an empty/wrong plan and fails
-- Pytest on schema validation
-
-Done when: `make test` fails for the right reason (no implementation), not because imports crash.
+Done when: empty pipeline is valid JSON against schema; eval reports red on synthetic truth.
 
 ## Phase 3 — LiDAR tier
 
-Highest accuracy, lowest risk, best story.
+- Ingest Record3D / RoomPlan / USDZ as available
+- Metric walls, openings, ceiling, area
+- Single-room then multi-room
 
-- Parser for `CapturedRoom` JSON
-- Floor-plane projection of walls / doors / windows
-- Single-room FloorPlan emit
-- Multi-room stitch if a structure export is provided
-- Green eval on a LiDAR fixture (synthetic JSON is enough if no iPhone)
+Done when: synthetic or real LiDAR JSON produces a dimensioned plan.
 
-Done when: LiDAR fixture wall errors are in the centimetre range **or** we document the export’s own error.
+## Phase 4 — Stitch + drift
 
-## Phase 4 — Video tier
+- Doorway graph, SE(2)
+- Drift correction (plane-anchored / loop closure — pick one, document)
+- Ablation flag: correction on vs off
+- SVG whole-property render
 
-- Frame sample via ffmpeg
-- Pose path: use sidecar poses if present
-- Fallback: sequential feature tracking
-- Floor slice → walls
-- Scale policy documented and encoded in provenance
+Done when: two rooms share a door without overlap; ablation images exist.
 
-Done when: video fixture produces a closed room loop and eval numbers we would say out loud in an interview.
+## Phase 5 — Video tier
 
-## Phase 5 — Photos tier
+- ffmpeg sample + tracking or poses
+- Same IR, wider intervals than LiDAR
 
-- Overlap checks; fail early if SfM cannot start
-- Vanishing-point / Manhattan regularization
-- Scale: require prior or output unitless + `missing_scale` warning
-- Do not hide this behind a fake 1.00 scale factor
+Done when: a walkthrough clip emits a plan that eval can score.
 
-Done when: photos either metric-with-prior or explicitly non-metric, and eval reflects that.
+## Phase 6 — Photos tier
 
-## Phase 6 — Stitch and dimension polish
+- 2–8 stills per room folder, no crash
+- Manhattan / VP regularizer
+- Metric cm with calibrated intervals (tighten when evidence is strong)
+- Multi-folder stitch, ±8% footprint **pass target**
+- Opening detection scored (miss/phantom); chase ≤2 cm where the data supports it
 
-- Doorway graph, SE(2) snap
-- Opening widths
-- SVG renderer that a human can sanity-check
-- Provenance completeness
+Done when: a photos job of 3+ rooms produces one SVG with adjacency.
 
-## Phase 7 — Package for humans
+## Phase 7 — Agent + tools (damage / concealed / scope)
 
-- `docs/writeup.md` (problem, method, results table, failure cases, what you’d do in week two at Cozmo)
-- README quickstart that a founder could run
-- Optional: 60-second demo script / recording
-- Re-run evals on a clean Cloud Agent
+- Disclosed OpenAI-compatible (or Anthropic) tool-calling loop
+- Tools: `get_plan`, `apply_damage`, `fire_concealed_rule`, `add_scope_line`, …
+- Vision on damage crops; quantities from geometry tools
+- Fallback: same tools, no API key
 
-## Phase 8 — Technical discussion
+Done when: staged-damage fixture emits `damage` + `concealed_flags` (with rule ids) + `scope` via the agent path, and `run` still works with the key unset.
 
-Use `docs/interview-prep.md`.
+See `docs/agent-layer.md`.
 
-- Whiteboard the IR
-- Defend scale physics
-- Talk fallbacks and evals like a production FDE
-- Connect the primitive to Xactimate sketch / estimate agents
+## Phase 8 — Benchmark capture (human)
 
-## Explicitly later or never (unless the prompt says so)
+Blocked on phone + tape. Spec in `docs/capture-protocol.md`.
 
-- Training a wall-segmentation network
-- Full ESX writer
-- iOS capture app
-- Real-time streaming reconstruction
-- Multi-floor buildings with stairs as first-class geometry
-- Web app with accounts
+## Phase 9 — Benchmark report + incumbent
 
-## Suggested time split once the clock starts
+- Gate table all tiers
+- Repeatability table
+- Head-to-head vs named Polycam or magicplan version on 2 rooms
+- Timing
 
-If the packet looks like a 48-hour take-home:
+## Phase 10 — Fix loop (25%)
 
-| Slice | Share |
-| --- | --- |
-| Prompt ingest + contract + fixtures | 15% |
-| LiDAR path green | 25% |
-| Video path usable | 20% |
-| Photos path honest | 15% |
-| Stitch + SVG + eval table | 15% |
-| Write-up | 10% |
+- One-page `docs/fix-loop.md`
+- Frozen “before” run
+- Ship one fix
+- Regenerable after + diff
 
-If it looks like a 4-hour take-home: **LiDAR + schema + eval + write-up**. Mention video/photos as designed, implement only a stub that returns `unsupported_tier` rather than a fake plan.
+## Phase 11 — Submission package
+
+- Compliance matrix green/partial
+- Device matrix filled
+- README 15 min
+- `docs/writeup.md` ≤ 6 pages
+- Reproduction bundle
+
+## Phase 12 — Walk-in rehearsal
+
+- Follow `docs/capture-route.md` on a room not in the benchmark
+- Time the command
+- `docs/interview-prep.md`
+
+## Explicitly not building (does not score)
+
+- Website, accounts, our API
+- ESX writer
+- Foundation model training
+
+## In scope until a tomorrow-night cut
+
+- Route 1 iOS/TestFlight (T21)
+- Photo opening/ceiling centimetre chase
+- Repeat captures at photos and video
+- Mirrors / glass / wet / low-light handling
+
+## 48-hour time split (do the whole table; cut from the bottom of `docs/cut-later.md` only)
+
+| Slice | Share | Notes |
+| --- | --- | --- |
+| Schema + CLI + red eval | 8% | Phase 2; freeze fix-loop **before** as soon as this runs |
+| LiDAR + SVG | 15% | Tight gates live here first |
+| Stitch + drift ablation | 10% | Named gate |
+| Video | 12% | ±3% is a pass target |
+| Photos stitch + opening chase | 15% | Named stitch gate + detection |
+| Damage/scope | 8% | Compliance |
+| Route 1 iOS exporter | 7% | Parallel; drop last among scored extras |
+| Human capture / GT / incumbent | parallel | iPhone 17 Pro |
+| Fix loop | 12% | 25% of score |
+| Reports, README, compliance | 8% | |
+| Walk-in hardening | 5% | mirrors, 2-photo, cold room |

@@ -15,6 +15,63 @@ Format:
 
 ---
 
+## 2026-09-08 — Session brief for a replacement agent
+
+Wrote `docs/prompts/session-brief.md` (paste-ready product + score + stack + next task). Point a new chat at that file plus `AGENTS.md`.
+
+---
+
+## 2026-09-08 — LLM tool calling required (Applied AI)
+
+### Context
+
+Harsh: the role is applied AI; we will use AI tool calling / an API, not a geometry-only pipeline.
+
+### Done
+
+- `docs/agent-layer.md` + ADR. Recon = centimetres. Agent = damage/scope/rules via tools. Disclosed public API; fallback if no key. No Redis/our servers.
+- T16 retargeted. `.env.example` lists `OPENAI_API_KEY`.
+
+### Learned
+
+- Packet allows pretrained APIs with disclosure and forbids **our** infrastructure. OpenAI/Anthropic is in. LLM must not invent wall lengths.
+
+### Next
+
+- T12 schema. Then recon. Then T16 agent.
+
+---
+
+## 2026-09-08 — Max-score retarget
+
+### Context
+
+Harsh: stop hedging LiDAR-only / skip-photos / skip-app. Initially target everything that scores; cut tomorrow or tomorrow night if needed.
+
+### Done
+
+- ADR + `docs/cut-later.md`. Updated plan, roadmap, TASKS (T21), product, HANDOFF, README, AGENTS, capture protocol (8 photos, iPhone 17 Pro), eval gates, architecture, capture-route, cursor rules.
+- Ingest leftover README/AGENTS status lines fixed (prompt is present).
+
+### Learned
+
+- Score policy is **full-score attempt**. Build order remains schema → LiDAR → stitch → video → photos. That is not a scope cut.
+- Route 2 stays the guaranteed walk-in; Route 1 is parallel until 10-min install exists.
+- Fix loop: freeze **before** as soon as eval exists.
+
+### Next
+
+- Code: **T12** schema. Human: **T3** capture on iPhone 17 Pro.
+
+---
+
+## 2026-09-08 — iPhone 17 Pro has LiDAR
+
+- Harsh’s phone is an **iPhone 17 Pro**. GSMArena lists a rear **TOF 3D LiDAR scanner**. All three take-home tiers can run on this device. Walk-in may still be a non-Pro iPhone 15+ (photos/video only).
+- Noted in `docs/device-matrix.md`.
+
+---
+
 ## 2026-09-08 — Round 2 scoring vs app vs Round 1 reuse
 
 ### Context

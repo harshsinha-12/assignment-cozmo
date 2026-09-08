@@ -1,44 +1,41 @@
 # Open questions
 
-Answer these when the official prompt arrives. Anything still open at submission time should appear in the write-up as a limitation, not a surprise.
+Answered items are struck. Remaining items go in the 6-page report if still unknown at submit.
 
 ## Assignment logistics
 
-- [ ] Timebox and deadline
-- [ ] Submit via email, GitHub, recording, or live demo
-- [ ] Whether a private GitHub is acceptable (this repo is already private)
-- [ ] Whether internet / paid APIs are allowed during the attempt
-- [ ] Whether they provide fixtures
+- [x] Timebox — Harsh: submit in < 48 hours; defense/walk-in later
+- [ ] Submit via email, GitHub, recording, or live demo (repo is private GitHub)
+- [x] Private GitHub — this repo already is
+- [x] Internet / APIs — allowed with disclosure; **must not** call our infrastructure; walk-in needs a local path
+- [x] Fixtures — they provide **none**; we build the specified benchmark
 
 ## Input contract
 
-- [ ] File types (JPEG, HEIC, MP4, MOV, USDZ, JSON, PLY)
-- [ ] One room or whole floor
-- [ ] Multi-storey
-- [ ] Must we support all three tiers in code, or design + one implemented tier?
-- [ ] Sidecar poses / IMU?
+- [x] File types — photos JPEG/HEIC, video MP4/MOV, LiDAR JSON/USDZ/PLY + poses/intrinsics
+- [x] Whole floor — 3+ rooms + connector; photo folders per room must stitch
+- [x] Multi-storey — not required; warn if detected
+- [x] All three tiers in **code**, not design-only
+- [x] LiDAR must include depth, poses, intrinsics; photos explicitly **no** poses
 
 ## Output contract
 
-- [ ] Schema mandated?
-- [ ] SVG/PDF required?
-- [ ] ESX / SKX / DXF?
-- [ ] Accuracy number they will grade (e.g. ≤ 5 cm)
+- [ ] Schema mandated? Packet says “published schema”; **nothing attached**. We extend `docs/schemas/floorplan.schema.json` until they send one.
+- [x] Rendered plan required (SVG)
+- [x] ESX / SKX / DXF — not asked; out
+- [x] Accuracy — official gate table in `docs/eval-and-accuracy.md`
 
 ## Constraints
 
-- [ ] Languages (JD says Python or TypeScript — default Python)
-- [ ] Banned libraries
-- [ ] Must run in Docker / their VM
-- [ ] Max runtime per job
+- [x] Language — Python (JD: Python or TypeScript)
+- [x] Banned libraries — none named; pretrained OK with disclosure
+- [ ] Docker / their VM — unspecified; README 15 min on a clean machine
+- [ ] Max runtime per job — unspecified; walk-in runs live while they laser
 
 ## Product
 
-- [ ] Names of rooms from vision vs `manifest.yaml`
-- [ ] Furniture
-- [ ] Damage overlay
-- [ ] Human-in-the-loop correction UI
-
-## When a question is answered
-
-Move the answer into `docs/takehome.md` (quote) and `docs/decisions.md` (interpretation). Strike it here.
+- [x] Damage overlay — **required**
+- [x] Concealed-damage rules — **required** (rule that fired)
+- [x] Scope line items — **required**
+- [x] HITL UI — not asked; skip
+- [ ] Room names from vision vs manifest — unspecified; manifest labels OK, vision later if time

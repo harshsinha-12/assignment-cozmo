@@ -46,16 +46,26 @@ Photograph the tape if you want an audit image in `extras/`. Do not trust RoomPl
 - LLM-judged screenshots
 - Training loss
 
+## Official gates (pass targets)
+
+These replace internal “wish” numbers. Score every tier. Do not drop a row because it looks hard.
+
+| Metric | Gate |
+| --- | --- |
+| Opening widths | ≤ 2 cm on ≥ 85%; missed or phantom opening = miss |
+| Ceiling height | ≤ 1.5 cm per room; recapture spread ≤ 1 cm |
+| Repeatability | two captures, 1 cm or 0.5% per wall |
+| Drift | correction on vs off ablation; poses-as-is fails |
+| Photo stitch | one plan, adjacency, no overlaps, footprint ±8% |
+| Photo walls | ±8% with calibrated intervals |
+| Video walls | ±3% with calibrated intervals |
+| Head-to-head | beat/tie incumbent on ≥ 70% shared LiDAR dimensions |
+
+Calibration is scored at every tier. Confident garbage on thin input caps the score — intervals must cover the error.
+
 ## Targets (internal, until the prompt gives numbers)
 
-These are goals for us, not claims on the README:
-
-- LiDAR vs tape: median wall error **≤ 3 cm** on a simple rectangular room if the scan is complete
-- Video with metric poses: **≤ 5–8 cm** median on the same room
-- Photos with a measured door prior: **≤ 10–15 cm** median, p95 can be worse
-- Photos with no prior: no metric target; only shape IoU after scale-normalized alignment
-
-If reality is worse, publish the number. Cozmo ships to operators; they already know rooms are messy.
+**Superseded.** Use the official table above as pass targets. After eval, fill `docs/device-matrix.md` with measured numbers. If a gate fails, that is a fix-loop input, not a plan-time skip.
 
 ## Eval CLI (planned)
 

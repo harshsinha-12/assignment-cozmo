@@ -1,28 +1,21 @@
-# Start tomorrow (human, 5 minutes)
+# Start here (human)
 
-You do not need to re-read the whole repo. Do **one** of these.
+Official prompt is in. We are targeting **max score**. Cuts only tomorrow night (`docs/cut-later.md`).
 
-## A. The take-home email arrived
+## Tonight (you)
 
-1. Open `docs/takehome.md` and paste the full prompt (and timebox).
-2. Start a Cursor Cloud Agent on this repo with the text in `docs/prompts/ingest-takehome.md`.
-3. Attach extra PDFs/zips if they sent data.
+Capture (`docs/capture-protocol.md`):
 
-Do not start coding in a blank chat.
+1. 3+ rooms + hallway on the **iPhone 17 Pro**
+2. Photos (8 JPEGs per room, folders), one walkthrough video, LiDAR (Record3D)
+3. Repeat one room at LiDAR (second scan)
+4. Stage two damage types in one furnished room
+5. Tape/laser walls, doors, ceilings
+6. Polycam or magicplan export on two rooms (not our capture app)
 
-## B. Still no prompt, but you have 20 minutes
+## Code (agent / you in Cursor)
 
-Capture one room: `docs/capture-protocol.md`.
-
-Tape two walls and a door. Photos + a short video. LiDAR JSON if you have an iPhone Pro. Keep faces out of git.
-
-## C. Still no prompt, you only have a Cloud Agent
-
-Kickoff prompt: `docs/prompts/agent-kickoff.md`.
-
-It should build on the synthetic fixture (`data/fixtures/synthetic_two_room/`) or wait. It must **not** start COLMAP.
-
-## D. You want to run what exists locally
+Next: **T12** schema → T13 CLI → T14 red eval. Then LiDAR. Do not skip photos/video.
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
@@ -30,10 +23,6 @@ pip install -r requirements.txt
 make test
 ```
 
-Expected: schema tests pass. There is no reconstructor yet. That is correct.
+## Read (15 minutes)
 
-## Reading if you are curious (20 minutes)
-
-`README.md` → `plan.md` → `docs/eval-and-accuracy.md` → `docs/interview-prep.md`
-
-Skip `docs/job-brief.md` unless you need the JD again. Skip hellocozmo.ai; it is already summarized in `docs/context.md`.
+`docs/product.md` → `plan.md` → `TASKS.md` → `docs/cut-later.md`

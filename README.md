@@ -1,72 +1,50 @@
 # assignment-cozmo
 
-Take-home workspace for **Cozmo AI** — converting phone captures into **dimensioned, stitched floor plans**.
+Take-home for **Cozmo AI**: phone captures → **dimensioned, stitched floor plans** plus damage/scope JSON. Local CLI, not a website.
 
-This repository is currently an **orchestration kit**. The official assignment prompt is not here yet. Planning, agent instructions, setup, and a frozen FloorPlan schema are. Reconstruction code is intentionally not.
+Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are building: [`docs/product.md`](docs/product.md). **Score policy:** target every official row; cut only tomorrow night ([`docs/cut-later.md`](docs/cut-later.md)).
 
 | Field | Value |
 | --- | --- |
 | Company | [Cozmo AI](https://www.hellocozmo.ai/) |
-| Role | AI Backend Engineer (JD); user note also says Applied AI Engineer |
+| Role | AI Backend Engineer |
 | Recruiter | Brynz — saik@brynz.io |
-| Problem we have | Photos / video / LiDAR → metric stitched floor plan, cm-level where physics allows |
-| Official prompt | Missing — paste into [`docs/takehome.md`](docs/takehome.md) |
+| Capture phone | iPhone 17 Pro (LiDAR) |
+| Official prompt | In repo — [`docs/takehome.md`](docs/takehome.md) |
 | Agent contract | [`AGENTS.md`](AGENTS.md) |
 | Current handoff | [`HANDOFF.md`](HANDOFF.md) |
 
 ## Start here
 
-**Human (you, tomorrow):**
+**Human (tonight):** capture the benchmark — [`docs/capture-protocol.md`](docs/capture-protocol.md). 3+ rooms + hallway, photos/video/LiDAR, two damage classes, tape, Polycam or magicplan on two rooms. Short list: [`START-TOMORROW.md`](START-TOMORROW.md).
 
-1. If the take-home email arrived, paste it into `docs/takehome.md` and start a Cursor agent with [`docs/prompts/ingest-takehome.md`](docs/prompts/ingest-takehome.md).
-2. If it did not, you can still capture a room ([`docs/capture-protocol.md`](docs/capture-protocol.md)) or leave the next agent on [`TASKS.md`](TASKS.md). Shorter checklist: [`START-TOMORROW.md`](START-TOMORROW.md).
-3. Do not start from a blank chat. Point the agent at this repo and the kickoff prompt: [`docs/prompts/agent-kickoff.md`](docs/prompts/agent-kickoff.md).
-
-**Agent:**
-
-Read [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → latest [`update.md`](update.md) → [`TASKS.md`](TASKS.md) → [`docs/takehome.md`](docs/takehome.md). Stop. Then do the top unblocked task.
+**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). Top code task is **T12** (schema). Do not pre-concede photo/video gates.
 
 ## Repo map
 
 | File | Role |
 | --- | --- |
-| `AGENTS.md` | Operating contract for Cursor agents |
-| `HANDOFF.md` | What the last session left behind |
-| `update.md` | Append-only log (research cache) |
-| `plan.md` | Technical plan (provisional) |
-| `roadmap.md` | Phased work, including what *not* to build |
+| `AGENTS.md` | Operating contract |
+| `HANDOFF.md` | Last session |
+| `update.md` | Append-only log |
+| `plan.md` | Technical plan (aligned) |
+| `roadmap.md` | Phases |
 | `TASKS.md` | Queue |
-| `SETUP.md` | Local + Cloud Agent environment |
-| `docs/takehome.md` | **Paste official prompt here** |
-| `docs/job-brief.md` | Extracted Brynz JD |
-| `docs/problem.md` | What we know vs what we are guessing |
-| `docs/architecture.md` | System sketch |
-| `docs/capture-tiers.md` | Photos / video / LiDAR methods |
-| `docs/eval-and-accuracy.md` | How we will prove cm |
-| `docs/research.md` | Libraries, papers, APIs (already researched) |
-| `docs/claims-domain.md` | Why Cozmo cares (Xactimate, restoration) |
-| `docs/capture-protocol.md` | How to shoot fixtures on a phone |
-| `docs/open-questions.md` | Unknowns |
-| `docs/decisions.md` | ADRs |
-| `docs/interview-prep.md` | Technical discussion |
-| `docs/schemas/floorplan.schema.json` | Intermediate representation |
-| `docs/prompts/` | Paste-ready agent prompts |
-| `.cursor/environment.json` | Cloud Agent install |
-| `requirements.txt` | Python deps for later implementation |
-| `data/fixtures/` | Ground-truth jobs (empty except README) |
-| `src/` | Reserved for the package |
-
-Original drop (kept):
-
-- `discussion.md` — original one-line problem
-- `url.md` — company URL
-- `AI Backend Engineer\n.docx.pdf` — JD with a newline in the filename; prefer `docs/briefs/ai-backend-engineer.pdf`
+| `docs/product.md` | What we ship / how they test |
+| `docs/agent-layer.md` | LLM tool calling (damage/scope) |
+| `docs/cut-later.md` | Tomorrow-night defer list only |
+| `docs/takehome.md` | Official case study |
+| `docs/capture-route.md` | Walk-in protocol (Route 2) |
+| `docs/compliance-matrix.md` | Scored coverage table |
+| `docs/device-matrix.md` | Hardware × tier |
+| `docs/schemas/floorplan.schema.json` | IR (extend next) |
+| `src/` | Package (not started) |
 
 ## Current status
 
-**Phase 0 complete. Synthetic fixture exists. Phase 1 blocked on the official prompt.**
+**Phase 1 ingest done. Phase 2 (schema + red eval) is next. No reconstructor yet.**
 
-See [`roadmap.md`](roadmap.md). Unblocked without the prompt: fixtures and a real-room capture.
+See [`roadmap.md`](roadmap.md).
 
 ## Setup (short)
 
@@ -77,15 +55,16 @@ pip install -r requirements.txt
 make test
 ```
 
-Full notes, Cloud Agent caveats, and why LiDAR capture cannot happen in this VM: [`SETUP.md`](SETUP.md).
+Expected today: schema tests on the synthetic fixture. Pipeline `run` does not exist until T13.
 
 ## Design in one paragraph
 
-One FloorPlan intermediate representation for all tiers. LiDAR maps into it almost directly (Apple `CapturedRoom`). Video uses poses or visual odometry plus a scale source. Photos use SfM and **must not fake metric scale**. Rooms stitch through doorways as an SE(2) pose graph. Everything carries provenance. Eval reports wall error in centimetres on fixtures, not vibes.
+One FloorPlan IR for photos, video, and LiDAR. One command emits JSON + SVG. Centimetres come from geometry. An **LLM agent with tools** fills damage, concealed-damage rules, and scope (disclosed public API + fallback). Eval reports official gates in centimetres.
 
-## Ground rules for later code
+## Ground rules
 
 - Python 3.11+ (3.12 is fine).
-- Deterministic jobs: same `job/` directory in, same JSON out.
-- Tests must run headless (OpenCV headless wheels, no GUI).
-- No centimetre claims without numbers.
+- Deterministic jobs: same `job/` in, same JSON out.
+- Headless tests (`opencv-python-headless`).
+- No centimetre claims without eval numbers.
+- No website, no Redis, no calls to **our** servers. Disclosed LLM API is required for the agent path (`docs/agent-layer.md`).

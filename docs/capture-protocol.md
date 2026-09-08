@@ -1,65 +1,75 @@
-# Capture protocol (phone)
+# Capture protocol (our benchmark — max score)
 
-Do this even before the official prompt. One real room with tape measures will dominate a synthetic-only submission.
+This is what **Harsh** shoots for the submission. The walk-in follows `docs/capture-route.md` (stricter, shorter). Shoot richer than the walk-in so eval can pass gates; the pipeline must still work on the walk-in budget (2–8 photos).
+
+Hardware: **iPhone 17 Pro** (LiDAR). Tape or laser everything.
 
 ## Privacy
 
-Do not commit photos of other people’s faces, kids, documents, mail, or a space you do not want in a private GitHub. If in doubt: keep captures local and put only `manifest.yaml` + tape numbers in git. Note the local path in `HANDOFF.md`.
+Do not commit faces, kids, documents, mail, or a space you do not want in git. Otherwise: `data/private/` gitignored and note the path in `HANDOFF.md`.
 
-## What to capture (same room, same day)
+## Composition (prompt-mandated)
 
-1. **Tape sheet** — two long walls, one short wall, door width, optional diagonal. Photo of the tape against the door.
-2. **Photos** — 20–40 stills, landscape, walk the perimeter, 60% overlap, extra frames through each door. Include corners. Turn off a wandering “cinematic” mode if it crops randomly. JPEG is easier than HEIC for Linux.
-3. **Video** — 30–90 seconds, slow, hold the phone at chest height, pan walls, pause at corners, walk through the door if there is a second space. 1080p is enough. Avoid selfie camera.
-4. **LiDAR** — if iPhone Pro / iPad Pro: RoomPlan or a Polycam/magicplan/KIRI export. We want **JSON** (`CapturedRoom`) plus USDZ if easy. Put JSON in `lidar/captured_room.json`.
+- 3+ rooms **plus a connector** (hallway)
+- Same spaces at **photos, video, and LiDAR**
+- One furnished room with **two staged damage classes** (e.g. water stain + hole/tear). Photograph the staging.
+- One room captured **twice at LiDAR**. Also twice at photos and twice at video if you have time (repeatability gate).
+- Laser/tape: every wall used in eval, every opening width, every ceiling, at least one diagonal per room
+- Incumbent: Polycam **or** magicplan free tier, named version, **two rooms**, export submitted. Do not use that app as our capture route.
 
-## Folder to create
+## Photos (8 stills per room — protocol max)
+
+Folder `photos/<room_label>/`. JPEG, rear camera, no Live/Portrait/Cinematic, no zoom, lights on.
+
+Per room, 8 frames:
+
+1. In the doorway facing in (full door frame — scale prior)
+2–5. One per wall, both corners in frame
+6. Through the door into the next room (stitch)
+7. Ceiling–wall junction on the longest wall
+8. Damage close-up if this is the staged room; otherwise a second corner/overlap shot
+
+Also keep a **2-photo subset** listed in the manifest so we can crash-test the walk-in floor (2 stills).
+
+## Video
+
+One clip per property (and a second clip of the repeat room if time). Chest height, 1080p, slow, pause 2s at corners, walk the hallway. 60–180s.
+
+## LiDAR
+
+Record3D (depth+poses+intrinsics) and, if easy, a RoomPlan JSON. Continuous scan through rooms if the app allows. Repeat the same room in a second session for repeatability. Export into `lidar/` including intrinsics. Case must not cover the LiDAR window.
+
+## Folder
 
 ```text
-data/fixtures/real_room_01/
+data/fixtures/benchmark_home_01/
   manifest.yaml
-  photos/
+  photos/<room>/
   video/
   lidar/
-  extras/tape.jpg
-  ground_truth.json   # from the tape sheet, not from RoomPlan
+  incumbent/<app-version>/
+  extras/tape_*.jpg
+  ground_truth.json
   README.md
 ```
 
 ## `manifest.yaml` minimum
 
 ```yaml
-job_id: real_room_01
-tier: mixed
-device: "iPhone ??"
-ceiling_height_cm: 250
+job_id: benchmark_home_01
+device: "iPhone 17 Pro"
+rooms: [living, hallway, kitchen, bedroom]
+repeat_room: kitchen
+damage_room: kitchen
+damage_classes: [water_stain, puncture]
 known_lengths_cm:
-  - name: entry_door
-    cm: 81
-    kind: door_width
-  - name: north_wall
-    cm: 412
-    kind: wall
-  - name: east_wall
-    cm: 305
-    kind: wall
-notes: "rectangular bedroom, one closet door ignored"
+  - {name: kitchen_door, cm: 81, kind: door_width}
+ceiling_height_cm_by_room:
+  kitchen: 250
 ```
 
-`ground_truth.json` should follow `docs/schemas/floorplan.schema.json` as soon as you are willing to type polygons. If not, keep the tape list in the manifest; an agent can turn it into JSON later.
+Ground truth is **tape/laser**, never RoomPlan or Polycam.
 
-## Shooting rules that save the photos tier
+## Avoid
 
-- Overlap is the feature. Artistic single shots are useless.
-- Turn on lights. Night ISO noise kills matching.
-- Do not use digital zoom.
-- If a wall is blank, include the adjacent corner in the same frame so features exist.
-- For stitch, shoot the doorway from both rooms.
-
-## iOS export tips
-
-RoomPlan sample apps and some third-party scanners can dump JSON. If the app only shares USDZ, still keep it; parsing USDZ is worse but recoverable. Do not spend the evening writing a Swift app unless the official prompt requires one.
-
-## Cloud Agent upload
-
-Keep fixtures small. Downscale JPEGs to ~1600 px on the long side if the repo would exceed a few tens of MB. Video: 720p is acceptable for a fixture. GitHub does not want 2 GB of 4K.
+Mirrors dead-on as the only wall evidence, shooting through glass, wet glossy floors as the only floor, digital zoom, other people’s faces.

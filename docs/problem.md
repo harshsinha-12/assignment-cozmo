@@ -1,45 +1,34 @@
 # Problem
 
-## Confirmed (do not water down)
+## Official requirements (Round 2)
 
-From `discussion.md`, the only problem statement we have:
+Quoted from `docs/takehome.md`. We target **all** of these.
 
-> Turn phone camera captures into dimensioned, stitched floor plans with cm-level accuracy across three input tiers (photos, video, LiDAR).
+1. Own capture from the phone onward. One route: iOS app **or** stock protocol (we keep both tracks; submit one).
+2. Three tiers, all mandatory: photos (2–8 stills, no depth/poses, per-room folders that still stitch), video, LiDAR (depth+poses+intrinsics on Pro).
+3. Output per capture: dimensioned rooms (walls, ceiling, area, openings), stitched whole-property plan, damage regions, concealed-damage flags with rule ids, scope line items, CI on every measurement, one command, JSON, rendered plan.
+4. Self-built benchmark: 3+ rooms + connector, staged two-class damage, all tiers, repeat capture, tape/laser GT.
+5. Named gates: openings, ceiling, repeatability, drift ablation, photo stitch; photo ±8% / video ±3% walls with calibrated intervals.
+6. Head-to-head vs Polycam or magicplan on 2 LiDAR rooms, ≥70% beat/tie.
+7. Fix loop 25%: declaration, shipped fix, regenerable before/after.
+8. Walk-in 30%: their iPhone 15+, their capture, our command, their laser.
+9. No calling our infrastructure. Cover mirrors, glass, wet-look, low light.
 
-Implications that are already in that sentence:
+## Confirmed product shape
 
-1. **Input is a phone**, not a Matterport rig or a laser scanner.
-2. **Output is a floor plan**, not a pretty 3D mesh (mesh may be an intermediate).
-3. **Dimensioned** — numbers on walls/rooms, not just a sketch to eyeball.
-4. **Stitched** — more than one room or more than one capture, aligned.
-5. **cm-level accuracy** — they will ask how you know.
-6. **Three tiers** — the system is a product with degradation, not a single algorithm.
+Not a website. A **local pipeline** plus a capture protocol. See `docs/product.md`.
 
-## Guessed (label everything in this section as a guess)
+## Still open
 
-Until `docs/takehome.md` is filled, we are guessing:
+- Exact deadline / submit channel (GitHub assumed; this repo is private)
+- Cozmo “published schema” was not attached
+- Round 1 gate list beyond the five additions
+- Whether their walk-in phone is Pro (LiDAR) or not
 
-- Timebox (4 hours vs a weekend vs a week)
-- Whether they ship sample data
-- Output format (PNG vs SVG vs JSON vs ESX)
-- Whether an iOS app is expected (unlikely for a backend/applied-AI take-home; likely ingest of exports)
-- Whether Android is in scope
-- Multi-floor / stairs
-- Furniture
-- Damage heatmaps (water line, burn) vs geometry only
-- Max runtime and whether GPU is assumed
+## Non-goals (do not score)
 
-## Non-goals (until the prompt says otherwise)
+- Photoreal 3D tour, ESX, training a foundation model, SaaS/accounts
 
-- Photoreal 3D tour
-- Automatic Xactimate line items (WTR, DRY, PNT codes)
-- Live AR measurement UI
-- Training a foundation model
+## Success
 
-## Success, in the language of the JD
-
-A dispatcher or estimator could take the JSON/SVG and not re-walk the room for basic wall lengths. Failures are explicit. The next engineer can rerun evals.
-
-## How this file should change
-
-When the official prompt arrives, add a section **“Official requirements”** with bullets copied from `docs/takehome.md`, and move anything contradicted from Guessed into `docs/decisions.md`.
+Every compliance cell filled. Gate table filled by tier. Walk-in command runs. Fix loop regenerable. Intervals honest when a gate is missed.
