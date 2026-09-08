@@ -19,7 +19,3 @@ build/
 htmlcov/
 
 # Keep orchestration docs / markdown local-only (not pushed)
-*.md
-docs/*
-!docs/schemas/
-!docs/schemas/**
