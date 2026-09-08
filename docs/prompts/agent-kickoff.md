@@ -18,7 +18,7 @@ Read, in order, and then stop before coding:
 
 Rules:
 
-- If `docs/takehome.md` is a stub, planning/fixture mode only. It is **not** a stub. Execute `TASKS.md` top unblocked item (T12). Target every official gate; do not skip photos/video. Cuts only as `docs/cut-later.md`.
+- If `docs/takehome.md` is a stub, planning/fixture mode only. It is **not** a stub. Execute the top unblocked item in `TASKS.md` (currently T13). Target every official gate; do not skip photos/video. Cuts only as `docs/cut-later.md`.
 - Do not rewrite `plan.md` unless the prompt or Harsh’s score policy changed.
 - Do not re-scrape hellocozmo.ai or re-extract the Brynz PDF.
 - End the session by updating `HANDOFF.md`, appending `update.md`, and ticking `TASKS.md`.

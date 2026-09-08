@@ -18,7 +18,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 **Human (tonight):** capture the benchmark — [`docs/capture-protocol.md`](docs/capture-protocol.md). 3+ rooms + hallway, photos/video/LiDAR, two damage classes, tape, Polycam or magicplan on two rooms. Short list: [`START-TOMORROW.md`](START-TOMORROW.md).
 
-**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). Top code task is **T12** (schema). Do not pre-concede photo/video gates.
+**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). Top code task is **T13** (CLI stub). Do not pre-concede photo/video gates.
 
 ## Repo map
 
@@ -37,7 +37,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 | `docs/capture-route.md` | Walk-in protocol (Route 2) |
 | `docs/compliance-matrix.md` | Scored coverage table |
 | `docs/device-matrix.md` | Hardware × tier |
-| `docs/schemas/floorplan.schema.json` | IR (extend next) |
+| `docs/schemas/floorplan.schema.json` | Frozen v0.2 IR: interval measurements + claims objects |
 | `src/` | Package (not started) |
 
 ## Current status

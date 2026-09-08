@@ -13,10 +13,10 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R5 | LiDAR tier, depth+poses+intrinsics | `src/` | JSON + SVG from LiDAR job | missing |
 | R6 | Per-room: walls, ceiling, area, openings | schema + pipeline | `floorplan.json` | missing |
 | R7 | Stitched multi-room adjacency | stitch module | stitch graph + SVG | missing |
-| R8 | Damage regions, class + metric extent | agent + tools (`docs/agent-layer.md`) | `damage[]` | missing |
-| R9 | Concealed-damage flags + rule id | agent `fire_concealed_rule` | `concealed_flags[]` | missing |
-| R10 | Scope line items keyed to surfaces | agent `add_scope_line` (qty from geometry) | `scope[]` | missing |
-| R11 | Confidence interval on every measurement | schema | `error_interval` required | missing |
+| R8 | Damage regions, class + metric extent | agent + tools (`docs/agent-layer.md`) | v0.2 `damage[]` schema ready; generation pending | partial |
+| R9 | Concealed-damage flags + rule id | agent `fire_concealed_rule` | v0.2 `concealed_flags[]` requires `rule_id`; generation pending | partial |
+| R10 | Scope line items keyed to surfaces | agent `add_scope_line` (qty from geometry) | v0.2 `scope[]` schema ready; generation pending | partial |
+| R11 | Confidence interval on every measurement | schema | v0.2 `{value, unit, interval}` measurement objects | implemented |
 | R12 | One command per capture | README | `python -m cozmo_floorplan run JOB --out OUT` | missing |
 | R13 | JSON to published schema | `docs/schemas/floorplan.schema.json` | our IR until they attach one | partial |
 | R14 | Rendered plan | renderer | `floorplan.svg` | missing |

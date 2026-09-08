@@ -4,6 +4,18 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-08 — FloorPlan IR v0.2 uses interval-bearing measurement objects
+
+**Context:** The official contract requires a confidence interval on every measurement. The provisional v0.1 schema used bare numeric dimensions and only offered an optional wall `error_interval`.
+
+**Decision:** Version 0.2 represents every reported scalar dimension as `{value, unit, interval}`. The interval requires `low`, `high`, and a coverage `confidence`. This applies to room height/area, wall dimensions, opening dimensions, stitch transforms/residuals, damage extent, and scope quantity. Polygon vertices remain the canonical geometry coordinates rather than duplicate scalar reports. Public output units are centimetres; area measurements identify `cm2` explicitly.
+
+The top-level `damage`, `concealed_flags`, and `scope` arrays are required even when empty. Claims objects reference typed surfaces; concealed flags require the fired `rule_id`; scope lines require an interval-bearing quantity and its source. Stitch output records the drift-correction method for the named ablation gate.
+
+**Compatibility:** This intentionally breaks the provisional 0.1 fixture. The schema version and fixture both move to `0.2.0` before reconstruction code exists.
+
+---
+
 ## 2026-09-08 — LLM tool calling for claims objects; geometry stays classical
 
 **Context:** Role is AI Backend / Applied AI. Harsh: we **will** use AI tool calling / an API, not a geometry-only CLI.
@@ -70,7 +82,7 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ## 2026-09-08 — Photos emit centimetres with wide intervals
 
-**Decision:** Public `units` stay `cm`. Photo-tier measurements carry wide `error_interval`. Do not use `units: relative` as the graded output.
+**Decision:** Public `units` stay `cm`. Photo-tier measurements carry wide confidence intervals (the v0.2 `interval` object). Do not use `units: relative` as the graded output.
 
 **Why:** Official photo gate is wall lengths within ±8% with calibrated intervals. Relative units would fail the contract. Physics is unchanged: scale is weak; honesty lives in the interval, not in a fake point estimate.
 

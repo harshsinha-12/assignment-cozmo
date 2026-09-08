@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "units": "cm",
   "status": "ok",
   "warnings": [],
@@ -10,51 +10,59 @@
       "id": "room_a",
       "label": "Room A",
       "polygon": [[0, 0], [400, 0], [400, 300], [0, 300]],
-      "ceiling_height": 250,
-      "area": 120000,
+      "ceiling_height": { "value": 250, "unit": "cm", "interval": { "low": 250, "high": 250, "confidence": 1.0 }, "method": "synthetic_ground_truth" },
+      "area": { "value": 120000, "unit": "cm2", "interval": { "low": 120000, "high": 120000, "confidence": 1.0 }, "method": "synthetic_ground_truth" },
       "confidence": 1.0
     },
     {
       "id": "room_b",
       "label": "Room B",
       "polygon": [[400, 10], [750, 10], [750, 290], [400, 290]],
-      "ceiling_height": 250,
-      "area": 98000,
+      "ceiling_height": { "value": 250, "unit": "cm", "interval": { "low": 250, "high": 250, "confidence": 1.0 }, "method": "synthetic_ground_truth" },
+      "area": { "value": 98000, "unit": "cm2", "interval": { "low": 98000, "high": 98000, "confidence": 1.0 }, "method": "synthetic_ground_truth" },
       "confidence": 1.0
     }
   ],
   "walls": [
-    { "id": "a_south", "room_ids": ["room_a"], "a": [0, 0], "b": [400, 0], "length": 400, "confidence": 1.0 },
-    { "id": "a_east", "room_ids": ["room_a", "room_b"], "a": [400, 0], "b": [400, 300], "length": 300, "confidence": 1.0 },
-    { "id": "a_north", "room_ids": ["room_a"], "a": [400, 300], "b": [0, 300], "length": 400, "confidence": 1.0 },
-    { "id": "a_west", "room_ids": ["room_a"], "a": [0, 300], "b": [0, 0], "length": 300, "confidence": 1.0 },
-    { "id": "b_south", "room_ids": ["room_b"], "a": [400, 10], "b": [750, 10], "length": 350, "confidence": 1.0 },
-    { "id": "b_east", "room_ids": ["room_b"], "a": [750, 10], "b": [750, 290], "length": 280, "confidence": 1.0 },
-    { "id": "b_north", "room_ids": ["room_b"], "a": [750, 290], "b": [400, 290], "length": 350, "confidence": 1.0 },
-    { "id": "b_west", "room_ids": ["room_b"], "a": [400, 290], "b": [400, 10], "length": 280, "confidence": 1.0 }
+    { "id": "a_south", "room_ids": ["room_a"], "a": [0, 0], "b": [400, 0], "length": { "value": 400, "unit": "cm", "interval": { "low": 400, "high": 400, "confidence": 1.0 }, "method": "synthetic_ground_truth" }, "confidence": 1.0 },
+    { "id": "a_east", "room_ids": ["room_a", "room_b"], "a": [400, 0], "b": [400, 300], "length": { "value": 300, "unit": "cm", "interval": { "low": 300, "high": 300, "confidence": 1.0 }, "method": "synthetic_ground_truth" }, "confidence": 1.0 },
+    { "id": "a_north", "room_ids": ["room_a"], "a": [400, 300], "b": [0, 300], "length": { "value": 400, "unit": "cm", "interval": { "low": 400, "high": 400, "confidence": 1.0 }, "method": "synthetic_ground_truth" }, "confidence": 1.0 },
+    { "id": "a_west", "room_ids": ["room_a"], "a": [0, 300], "b": [0, 0], "length": { "value": 300, "unit": "cm", "interval": { "low": 300, "high": 300, "confidence": 1.0 }, "method": "synthetic_ground_truth" }, "confidence": 1.0 },
+    { "id": "b_south", "room_ids": ["room_b"], "a": [400, 10], "b": [750, 10], "length": { "value": 350, "unit": "cm", "interval": { "low": 350, "high": 350, "confidence": 1.0 }, "method": "synthetic_ground_truth" }, "confidence": 1.0 },
+    { "id": "b_east", "room_ids": ["room_b"], "a": [750, 10], "b": [750, 290], "length": { "value": 280, "unit": "cm", "interval": { "low": 280, "high": 280, "confidence": 1.0 }, "method": "synthetic_ground_truth" }, "confidence": 1.0 },
+    { "id": "b_north", "room_ids": ["room_b"], "a": [750, 290], "b": [400, 290], "length": { "value": 350, "unit": "cm", "interval": { "low": 350, "high": 350, "confidence": 1.0 }, "method": "synthetic_ground_truth" }, "confidence": 1.0 },
+    { "id": "b_west", "room_ids": ["room_b"], "a": [400, 290], "b": [400, 10], "length": { "value": 280, "unit": "cm", "interval": { "low": 280, "high": 280, "confidence": 1.0 }, "method": "synthetic_ground_truth" }, "confidence": 1.0 }
   ],
   "openings": [
     {
       "id": "door_ab",
       "kind": "door",
       "wall_id": "a_east",
-      "width": 80,
-      "height": 210,
-      "offset_along_wall": 150,
+      "width": { "value": 80, "unit": "cm", "interval": { "low": 80, "high": 80, "confidence": 1.0 }, "method": "synthetic_ground_truth" },
+      "height": { "value": 210, "unit": "cm", "interval": { "low": 210, "high": 210, "confidence": 1.0 }, "method": "synthetic_ground_truth" },
+      "offset_along_wall": { "value": 150, "unit": "cm", "interval": { "low": 150, "high": 150, "confidence": 1.0 }, "method": "synthetic_ground_truth" },
       "connects_room_ids": ["room_a", "room_b"],
       "confidence": 1.0
     }
   ],
+  "damage": [],
+  "concealed_flags": [],
+  "scope": [],
   "stitch": {
+    "drift_correction": {
+      "enabled": true,
+      "method": "synthetic",
+      "notes": "Exact hand-written placement; retained as a deterministic drift-control fixture."
+    },
     "edges": [
       {
         "left_room": "room_a",
         "right_room": "room_b",
         "via": "door_ab",
-        "dx": 400,
-        "dy": 10,
-        "dtheta_deg": 0,
-        "residual": 0
+        "dx": { "value": 400, "unit": "cm", "interval": { "low": 400, "high": 400, "confidence": 1.0 }, "method": "synthetic_ground_truth" },
+        "dy": { "value": 10, "unit": "cm", "interval": { "low": 10, "high": 10, "confidence": 1.0 }, "method": "synthetic_ground_truth" },
+        "dtheta": { "value": 0, "unit": "deg", "interval": { "low": 0, "high": 0, "confidence": 1.0 }, "method": "synthetic_ground_truth" },
+        "residual": { "value": 0, "unit": "cm", "interval": { "low": 0, "high": 0, "confidence": 1.0 }, "method": "synthetic_ground_truth" }
       }
     ]
   },

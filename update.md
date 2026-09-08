@@ -15,6 +15,15 @@ Format:
 
 ---
 
+## 2026-09-08 — T12 FloorPlan schema v0.2 complete
+
+- Context: T12 was the highest unblocked engineering task and gates the CLI/eval work.
+- Done: bumped the shared IR to 0.2.0; every scalar dimension now carries `{value, unit, interval}`; required top-level damage, concealed flags, and scope arrays; added typed surface references and drift-correction metadata.
+- Verified: migrated the synthetic two-room fixture and added positive/negative contract tests. `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -q` passes 8 tests. Plain pytest currently collides with an unrelated installed plugin that also registers `--output`.
+- Next: T13 job layout + structured-failure CLI stub, then T14 official-gate eval harness.
+
+---
+
 ## 2026-09-08 — Session brief for a replacement agent
 
 Wrote `docs/prompts/session-brief.md` (paste-ready product + score + stack + next task). Point a new chat at that file plus `AGENTS.md`.

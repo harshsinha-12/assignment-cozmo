@@ -1,6 +1,6 @@
 # Architecture
 
-Aligned with Round 2. Implementation: `src/cozmo_floorplan/` after T12 schema freeze. Not a website — CLI + JSON + SVG. Optional HTTP only if leftover and JSON already works.
+Aligned with Round 2. T12 froze the schema; implementation starts in `src/cozmo_floorplan/` with T13. Not a website — CLI + JSON + SVG. Optional HTTP only if leftover and JSON already works.
 
 ## Layers
 
@@ -68,6 +68,10 @@ Public function:
 ```text
 run_job(job_dir: Path, out_dir: Path) -> FloorPlan
 ```
+
+Scalar dimensions in FloorPlan v0.2 are not bare numbers. They use
+`{"value": 342, "unit": "cm", "interval": {"low": 340, "high": 344, "confidence": 0.95}}`.
+This keeps the point estimate and its calibrated uncertainty inseparable through recon, agent tools, rendering, and eval.
 
 ## Error model
 
