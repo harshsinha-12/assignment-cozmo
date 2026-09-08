@@ -1,0 +1,69 @@
+{
+  "version": "0.1.0",
+  "units": "cm",
+  "status": "ok",
+  "warnings": [],
+  "floor_id": "synthetic_two_room",
+  "origin": { "frame": "job-floor-plane", "up": [0, 0, 1] },
+  "rooms": [
+    {
+      "id": "room_a",
+      "label": "Room A",
+      "polygon": [[0, 0], [400, 0], [400, 300], [0, 300]],
+      "ceiling_height": 250,
+      "area": 120000,
+      "confidence": 1.0
+    },
+    {
+      "id": "room_b",
+      "label": "Room B",
+      "polygon": [[400, 10], [750, 10], [750, 290], [400, 290]],
+      "ceiling_height": 250,
+      "area": 98000,
+      "confidence": 1.0
+    }
+  ],
+  "walls": [
+    { "id": "a_south", "room_ids": ["room_a"], "a": [0, 0], "b": [400, 0], "length": 400, "confidence": 1.0 },
+    { "id": "a_east", "room_ids": ["room_a", "room_b"], "a": [400, 0], "b": [400, 300], "length": 300, "confidence": 1.0 },
+    { "id": "a_north", "room_ids": ["room_a"], "a": [400, 300], "b": [0, 300], "length": 400, "confidence": 1.0 },
+    { "id": "a_west", "room_ids": ["room_a"], "a": [0, 300], "b": [0, 0], "length": 300, "confidence": 1.0 },
+    { "id": "b_south", "room_ids": ["room_b"], "a": [400, 10], "b": [750, 10], "length": 350, "confidence": 1.0 },
+    { "id": "b_east", "room_ids": ["room_b"], "a": [750, 10], "b": [750, 290], "length": 280, "confidence": 1.0 },
+    { "id": "b_north", "room_ids": ["room_b"], "a": [750, 290], "b": [400, 290], "length": 350, "confidence": 1.0 },
+    { "id": "b_west", "room_ids": ["room_b"], "a": [400, 290], "b": [400, 10], "length": 280, "confidence": 1.0 }
+  ],
+  "openings": [
+    {
+      "id": "door_ab",
+      "kind": "door",
+      "wall_id": "a_east",
+      "width": 80,
+      "height": 210,
+      "offset_along_wall": 150,
+      "connects_room_ids": ["room_a", "room_b"],
+      "confidence": 1.0
+    }
+  ],
+  "stitch": {
+    "edges": [
+      {
+        "left_room": "room_a",
+        "right_room": "room_b",
+        "via": "door_ab",
+        "dx": 400,
+        "dy": 10,
+        "dtheta_deg": 0,
+        "residual": 0
+      }
+    ]
+  },
+  "provenance": {
+    "tier": "synthetic",
+    "scale_source": "synthetic",
+    "gravity_source": "synthetic",
+    "pipeline": "handwritten-fixture",
+    "inputs": ["data/fixtures/synthetic_two_room/manifest.yaml"],
+    "notes": "Ground truth for eval harness. Door centered on room A east wall at y=110–190."
+  }
+}

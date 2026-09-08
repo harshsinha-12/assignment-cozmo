@@ -1,0 +1,23 @@
+job_id: synthetic_two_room
+tier: synthetic
+device: none
+ceiling_height_cm: 250
+known_lengths_cm:
+  - name: shared_door
+    cm: 80
+    kind: door_width
+  - name: room_a_south
+    cm: 400
+    kind: wall
+  - name: room_a_west
+    cm: 300
+    kind: wall
+  - name: room_b_south
+    cm: 350
+    kind: wall
+  - name: room_b_east
+    cm: 280
+    kind: wall
+notes: >
+  Axis-aligned two-room fixture for eval plumbing. Not a reconstruction job.
+  Room A is 400x300. Room B is 350x280, attached on A's east wall through an 80cm door.

@@ -1,0 +1,16 @@
+---
+description: How Cursor agents must operate in assignment-cozmo
+alwaysApply: true
+---
+
+# assignment-cozmo
+
+You are working the Cozmo take-home workspace. Follow `AGENTS.md` as the contract.
+
+Before coding, read `HANDOFF.md`, the latest `update.md` entry, `TASKS.md`, and `docs/takehome.md`.
+
+If `docs/takehome.md` is still a stub, do not implement reconstruction (SfM, SLAM, RoomPlan mapping). Schema, fixtures, docs, and setup are allowed.
+
+Do not re-extract the Brynz PDF or re-scrape hellocozmo.ai. Do not claim centimetre accuracy without eval numbers. Do not fake metric scale on photos.
+
+End every session by updating `HANDOFF.md`, appending `update.md`, and ticking `TASKS.md`.

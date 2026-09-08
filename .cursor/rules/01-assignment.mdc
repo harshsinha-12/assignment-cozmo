@@ -1,0 +1,13 @@
+---
+description: Domain constraints for the floor-plan take-home
+alwaysApply: true
+---
+
+# Floor plan assignment
+
+- Three input tiers: photos, video, LiDAR. One FloorPlan IR: `docs/schemas/floorplan.schema.json`.
+- Linux Cloud Agents cannot run Apple RoomPlan. Ingest JSON/USDZ/PLY exports.
+- Monocular SfM has no metric scale. Photos without a prior must use `units: relative` plus `missing_scale`.
+- Prefer classical geometry over an LLM that guesses dimensions.
+- ESX/Xactimate export is out of scope unless `docs/takehome.md` requires it.
+- Tests must run headless (`opencv-python-headless`).

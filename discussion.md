@@ -1,1 +1,0 @@
-Problem Statement: An Applied AI Engineer to solve a specific problem: turn phone camera captures into dimensioned, stitched floor plans with cm-level accuracy across three input tiers (photos, video, LiDAR).

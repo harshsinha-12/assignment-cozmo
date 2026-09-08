@@ -1,0 +1,25 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.pyc
+.DS_Store
+.env
+.idea/
+.vscode/
+data/private/
+data/inbox/*.mp4
+data/inbox/*.mov
+data/inbox/*.usdz
+*.egg-info/
+dist/
+build/
+.coverage
+htmlcov/
+
+# Keep orchestration docs / markdown local-only (not pushed)
+*.md
+docs/*
+!docs/schemas/
+!docs/schemas/**
