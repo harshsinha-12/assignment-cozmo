@@ -18,7 +18,6 @@ Product: local CLI + **disclosed LLM tool-calling agent**. Score policy: max eve
 | T4 | done | Reconcile plan with official prompt | T1 | 2026-09-08 ingest |
 | T3 | todo | Human benchmark capture | human + Pro phone | See Unblocked; parallel with engineering |
 | T6 | blocked | LiDAR export → FloorPlan | T3 real Record3D export | RoomPlan JSON works; raw Record3D/USDZ must be hardened on captured files |
-| T15 | todo | SVG whole-property renderer | T12 | Product surface |
 | T9 | todo | Stitch + drift correction + on/off ablation | T6 | Auto-fail if poses used as-is |
 | T7 | todo | Video path | T6 | ±3% walls with CIs |
 | T8 | todo | Photos path, 2–8 stills, folder stitch | T9 | Target ±8% walls **and** opening/ceiling/detection gates |
@@ -55,12 +54,13 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-**T15** SVG renderer while T6 raw Record3D waits on human **T3**. Do not skip photos/video. T16 is the **agent + tools** layer (required). T21 only if Xcode exists.
+**T16** agent + tools while T6 raw Record3D waits on human **T3**. The LLM classifies damage and selects rules/actions; geometry tools remain the only source of measured quantities. T21 only if Xcode exists.
 
 ---
 
 ## Done
 
+- **2026-09-08 T15** — Deterministic whole-property SVG renderer, paired atomically-written JSON/SVG artifacts, measured wall intervals, openings, scale bar, status/provenance summary, and failed-run placeholder.
 - **2026-09-08 T14** — Official-gate eval package and CLI: red empty predictions, openings, ceilings, repeatability, drift ablation, photo stitch, photo/video walls, calibration, yield, and LiDAR head-to-head.
 - **2026-09-08 T13** — Modular installable CLI, normalized job loading, schema validation, atomic `floorplan.json`, structured failure paths, code map, and command tests.
 - **2026-09-08 T12** — FloorPlan IR v0.2: required interval-bearing measurements, damage, concealed-rule flags, scope, drift metadata, fixture migration, and contract tests.

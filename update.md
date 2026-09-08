@@ -13,6 +13,15 @@ Format:
 - Next
 ```
 
+## 2026-09-08 — T15 whole-property SVG renderer
+
+- Completed a deterministic, accessible SVG product surface for FloorPlan v0.2.
+- Added separate modules for immutable render configuration, centimetre-to-canvas layout, SVG composition, and paired artifact persistence; recorded their roles in `docs/code-map.md`.
+- The `run` command now emits `floorplan.json` and `floorplan.svg` for `ok`, `partial`, and structured-failure results. The SVG never derives new measurements: wall labels and confidence intervals come directly from the IR.
+- The drawing includes room polygons and labels, walls, openings, a 100 cm scale bar, run status, counts, capture tier, scale source, and a failed-run placeholder.
+- Verified the two-room RoomPlan output through the real CLI and macOS Quick Look. Automated result: 30 tests pass; ruff and compileall pass.
+- Next: T16 agent + tools. Keep T6 raw Record3D blocked until a real capture exists.
+
 ---
 
 ## 2026-09-08 — T6 RoomPlan path complete; raw Record3D blocked

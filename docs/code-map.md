@@ -10,7 +10,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/__main__.py` | Entry point for the required `python -m cozmo_floorplan ...` command. |
 | `src/cozmo_floorplan/cli.py` | CLI arguments, exit codes, and the outer error boundary that guarantees structured output where the output directory is writable. |
 | `src/cozmo_floorplan/pipeline.py` | Application orchestration boundary. Dispatches LiDAR jobs to T6 and returns honest structured failures for unavailable adapters/formats. |
-| `src/cozmo_floorplan/config.py` | Shared filenames, schema version, supported tiers, directory conventions, and exit-code constants. |
+| `src/cozmo_floorplan/config.py` | Shared artifact filenames, schema version, supported tiers, directory conventions, and exit-code constants. |
 | `src/cozmo_floorplan/errors.py` | Expected domain exception types. Keeps error classification out of command and I/O code. |
 
 ## Contract and I/O
@@ -18,7 +18,8 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | File | Responsibility |
 | --- | --- |
 | `src/cozmo_floorplan/io/job.py` | Reads `manifest.yaml`, checks the tier-specific job directory, and produces immutable normalized job metadata. |
-| `src/cozmo_floorplan/io/output.py` | Validates and atomically writes `floorplan.json`, preventing partially-written artifacts. |
+| `src/cozmo_floorplan/io/output.py` | Reusable atomic UTF-8 text and JSON persistence, plus the compatibility `floorplan.json` writer. |
+| `src/cozmo_floorplan/io/artifacts.py` | Validates once, renders in memory, and persists the paired `floorplan.json` and `floorplan.svg` run artifacts. |
 | `src/cozmo_floorplan/floorplan.py` | Creates stable FloorPlan documents, including the schema-valid failed result used before adapters exist. |
 | `src/cozmo_floorplan/schema.py` | Loads and compiles the canonical JSON Schema and validates generated documents. |
 | `src/cozmo_floorplan/utils/paths.py` | Finds repository runtime assets and handles the explicit schema-path override. |
@@ -49,6 +50,15 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/eval/evaluator.py` | Composes official gates: openings, ceilings, repeatability, drift ablation, photo stitch, tier wall accuracy, calibration, yield, and head-to-head. |
 | `src/cozmo_floorplan/eval/io.py` | Loads schema-valid FloorPlans and atomically writes `eval.json`. |
 
+## Rendering
+
+| File | Responsibility |
+| --- | --- |
+| `src/cozmo_floorplan/render/config.py` | Immutable palette, spacing, stroke, and minimum-canvas settings for SVG output. |
+| `src/cozmo_floorplan/render/layout.py` | Computes geometry bounds and maps centimetre floor coordinates into the y-down SVG canvas without changing scale. |
+| `src/cozmo_floorplan/render/svg.py` | Builds the accessible, self-contained whole-property SVG: rooms, measured wall intervals, openings, scale bar, status, and provenance summary. |
+| `src/cozmo_floorplan/render/__init__.py` | Exposes the renderer as a small package API. |
+
 ## Tests and fixtures
 
 | File | Responsibility |
@@ -59,6 +69,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `data/fixtures/synthetic_two_room/` | Small public-safe metric truth used by schema and later evaluation tests. |
 | `data/fixtures/roomplan_two_room/` | Synthetic RoomPlan-format LiDAR job that reconstructs the same metric room dimensions. |
 | `tests/test_lidar.py` | Tests single/multi-room discovery, RoomPlan conversion, intervals, metric gates, CLI output, and honest unsupported fallbacks. |
+| `tests/test_render.py` | Tests parseable whole-property SVG, dimensions, openings, deterministic output, XML escaping, and failed-run placeholders. |
 
 ## Planned modules
 
@@ -67,7 +78,6 @@ Later tasks add real modules only when they contain working behavior:
 - `recon/video.py` and `recon/photos.py` — video and photo adapters.
 - Additional `geom/` modules — point-cloud, plane, and pose-graph operations as required.
 - `stitch/` — room adjacency, pose graph, and drift correction.
-- `render/` — whole-property SVG output.
 - `agent/` — LLM tool calling plus deterministic damage/scope fallback.
 
 Do not create empty placeholders for these directories. Add each one with its implementing task and document its files here.

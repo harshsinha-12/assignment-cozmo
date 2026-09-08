@@ -18,7 +18,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 **Human (tonight):** capture the benchmark — [`docs/capture-protocol.md`](docs/capture-protocol.md). 3+ rooms + hallway, photos/video/LiDAR, two damage classes, tape, Polycam or magicplan on two rooms. Short list: [`START-TOMORROW.md`](START-TOMORROW.md).
 
-**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). Top unblocked code task is **T15** (SVG renderer). T6 raw Record3D waits on a real capture.
+**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). Top unblocked code task is **T16** (agent + tools). T6 raw Record3D waits on a real capture.
 
 ## Repo map
 
@@ -39,11 +39,11 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 | `docs/compliance-matrix.md` | Scored coverage table |
 | `docs/device-matrix.md` | Hardware × tier |
 | `docs/schemas/floorplan.schema.json` | Frozen v0.2 IR: interval measurements + claims objects |
-| `src/` | Modular CLI package; reconstruction adapters not started |
+| `src/` | Modular CLI, RoomPlan reconstruction, eval, and SVG rendering package |
 
 ## Current status
 
-**Schema, CLI, eval, and the RoomPlan JSON LiDAR path work. Raw Record3D/USDZ await real fixtures; T15 SVG is next.**
+**Schema, CLI, eval, RoomPlan JSON LiDAR, and paired JSON/SVG output work. Raw Record3D/USDZ await real fixtures; T16 agent + tools is next.**
 
 See [`roadmap.md`](roadmap.md).
 
@@ -56,7 +56,7 @@ pip install -r requirements.txt
 make test
 ```
 
-`run` emits schema-valid structured failures for capture tiers or file formats whose reconstruction adapter is not implemented.
+`run` emits `floorplan.json` and a self-contained `floorplan.svg`, including a readable placeholder for structured failures.
 
 The synthetic RoomPlan job now emits dimensioned geometry:
 
@@ -64,7 +64,7 @@ The synthetic RoomPlan job now emits dimensioned geometry:
 python -m cozmo_floorplan run data/fixtures/roomplan_two_room --out out/roomplan_two_room
 ```
 
-It returns `partial` until T9 adds multi-room drift correction. See `docs/formats/roomplan-json.md` for accepted input and current Record3D/USDZ boundaries.
+It returns `partial` until T9 adds multi-room drift correction. The SVG shows room polygons, measured wall intervals, openings, a metric scale bar, and provenance summary. See `docs/formats/roomplan-json.md` for accepted input and current Record3D/USDZ boundaries.
 
 Evaluate any output with `python -m cozmo_floorplan eval --pred PRED --truth TRUTH --out OUT`. Missing repeat and drift-ablation evidence stays visibly red.
 

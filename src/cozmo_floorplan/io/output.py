@@ -20,9 +20,15 @@ def write_floorplan(document: dict[str, Any], out_dir: str | Path) -> Path:
 def write_json_atomic(document: dict[str, Any], destination: Path) -> Path:
     """Write JSON without exposing a partially-written artifact."""
 
+    payload = json.dumps(document, indent=2, sort_keys=True) + "\n"
+    return write_text_atomic(payload, destination)
+
+
+def write_text_atomic(payload: str, destination: Path) -> Path:
+    """Write UTF-8 text without exposing a partially-written artifact."""
+
     destination = destination.resolve()
     destination.parent.mkdir(parents=True, exist_ok=True)
-    payload = json.dumps(document, indent=2, sort_keys=True) + "\n"
 
     temporary_path: Path | None = None
     try:

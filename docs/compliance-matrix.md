@@ -19,7 +19,7 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R11 | Confidence interval on every measurement | schema | v0.2 `{value, unit, interval}` measurement objects | implemented |
 | R12 | One command per capture | `src/cozmo_floorplan/cli.py` | command runs and emits structured JSON; successful adapters pending | partial |
 | R13 | JSON to published schema | `docs/schemas/floorplan.schema.json` | our IR until they attach one | partial |
-| R14 | Rendered plan | renderer | `floorplan.svg` | missing |
+| R14 | Rendered plan | `src/cozmo_floorplan/render/svg.py` + `src/cozmo_floorplan/io/artifacts.py` | CLI-generated `floorplan.svg`; synthetic visual QA passed | done |
 | R15 | Benchmark: 3+ rooms + connector, all tiers, damage, repeat, tape GT | `data/fixtures/` | raw + GT | missing |
 | R16 | Opening width gate | `eval/evaluator.py` | ≤2 cm, ≥85%, misses/phantoms scored; real data pending | partial |
 | R17 | Ceiling height + repeatability gates | `eval/evaluator.py` | thresholds and missing-evidence reporting implemented; captures pending | partial |

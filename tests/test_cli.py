@@ -3,6 +3,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 import jsonschema
 
@@ -43,6 +44,10 @@ def test_run_writes_schema_valid_structured_adapter_failure(tmp_path):
     assert document["provenance"]["tier"] == "photos"
     assert document["provenance"]["inputs"] == ["manifest.yaml", "photos/room_a_01.jpg"]
     assert document["warnings"][0]["code"] == "unsupported_tier"
+    svg_path = out_dir / "floorplan.svg"
+    assert svg_path.exists()
+    assert "No geometry available" in svg_path.read_text(encoding="utf-8")
+    ET.parse(svg_path)
 
 
 def test_missing_manifest_still_writes_structured_failure(tmp_path):
@@ -90,4 +95,6 @@ def test_exact_module_command_is_runnable(tmp_path):
 
     assert result.returncode == 2
     assert "status=failed" in result.stdout
+    assert "floorplan.svg" in result.stdout
     _read_and_validate(out_dir / "floorplan.json")
+    ET.parse(out_dir / "floorplan.svg")

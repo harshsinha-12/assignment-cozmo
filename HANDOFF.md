@@ -12,10 +12,11 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Implemented the **T6 RoomPlan JSON path** using a documented portable v1 format.
-- Added separate typed RoomPlan parsing, surface-transform projection, wall polygonization, LiDAR uncertainty config, measurement construction, and FloorPlan assembly; documented every file in `docs/code-map.md`.
-- Added `data/fixtures/roomplan_two_room`: 2 rooms, 8 walls, one shared 80×210 cm door, metric transforms, and high confidence.
-- Added structured detection for unsupported raw Record3D/metadata and USDZ rather than guessing their bytes.
+- Completed **T15 whole-property SVG rendering** and paired run-artifact persistence.
+- The CLI now writes both `floorplan.json` and `floorplan.svg` for successful, partial, and structured-failure runs.
+- Split visual constants, coordinate layout, SVG composition, and artifact persistence into focused modules; documented every file in `docs/code-map.md`.
+- Added renderer tests for rooms, openings, measured confidence intervals, determinism, XML escaping, and empty-geometry placeholders.
+- Rendered the synthetic two-room artifact through macOS Quick Look and visually checked its plan geometry, labels, dimensions, opening, scale bar, and summary.
 
 ### What is true now
 
@@ -24,11 +25,11 @@ The current agent overwrites the **Current handoff** section at the end of every
 - All three capture tiers remain pass targets. Route 2 is the guaranteed walk-in.
 - Capture phone: iPhone 17 Pro.
 - Schema v0.2 and its synthetic fixture validate.
-- `python -m cozmo_floorplan run JOB --out OUT` exists. Until adapters land, it honestly writes `status: failed`, a typed warning, empty geometry/claims arrays, and provenance, then exits 2.
-- `python -m cozmo_floorplan run data/fixtures/roomplan_two_room --out OUT` emits a schema-valid, dimensioned LiDAR FloorPlan.
+- `python -m cozmo_floorplan run JOB --out OUT` writes paired JSON/SVG artifacts. Unavailable adapters honestly emit a failed JSON and explanatory SVG placeholder, then exit 2.
+- `python -m cozmo_floorplan run data/fixtures/roomplan_two_room --out OUT` emits a schema-valid, dimensioned LiDAR FloorPlan and readable whole-property SVG.
 - Multi-room output is intentionally `partial`: global RoomPlan transforms are used as-is and T9 must add drift correction/ablation.
 - Available synthetic metric gates have zero wall/area/opening error; repeat, drift, incumbent, and pipeline yield remain red or missing as expected.
-- `make test` passes 27 tests; ruff and compileall pass.
+- All 30 tests pass; ruff and compileall pass.
 - Raw Record3D/USDZ are not implemented or live-validated. No private sensor capture exists yet.
 
 ### Blockers
@@ -40,28 +41,29 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### Next agent should
 
-1. **T15** whole-property SVG renderer using the RoomPlan fixture output.
+1. **T16** agent + tools: damage classification, concealed-damage rule ids, scope, public-provider tool calling, and deterministic no-key fallback.
 2. Resume T6 raw Record3D fusion as soon as T3 supplies the real export.
 3. Do not skip T16 (agent). Do not let the LLM invent wall lengths.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `docs/code-map.md`
-3. `docs/schemas/floorplan.schema.json`
-4. `data/fixtures/roomplan_two_room/README.md`
-5. `docs/formats/roomplan-json.md`
+2. `docs/agent-layer.md`
+3. `docs/code-map.md`
+4. `docs/schemas/floorplan.schema.json`
+5. `src/cozmo_floorplan/io/artifacts.py`
 
 ### Exact next command
 
 ```text
-T15: render a readable whole-property SVG from FloorPlan v0.2 and the RoomPlan fixture. Keep raw Record3D T6 blocked until T3 supplies a real export; do not claim Route 2 LiDAR readiness.
+T16: implement the disclosed public-provider tool-calling agent and deterministic fallback for damage, concealed rule ids, and scope. Geometry tools are the only source of quantities; no LLM-guessed centimetres.
 ```
 
 ---
 
 ## History
 
+- **2026-09-08** — T15 JSON/SVG artifact pair complete; synthetic visual QA and 30 tests pass.
 - **2026-09-08** — T6 RoomPlan JSON path works; raw Record3D/USDZ blocked on T3; 27 tests pass.
 - **2026-09-08** — T14 official-gate eval CLI complete; 20 tests pass.
 - **2026-09-08** — T13 modular CLI and job contract complete; 12 tests pass.
