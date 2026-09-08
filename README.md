@@ -18,7 +18,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 **Human (tonight):** capture the benchmark — [`docs/capture-protocol.md`](docs/capture-protocol.md). 3+ rooms + hallway, photos/video/LiDAR, two damage classes, tape, Polycam or magicplan on two rooms. Short list: [`START-TOMORROW.md`](START-TOMORROW.md).
 
-**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). Top code task is **T13** (CLI stub). Do not pre-concede photo/video gates.
+**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). Top code task is **T14** (red eval harness). Do not pre-concede photo/video gates.
 
 ## Repo map
 
@@ -31,6 +31,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 | `roadmap.md` | Phases |
 | `TASKS.md` | Queue |
 | `docs/product.md` | What we ship / how they test |
+| `docs/code-map.md` | What each implementation file owns |
 | `docs/agent-layer.md` | LLM tool calling (damage/scope) |
 | `docs/cut-later.md` | Tomorrow-night defer list only |
 | `docs/takehome.md` | Official case study |
@@ -38,11 +39,11 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 | `docs/compliance-matrix.md` | Scored coverage table |
 | `docs/device-matrix.md` | Hardware × tier |
 | `docs/schemas/floorplan.schema.json` | Frozen v0.2 IR: interval measurements + claims objects |
-| `src/` | Package (not started) |
+| `src/` | Modular CLI package; reconstruction adapters not started |
 
 ## Current status
 
-**Phase 1 ingest done. Phase 2 (schema + red eval) is next. No reconstructor yet.**
+**Phase 1 ingest, T12 schema, and T13 CLI are done. T14 red eval is next. No reconstructor yet.**
 
 See [`roadmap.md`](roadmap.md).
 
@@ -55,7 +56,7 @@ pip install -r requirements.txt
 make test
 ```
 
-Expected today: schema tests on the synthetic fixture. Pipeline `run` does not exist until T13.
+Expected today: schema and CLI tests. `run` emits a schema-valid structured failure until a reconstruction adapter is implemented.
 
 ## Design in one paragraph
 

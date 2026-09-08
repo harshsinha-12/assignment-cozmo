@@ -12,8 +12,11 @@ cd assignment-cozmo
 python3 -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+pip install --no-deps -e .
 make test
 ```
+
+`make test` disables auto-loading unrelated globally installed pytest plugins, so the repo behaves the same inside and outside a clean virtual environment.
 
 Python 3.11 or 3.12. System packages you will want before video work:
 
@@ -51,7 +54,9 @@ If an agent needs a heavier stack (COLMAP, Open3D):
 2. Put slow OS packages in a Dockerfile under `.cursor/` rather than in `install`.
 3. Do not `apt-get install colmap` on every boot “to be safe.”
 
-Secrets: none required for the planned classical pipeline. If the official prompt requires a model API, put the key in Cloud Agent secrets and read it from the environment in code. Never commit `.env`. Template: `.env.example`.
+The editable install makes the required `python -m cozmo_floorplan` command available while keeping source under `src/`.
+
+The live agent path can use `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`. Put keys in Cloud Agent secrets or a local `.env`, never in git. The deterministic fallback remains available without a key. Template: `.env.example`.
 
 ## What cannot run here
 

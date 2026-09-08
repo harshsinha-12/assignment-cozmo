@@ -5,6 +5,7 @@ Read `AGENTS.md` first, not this folder.
 | File | Contents |
 | --- | --- |
 | `product.md` | What we ship; how they test |
+| `code-map.md` | What each implementation file owns |
 | `agent-layer.md` | LLM tools for damage/scope |
 | `cut-later.md` | Tomorrow-night defer list only |
 | `takehome.md` | Official Round 2 prompt |

@@ -65,7 +65,7 @@ job dir → normalizer → recon (LiDAR | video | photos) → FloorPlan numbers
 
 ## Next work
 
-**Code:** T12 schema is complete. Next: T13 CLI stub → T14 red eval for official gates. Then T6 LiDAR, T15 SVG, T9 stitch+ablation, T7 video, T8 photos, T16 agent.
+**Code:** T12 schema and T13 CLI stub are complete. Next: T14 red eval for official gates. Then T6 LiDAR, T15 SVG, T9 stitch+ablation, T7 video, T8 photos, T16 agent.
 
 **Human (Harsh):** T3 capture tonight (`docs/capture-protocol.md`).
 

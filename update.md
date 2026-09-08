@@ -15,6 +15,16 @@ Format:
 
 ---
 
+## 2026-09-08 — T13 modular CLI stub complete
+
+- Context: T12 was committed; T13 was the highest unblocked engineering task.
+- Done: added an installable `src/cozmo_floorplan` package with separate config, errors, job I/O, schema validation, atomic output, FloorPlan factory, pipeline, utilities, and CLI modules. Added `docs/code-map.md` to explain every code file.
+- Behavior: `python -m cozmo_floorplan run JOB --out OUT` now validates the job layout and always writes a schema-valid structured failure while reconstruction adapters are unavailable. It returns exit code 2 for this expected incomplete state rather than fabricating geometry or returning only a traceback.
+- Verified: `make test` passes 12 tests; compileall passes; editable install succeeded in a clean temporary venv; the exact installed module command wrote a v0.2 `floorplan.json` with the expected exit code 2.
+- Next: T14 red evaluation harness for the official gates. Do not implement recon inside the eval task.
+
+---
+
 ## 2026-09-08 — T12 FloorPlan schema v0.2 complete
 
 - Context: T12 was the highest unblocked engineering task and gates the CLI/eval work.

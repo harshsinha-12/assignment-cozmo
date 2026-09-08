@@ -63,11 +63,13 @@ privacy: "no faces"
 - `render.svg`
 - `eval`
 
-Public function:
+Public orchestration function:
 
 ```text
-run_job(job_dir: Path, out_dir: Path) -> FloorPlan
+run_job(job_dir: Path) -> FloorPlan
 ```
+
+The CLI owns persistence to `out_dir`; keeping `run_job` free of output side effects makes adapters and evaluation easier to test.
 
 Scalar dimensions in FloorPlan v0.2 are not bare numbers. They use
 `{"value": 342, "unit": "cm", "interval": {"low": 340, "high": 344, "confidence": 0.95}}`.

@@ -17,7 +17,7 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R9 | Concealed-damage flags + rule id | agent `fire_concealed_rule` | v0.2 `concealed_flags[]` requires `rule_id`; generation pending | partial |
 | R10 | Scope line items keyed to surfaces | agent `add_scope_line` (qty from geometry) | v0.2 `scope[]` schema ready; generation pending | partial |
 | R11 | Confidence interval on every measurement | schema | v0.2 `{value, unit, interval}` measurement objects | implemented |
-| R12 | One command per capture | README | `python -m cozmo_floorplan run JOB --out OUT` | missing |
+| R12 | One command per capture | `src/cozmo_floorplan/cli.py` | command runs and emits structured JSON; successful adapters pending | partial |
 | R13 | JSON to published schema | `docs/schemas/floorplan.schema.json` | our IR until they attach one | partial |
 | R14 | Rendered plan | renderer | `floorplan.svg` | missing |
 | R15 | Benchmark: 3+ rooms + connector, all tiers, damage, repeat, tape GT | `data/fixtures/` | raw + GT | missing |

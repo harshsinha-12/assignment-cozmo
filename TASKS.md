@@ -16,7 +16,6 @@ Product: local CLI + **disclosed LLM tool-calling agent**. Score policy: max eve
 | T1 | done | Official prompt in `docs/takehome.md` | human | 2026-09-08 |
 | T2 | done | Synthetic two-room fixture | — | 2026-09-07 |
 | T4 | done | Reconcile plan with official prompt | T1 | 2026-09-08 ingest |
-| T13 | todo | Job layout + CLI stub `python -m cozmo_floorplan run` | T12 | Structured failed/partial JSON, never a traceback-only exit |
 | T14 | todo | Red eval harness for official gates | T12 | Openings, ceiling, repeatability, stitch, photo ±8% |
 | T3 | todo | Human benchmark capture | human + Pro phone | See Unblocked; parallel with T12–T14 |
 | T6 | todo | LiDAR export → FloorPlan | T12, T13 | Record3D / RoomPlan / USDZ |
@@ -57,12 +56,13 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-**T13** CLI stub, then T14. Human **T3**. Do not skip photos/video. T16 is the **agent + tools** layer (required). T21 only if Xcode exists.
+**T14** red eval harness. Human **T3**. Do not skip photos/video. T16 is the **agent + tools** layer (required). T21 only if Xcode exists.
 
 ---
 
 ## Done
 
+- **2026-09-08 T13** — Modular installable CLI, normalized job loading, schema validation, atomic `floorplan.json`, structured failure paths, code map, and command tests.
 - **2026-09-08 T12** — FloorPlan IR v0.2: required interval-bearing measurements, damage, concealed-rule flags, scope, drift metadata, fixture migration, and contract tests.
 - **2026-09-08** — Max-score retarget: do not pre-concede tiers/gates; cuts only via `docs/cut-later.md`. T21 iOS exporter added as parallel track.
 - **2026-09-08 T4** — Ingest: plan/roadmap/TASKS aligned; ADR; product/compliance/route/device docs.

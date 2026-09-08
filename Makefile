@@ -8,12 +8,13 @@ setup:
 	$(PYTHON) -m venv $(VENV)
 	$(BIN)/pip install --upgrade pip
 	$(BIN)/pip install -r requirements.txt
+	$(BIN)/pip install --no-deps -e .
 
 test:
 	@if [ -x $(BIN)/pytest ]; then \
-		$(BIN)/pytest -q; \
+		PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(BIN)/pytest -q; \
 	else \
-		$(PYTHON) -m pytest -q; \
+		PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 $(PYTHON) -m pytest -q; \
 	fi
 
 fmt:
