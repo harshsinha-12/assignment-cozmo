@@ -20,6 +20,8 @@
     <string>$(MARKETING_VERSION)</string>
     <key>CFBundleVersion</key>
     <string>$(CURRENT_PROJECT_VERSION)</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Cozmo Capture records a walkthrough soundtrack with the room video.</string>
     <key>NSCameraUsageDescription</key>
     <string>Cozmo Capture uses the camera and LiDAR sensor to measure room surfaces.</string>
     <key>UILaunchScreen</key>

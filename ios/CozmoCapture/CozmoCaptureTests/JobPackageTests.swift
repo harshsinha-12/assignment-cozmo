@@ -22,9 +22,13 @@ final class JobPackageTests: XCTestCase {
   func testManifestQuotesRequiredJobFields() {
     let yaml = CaptureJobManifest.yaml(
       jobId: "cozmo-capture-test",
+      tier: "lidar",
       device: "iPhone 17 Pro",
+      captureFormat: "roomplan-json-v1+record3d-r3d",
       rooms: ["Kitchen", "Hall"],
-      lidarFiles: ["lidar/roomplan.json", "lidar/kitchen.r3d"]
+      filesKey: "lidar_files",
+      files: ["lidar/roomplan.json", "lidar/kitchen.r3d"],
+      notes: "test"
     )
 
     XCTAssertTrue(yaml.contains("job_id: \"cozmo-capture-test\""))
@@ -132,6 +136,63 @@ final class JobPackageTests: XCTestCase {
       XCTAssertEqual(
         (error as? JobPackageBuilder.PackageError),
         JobPackageBuilder.PackageError.emptyPlan
+      )
+    }
+  }
+
+  func testPhotoPackageMatchesCLILayout() throws {
+    let jpeg = try tinyJPEG()
+    let package = try JobPackageBuilder.writePhotos(
+      rooms: [("Kitchen", [jpeg, jpeg])],
+      jobId: "cozmo-capture-photos",
+      device: "iPhone 17 Pro",
+      into: scratch
+    )
+    let manifest = try String(
+      contentsOf: package.jobDirectory.appendingPathComponent("manifest.yaml"),
+      encoding: .utf8
+    )
+    XCTAssertTrue(manifest.contains("tier: photos"))
+    XCTAssertTrue(
+      FileManager.default.fileExists(
+        atPath: package.jobDirectory.appendingPathComponent("photos/kitchen/01.jpg").path
+      )
+    )
+    let entries = try zipEntries(Data(contentsOf: package.zipURL))
+    XCTAssertTrue(entries.keys.contains("cozmo-capture-photos/photos/kitchen/02.jpg"))
+  }
+
+  func testVideoPackageMatchesCLILayout() throws {
+    let package = try JobPackageBuilder.writeVideos(
+      clips: [("Hall", Data("mp4-bytes".utf8))],
+      jobId: "cozmo-capture-video",
+      device: "iPhone 17 Pro",
+      into: scratch
+    )
+    let manifest = try String(
+      contentsOf: package.jobDirectory.appendingPathComponent("manifest.yaml"),
+      encoding: .utf8
+    )
+    XCTAssertTrue(manifest.contains("tier: video"))
+    XCTAssertTrue(
+      FileManager.default.fileExists(
+        atPath: package.jobDirectory.appendingPathComponent("video/hall.mp4").path
+      )
+    )
+  }
+
+  func testPhotoCountOutsideBoundsIsRejected() {
+    XCTAssertThrowsError(
+      try JobPackageBuilder.writePhotos(
+        rooms: [("Kitchen", [Data()])],
+        jobId: "cozmo-capture-photos-bad",
+        device: "iPhone 17 Pro",
+        into: scratch
+      )
+    ) { error in
+      XCTAssertEqual(
+        error as? JobPackageBuilder.PackageError,
+        .invalidPhotoCount
       )
     }
   }

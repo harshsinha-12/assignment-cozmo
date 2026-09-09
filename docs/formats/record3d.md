@@ -60,15 +60,18 @@ zero openings.
 
 Accepted rooms now produce `floorplan.json` and `floorplan.svg` with metric room
 polygons, four walls, ceiling height, area, and supported openings. Measurement
-objects use deliberately wider, named `uncalibrated` intervals until benchmark
-ground truth can measure coverage.
+objects use deliberately wider, named `uncalibrated` intervals. The current
+partial tape truth measures 61.1% aggregate coverage against 80% mean declared
+confidence, so those intervals are not yet calibrated.
 
 ## Current boundary
 
 Three separate archives currently produce three rooms, twelve walls, and four
-opening candidates. Their exported world coordinates are preserved, but the
+opening candidates. Frame-invariant evaluation reports 2.5 cm wall median and
+30 cm p95 error across the twelve walls; the large residual is real rather than
+an ID-order artefact. Their exported world coordinates are preserved, but the
 pipeline does not claim those archives share a registered frame and does not
 invent room adjacency. The result is therefore `partial` with explicit
-low-confidence and disconnected-room warnings. Tape/laser truth, a repeat scan,
-and connector/shared-opening evidence are required before calibration or scored
-accuracy claims.
+low-confidence and disconnected-room warnings. More complete opening truth and
+connector/shared-opening evidence are required before opening calibration or
+cross-room registration claims.

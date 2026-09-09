@@ -15,7 +15,10 @@ Units: centimetres. Area can also be percent.
 
 Against `ground_truth.json` in each fixture:
 
-1. **Hungarian match** walls by midpoint + direction (or by id if synthetic).
+1. Match rooms, then match each room's cyclic wall topology by side length while
+   allowing a cyclic shift and reflection. This is invariant to independent
+   scan origins and yaw; generated wall numbers are not treated as semantic
+   identities. Shared/multi-owner walls retain the geometry fallback.
 2. Absolute length error.
 3. Polygon IoU / area error after aligning the plan (Umeyama / ICP in 2D) so a global SE(2) does not look like a length error.
 4. Opening width error.
@@ -81,7 +84,29 @@ python -m cozmo_floorplan eval \
 
 T14 implements this command and writes deterministic `eval.json`. Optional evidence is never silently ignored: missing repeat, drift-ablation, or LiDAR incumbent inputs appear as `missing_evidence` gates. A non-passing report exits 3; invalid input exits 1.
 
-Entity matching uses exact ids first, then Hungarian geometry matching for walls and rooms. Openings are matched by kind, supporting wall, offset, and width. Missed and phantom openings both enter the accuracy denominator.
+Rooms use exact ids and then a Hungarian geometry fallback. Single-owner walls
+use room-local cyclic topology and side lengths, allowing rotation/reflection
+between coordinate frames; remaining shared walls use exact ids and then the
+geometry fallback. Openings are matched by kind, mapped supporting wall,
+offset, and width. Missed and phantom openings both enter the accuracy
+denominator.
+
+### Current private LiDAR result (2026-09-10)
+
+The three-room Record3D prediction has 12 matched walls. Frame-invariant wall
+matching reports a **2.5 cm median** and **30 cm p95**, replacing the invalid
+75 cm median produced when generated `wall-1` labels forced long sides to match
+short sides. Per-room wall absolute errors are:
+
+- `drawing-room`: 12, 12, 0, 0 cm
+- `my-room`: 30, 30, 0, 0 cm
+- `pooja-room`: 5, 5, 0, 0 cm
+
+This is an evaluation correction, not benchmark-driven reconstruction tuning.
+The remaining errors stay red. Aggregate interval coverage is 11/18 (61.1%)
+against 80% mean declared confidence; maximum ceiling error is 5.41 cm; four
+opening candidates have no measured opening truth; and the three scans remain
+disconnected.
 
 The report distinguishes `pass`, `fail`, `missing_evidence`, and `not_applicable`. Empty geometry therefore produces explicit red opening, ceiling, yield, and calibration gates rather than zeros that look successful.
 

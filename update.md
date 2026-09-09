@@ -691,3 +691,35 @@ See `README.md` for the map. Do not delete the original PDF even though the file
   components/isolates to replace weak photos with corner-transition views.
   Otherwise proceed to a different evidence-driven tier rather than weakening
   photo acceptance thresholds.
+
+---
+
+## 2026-09-10 — T6c frame-invariant LiDAR wall evaluation
+
+### Done
+
+- Added a dedicated wall matcher that first matches rooms, orders each room's
+  single-owner walls around its centroid, and searches cyclic shifts plus
+  reflection using side-length evidence.
+- Generated wall ids no longer force long sides to compare with short sides
+  when prediction and truth were numbered from different polygon origins.
+- Added regressions for independent rotation/translation, reversed arrays, new
+  ids, and reused-but-shifted generated ids.
+
+### Real evidence
+
+- Private LiDAR wall median changed from invalid 75 cm to 2.5 cm; p95 is 30 cm
+  across 12 walls. Per-room absolute errors are drawing 12/12/0/0 cm,
+  my-room 30/30/0/0 cm, and pooja-room 5/5/0/0 cm.
+- Interval coverage is now 11/18 (61.1%) against 80% mean declared confidence,
+  so calibration remains failed. Maximum ceiling error remains 5.41 cm.
+- No reconstruction value or interval was tuned from ground truth. Cross-room
+  registration and opening truth remain incomplete.
+- Verification: 135 tests pass; Ruff, compileall, full private benchmark, and
+  `git diff --check` pass.
+
+### Next
+
+- Review this stage. A following stage can diagnose Record3D wall/ceiling bias
+  from point-support evidence, while T7 native videos and T8 disconnected photo
+  graphs remain separate unresolved paths.

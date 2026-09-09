@@ -126,7 +126,8 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | --- | --- |
 | `src/cozmo_floorplan/eval/config.py` | Official numerical thresholds plus the explicitly labeled internal interval-calibration tolerance. |
 | `src/cozmo_floorplan/eval/models.py` | Deterministic `GateResult` and `EvaluationReport` objects serialized into `eval.json`. |
-| `src/cozmo_floorplan/eval/matching.py` | ID-first entity matching with Hungarian geometry fallbacks; keeps array order and arbitrary predicted IDs out of scoring. |
+| `src/cozmo_floorplan/eval/matching.py` | Generic ID-first entity matching with Hungarian geometry fallbacks for entities whose identifiers or shared coordinate frame are meaningful. |
+| `src/cozmo_floorplan/eval/wall_matching.py` | Matches single-room wall cycles across independent translated, rotated, or reflected scan frames; generated wall numbers cannot override room topology and side-length evidence. |
 | `src/cozmo_floorplan/eval/measurements.py` | Reads v0.2 measurement values and computes confidence-interval coverage. |
 | `src/cozmo_floorplan/eval/metrics.py` | Reusable absolute, relative, median, and p95 error calculations. |
 | `src/cozmo_floorplan/eval/geometry.py` | Whole-property footprint, room-overlap, and adjacency calculations. |
@@ -206,6 +207,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | --- | --- |
 | `tests/test_cli.py` | Tests job validation, structured failures, schema-valid output, ZIP ingest, and the exact module command. |
 | `tests/test_eval.py` | Tests red empty predictions, detection misses/phantoms, repeatability evidence, photo stitching, head-to-head, and the eval command. |
+| `tests/test_wall_matching.py` | Proves wall scoring survives arbitrary scan transforms, array reversal, new IDs, and misleading reused wall numbers. |
 | `tests/test_schema.py` | Tests the FloorPlan v0.2 contract and its required interval/claims fields. |
 | `data/fixtures/synthetic_two_room/` | Small public-safe metric truth used by schema and later evaluation tests. |
 | `data/fixtures/roomplan_two_room/` | Synthetic RoomPlan-format LiDAR job that reconstructs the same metric room dimensions. |

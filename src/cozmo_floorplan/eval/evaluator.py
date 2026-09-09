@@ -9,7 +9,6 @@ from cozmo_floorplan.eval.matching import (
     match_entities,
     opening_cost,
     room_cost,
-    wall_cost,
 )
 from cozmo_floorplan.eval.measurements import summarize_interval_coverage, value
 from cozmo_floorplan.eval.metrics import (
@@ -19,6 +18,7 @@ from cozmo_floorplan.eval.metrics import (
     relative_errors,
 )
 from cozmo_floorplan.eval.models import EvaluationReport, GateResult
+from cozmo_floorplan.eval.wall_matching import match_room_walls
 
 FloorPlan = dict[str, Any]
 
@@ -34,8 +34,8 @@ def evaluate_floorplans(
 ) -> EvaluationReport:
     """Evaluate one prediction and optional repeat/ablation evidence."""
 
-    wall_matches = _wall_matches(prediction, truth)
     room_matches = _room_matches(prediction, truth)
+    wall_matches = _wall_matches(prediction, truth, room_matches)
     opening_matches = _opening_matches(prediction, truth, wall_matches)
     gates = (
         _yield_gate(prediction),
@@ -428,12 +428,15 @@ def _summary(
     }
 
 
-def _wall_matches(prediction: FloorPlan, truth: FloorPlan) -> EntityMatches:
-    return match_entities(
+def _wall_matches(
+    prediction: FloorPlan,
+    truth: FloorPlan,
+    room_matches: EntityMatches | None = None,
+) -> EntityMatches:
+    return match_room_walls(
         prediction.get("walls", []),
         truth.get("walls", []),
-        fallback_cost=wall_cost,
-        maximum_cost=250.0,
+        room_matches or _room_matches(prediction, truth),
     )
 
 

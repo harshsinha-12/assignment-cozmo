@@ -129,3 +129,59 @@ def test_open_job_directory_rejects_non_zip_files(tmp_path):
 
     with pytest.raises(JobLoadError, match="directory or .zip"):
         open_job_directory(payload)
+
+
+PHOTO_MANIFEST = """job_id: cozmo-capture-photos
+tier: photos
+device: iPhone 17 Pro
+capture_tool: Cozmo Capture 0.1.0
+"""
+
+VIDEO_MANIFEST = """job_id: cozmo-capture-video
+tier: video
+device: iPhone 17 Pro
+capture_tool: Cozmo Capture 0.1.0
+"""
+
+
+def test_extract_photo_zip_loads_as_photos_job(tmp_path):
+    archive = _write_zip(
+        tmp_path / "photos.zip",
+        {
+            "cozmo-capture-photos/manifest.yaml": PHOTO_MANIFEST.encode("utf-8"),
+            "cozmo-capture-photos/photos/kitchen/01.jpg": b"jpeg-a",
+            "cozmo-capture-photos/photos/kitchen/02.jpg": b"jpeg-b",
+        },
+    )
+    job = load_job(extract_capture_zip(archive, tmp_path / "unpacked"))
+
+    assert job.tier == "photos"
+    assert "photos/kitchen/01.jpg" in job.input_refs
+    assert "photos/kitchen/02.jpg" in job.input_refs
+
+
+def test_extract_video_zip_loads_as_video_job(tmp_path):
+    archive = _write_zip(
+        tmp_path / "video.zip",
+        {
+            "cozmo-capture-video/manifest.yaml": VIDEO_MANIFEST.encode("utf-8"),
+            "cozmo-capture-video/video/hall.mp4": b"mp4-bytes",
+        },
+    )
+    job = load_job(extract_capture_zip(archive, tmp_path / "unpacked"))
+
+    assert job.tier == "video"
+    assert "video/hall.mp4" in job.input_refs
+
+
+def test_photo_zip_with_one_still_is_rejected(tmp_path):
+    archive = _write_zip(
+        tmp_path / "photos.zip",
+        {
+            "manifest.yaml": PHOTO_MANIFEST.encode("utf-8"),
+            "photos/kitchen/01.jpg": b"jpeg-a",
+        },
+    )
+
+    with pytest.raises(JobLoadError, match="need 2 to 8"):
+        validate_capture_zip(archive)

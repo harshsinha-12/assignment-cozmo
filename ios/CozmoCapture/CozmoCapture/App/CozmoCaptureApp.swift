@@ -4,7 +4,7 @@ import SwiftUI
 struct CozmoCaptureApp: App {
   var body: some Scene {
     WindowGroup {
-      CaptureView()
+      RootCaptureView()
     }
   }
 }

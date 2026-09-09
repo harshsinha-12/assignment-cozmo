@@ -8,13 +8,22 @@ from zipfile import BadZipFile, ZipFile
 
 import yaml
 
-from cozmo_floorplan.config import MANIFEST_FILENAME, TIER_INPUT_DIRECTORIES
+from cozmo_floorplan.config import MANIFEST_FILENAME, SUPPORTED_TIERS, TIER_INPUT_DIRECTORIES
 from cozmo_floorplan.errors import JobLoadError
+from cozmo_floorplan.recon.photos_config import PHOTO_EXTENSIONS
+from cozmo_floorplan.recon.video_config import VIDEO_EXTENSIONS
 
 LIDAR_DIRECTORY = TIER_INPUT_DIRECTORIES["lidar"]
+PHOTO_DIRECTORY = TIER_INPUT_DIRECTORIES["photos"]
+VIDEO_DIRECTORY = TIER_INPUT_DIRECTORIES["video"]
 ROOMPLAN_MEMBER = f"{LIDAR_DIRECTORY}/roomplan.json"
 _SKIP_PREFIXES = ("__MACOSX/",)
 _SKIP_NAMES = {".DS_Store"}
+_JOB_ROOT_NAMES = frozenset(
+    {MANIFEST_FILENAME, *TIER_INPUT_DIRECTORIES.values()}
+)
+_PHOTO_SUFFIXES = frozenset(PHOTO_EXTENSIONS)
+_VIDEO_SUFFIXES = frozenset(VIDEO_EXTENSIONS)
 
 
 def inspect_capture_zip(path: str | Path) -> tuple[str, ...]:
@@ -37,8 +46,6 @@ def validate_capture_zip(path: str | Path) -> None:
     members = set(inspect_capture_zip(archive_path))
     if MANIFEST_FILENAME not in members:
         raise JobLoadError(f"Capture ZIP is missing {MANIFEST_FILENAME}: {archive_path}")
-    if ROOMPLAN_MEMBER not in members:
-        raise JobLoadError(f"Capture ZIP is missing {ROOMPLAN_MEMBER}: {archive_path}")
 
     with ZipFile(archive_path) as archive:
         mapping = _logical_index(archive)
@@ -49,20 +56,23 @@ def validate_capture_zip(path: str | Path) -> None:
                 f"Capture ZIP manifest job_id must be a non-empty string: {archive_path}"
             )
         tier = str(manifest.get("tier", "")).strip().lower()
-        if tier != "lidar":
+        if tier not in SUPPORTED_TIERS:
+            choices = ", ".join(sorted(SUPPORTED_TIERS))
             raise JobLoadError(
-                f"Capture ZIP manifest tier must be 'lidar', not {tier!r}: {archive_path}",
+                f"Capture ZIP manifest tier must be one of {choices}, not {tier!r}: {archive_path}",
                 warning_code="unsupported_tier",
             )
-        try:
-            plan = json.loads(archive.read(mapping[ROOMPLAN_MEMBER]).decode("utf-8"))
-        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        if tier == "lidar":
+            _validate_lidar_members(archive, mapping, members, archive_path)
+        elif tier == "photos":
+            _validate_photo_members(members, archive_path)
+        elif tier == "video":
+            _validate_video_members(members, archive_path)
+        else:
             raise JobLoadError(
-                f"Capture ZIP {ROOMPLAN_MEMBER} is not valid JSON: {archive_path}"
-            ) from exc
-        rooms = plan.get("rooms") if isinstance(plan, dict) else None
-        if not isinstance(rooms, list) or not rooms:
-            raise JobLoadError(f"Capture ZIP {ROOMPLAN_MEMBER} has no rooms: {archive_path}")
+                f"Capture ZIP tier {tier!r} is not a Cozmo Capture export: {archive_path}",
+                warning_code="unsupported_tier",
+            )
 
 
 def open_job_directory(path: str | Path, unpack_root: str | Path | None = None) -> Path:
@@ -97,6 +107,56 @@ def extract_capture_zip(path: str | Path, destination: str | Path) -> Path:
     return job_root
 
 
+def _validate_lidar_members(
+    archive: ZipFile,
+    mapping: dict[str, str],
+    members: set[str],
+    archive_path: Path,
+) -> None:
+    if ROOMPLAN_MEMBER not in members:
+        raise JobLoadError(f"Capture ZIP is missing {ROOMPLAN_MEMBER}: {archive_path}")
+    try:
+        plan = json.loads(archive.read(mapping[ROOMPLAN_MEMBER]).decode("utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise JobLoadError(
+            f"Capture ZIP {ROOMPLAN_MEMBER} is not valid JSON: {archive_path}"
+        ) from exc
+    rooms = plan.get("rooms") if isinstance(plan, dict) else None
+    if not isinstance(rooms, list) or not rooms:
+        raise JobLoadError(f"Capture ZIP {ROOMPLAN_MEMBER} has no rooms: {archive_path}")
+
+
+def _validate_photo_members(members: set[str], archive_path: Path) -> None:
+    counts: dict[str, int] = {}
+    for member in members:
+        path = Path(member)
+        if path.parts[:1] != (PHOTO_DIRECTORY,) or len(path.parts) < 3:
+            continue
+        if path.suffix.lower() not in _PHOTO_SUFFIXES:
+            continue
+        counts[path.parts[1]] = counts.get(path.parts[1], 0) + 1
+    if not counts:
+        raise JobLoadError(
+            f"Capture ZIP is missing {PHOTO_DIRECTORY}/<room> images: {archive_path}"
+        )
+    for room, count in sorted(counts.items()):
+        if not 2 <= count <= 8:
+            raise JobLoadError(
+                f"Capture ZIP photo room {room!r} has {count} images; need 2 to 8: {archive_path}"
+            )
+
+
+def _validate_video_members(members: set[str], archive_path: Path) -> None:
+    videos = [
+        member
+        for member in members
+        if Path(member).parts[:1] == (VIDEO_DIRECTORY,)
+        and Path(member).suffix.lower() in _VIDEO_SUFFIXES
+    ]
+    if not videos:
+        raise JobLoadError(f"Capture ZIP is missing {VIDEO_DIRECTORY} walkthroughs: {archive_path}")
+
+
 def _kept_members(names: list[str]) -> list[str]:
     kept: list[str] = []
     for name in names:
@@ -118,7 +178,7 @@ def _wrapper_prefix(names: list[str]) -> str:
     if len(firsts) != 1:
         return ""
     root = next(iter(firsts))
-    if root in {MANIFEST_FILENAME, LIDAR_DIRECTORY}:
+    if root in _JOB_ROOT_NAMES:
         return ""
     if not all(name.startswith(f"{root}/") for name in names):
         return ""
