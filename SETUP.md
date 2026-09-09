@@ -81,6 +81,7 @@ See `docs/capture-protocol.md`. Minimum useful kit:
 ```text
 make setup    # create .venv and install requirements
 make test     # pytest
+make reproduce-synthetic  # regenerate and verify public-safe JSON/SVG/eval evidence
 make fmt      # no-op until a formatter is chosen
 ```
 

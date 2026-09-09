@@ -16,7 +16,7 @@ Harsh’s photos / video / LiDAR are **not** required for the rows below. Use ge
 | --- | --- | --- |
 | **T21** | Yes, if Xcode.app | Thin iOS RoomPlan exporter. Blocked on full Xcode, **not** on captures. Command Line Tools only → skip. |
 | **T10** | **Draft done** | Architecture, tier design, drift, error budget, calibration, agent, fix loop, and known failures are drafted. Final real benchmark tables wait on T3. |
-| **T20** | Partial | Clean-machine README command, compliance-matrix file paths, synthetic reproduction. Do not fill measured device intervals. |
+| **T20** | **T20a done** | Fresh-venv path and one-command synthetic reproduction verified; final real benchmark bundle and coverage remain T3-dependent. |
 | T8 remainder | Ingest only (done) | Folder discovery / 2–8 JPEG checks already ship. Metric SfM, scale, adjacency, ±8% walls need T3 photos. |
 | T7 remainder | Ingest only (done) | Frame sampling already ships. Metric VO / ±3% walls need T3 walkthrough. |
 
@@ -41,7 +41,7 @@ Harsh’s photos / video / LiDAR are **not** required for the rows below. Use ge
 | T17 | todo | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | Protocol text can be edited now; numbers wait on eval |
 | T18 | todo | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | **yes** | Beat/tie ≥ 70% shared dims |
 | T10 | doing | Technical report ≤ 6 pages + benchmark tables | T19 | draft **no**; tables **yes** | 1,805-word engineering draft complete; real benchmark/repeat/incumbent/timing tables remain T3-dependent |
-| T20 | todo | README 15 min + reproduction bundle + compliance matrix | T10 | partial **no**; measured rows **yes** | 100% contract coverage |
+| T20 | doing | README 15 min + reproduction bundle + compliance matrix | T10 | partial **no**; measured rows **yes** | T20a clean-environment path done in 28.37 s; `make reproduce-synthetic` works; real bundle/coverage remain T3-dependent |
 | T11 | todo | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | Follow submitted capture route |
 
 ---
@@ -68,7 +68,7 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-See **Without media** above. Next media-independent stage: **T20 clean-machine README/reproduction pass**. **T21** if Xcode.app exists. Do not start T6 raw Record3D, T7 VO, T8 SfM, T17 numbers, T18, or T11 until files are in `data/private/`.
+No fully unblocked metric stage remains without capture media. **T21** can start only if full Xcode.app appears; protocol-only T17 polish is possible, but measured numbers still need T3. Do not start T6 raw Record3D, T7 VO, T8 SfM, T17 numbers, T18, or T11 until captures are in `data/private/`.
 
 ---
 

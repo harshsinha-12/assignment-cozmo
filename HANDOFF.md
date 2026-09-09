@@ -12,10 +12,10 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Completed the media-independent **T10 engineering report draft** in `docs/writeup.md`.
-- The 1,805-word draft covers architecture, tiers/devices, drift, error budget, calibration, agent/tool boundaries, fix loop, evidence tables, and hostile-scene failure modes.
-- Exact current numbers come from the frozen synthetic eval and are labelled as contract evidence, not phone accuracy. Every real-capture table cell remains explicitly pending T3.
-- Refreshed README, TASKS, compliance status, and this handoff so T20 is the next media-independent stage.
+- Completed the media-independent **T20a clean-environment and reproduction pass**.
+- Fixed the README’s missing editable-install step after reproducing the failure in a fresh virtual environment; the corrected existing-checkout path completed in 28.37 seconds on this Mac.
+- Added `make reproduce-synthetic` with separate config, subprocess, artifact-verification, runner, and test modules. It validates expected CLI exits, schema/entity counts, gate states, outputs, and fix-loop hashes.
+- Added `docs/reproduction.md`, fixed the README eval output path, ignored generated `out/`, and refreshed setup/code-map/compliance/task documentation.
 
 ### What is true now
 
@@ -26,7 +26,7 @@ The current agent overwrites the **Current handoff** section at the end of every
 - Raw Record3D/USDZ still structured-fail.
 - T19 before is pinned to `523ceea`; the shipped code is pinned to `68acdf6`. The complete bundle is under `data/fix-loop/`.
 - The after run exits 0. Its eval still exits 3 because unrelated repeatability/incumbent evidence is missing, while the selected `pipeline_yield` gate passes.
-- Bundle verification, all 57 tests, `ruff check .`, compileall, and diff checks pass.
+- `make reproduce-synthetic`, all 59 tests, `ruff check .`, compileall, fix-loop verification, and diff checks pass.
 - T10 is structurally drafted but remains `doing` until real LiDAR/video/photo, repeatability, incumbent, calibration, and timing evidence replaces the pending cells.
 
 ### Blockers
@@ -38,28 +38,29 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### Next agent should
 
-1. Execute the media-independent portion of **T20**: verify the README path on a clean environment and tighten the reproduction/compliance mapping without inventing measured rows.
-2. If T3 files are present: implement metric **T7 VO** and/or **T8 photo** reconstruction against them.
-3. Do not run T21 without Xcode.app.
+1. Capture **T3** and inventory the resulting photos/video/LiDAR/tape/incumbent files before changing adapters.
+2. With captures present, implement metric **T7 VO** and/or **T8 photo** reconstruction against them; extend `make reproduce-synthetic` into the real bundle only after raw inputs exist.
+3. Without captures, only protocol-level T17 polish is useful. Do not run T21 without Xcode.app.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `README.md`
-3. `docs/compliance-matrix.md`
-4. `docs/writeup.md`
-5. `data/fix-loop/README.md`
+2. `docs/reproduction.md`
+3. `README.md`
+4. `data/README.md`
+5. `docs/capture-protocol.md`
 
 ### Exact next command
 
 ```text
-Execute T20a: prove the documented synthetic setup/run/eval/fix-loop path from a clean temporary environment, then update README and compliance with the exact evidence. Do not fill capture-dependent rows.
+Inventory data/private without moving or committing private media. Then resume the matching T6/T7/T8 metric adapter against the real capture and add tape-ground-truth evaluation.
 ```
 
 ---
 
 ## History
 
+- **2026-09-09** — T20a clean-environment README path and one-command synthetic reproduction verified; real bundle remains T3-blocked.
 - **2026-09-09** — T10 engineering report draft complete; real benchmark tables remain capture-blocked.
 - **2026-09-09** — T19 completed: predicted fallback-yield fail→pass fix shipped with pinned before/after artifacts and readable diff.
 - **2026-09-09** — T19a declaration and checksum-locked before bundle frozen at commit `523ceea`; fix deliberately pending.

@@ -13,6 +13,15 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T20a clean-environment reproduction complete
+
+- A fresh Python 3.12 virtual environment exposed a real README bug: installing only `requirements.txt` left `python -m cozmo_floorplan` unavailable. Added the missing `pip install --no-deps -e .` step and verified the same environment resolves the package.
+- Measured the existing-checkout rehearsal on macOS arm64: venv 1.63 s, requirements 19.35 s, editable install 2.22 s, then-current 57 tests 2.98 s, run 1.02 s, eval 0.77 s, and fix-loop verification 0.40 s; total 28.37 s. Pip cache/network caveats are recorded.
+- Added `make reproduce-synthetic` backed by separate reproduction config, subprocess utility, artifact verifier, runner, and tests. It forces deterministic mode, expects eval exit 3, validates schema/entity counts/gate states, verifies fix-loop hashes, and returns 0 on the complete expected contract.
+- Fixed the README eval example to pass an output directory, ignored generated `out/`, documented exact evidence in `docs/reproduction.md`, and updated code map/setup/compliance.
+- The exact Make target passes; the full suite is now 59 tests. Ruff, compileall, fix-loop verification, and diff checks pass.
+- No capture media is present beyond `data/private/takehome.md`; full Xcode is still unavailable. T20 remains `doing` until the real benchmark reproduction bundle and full compliance coverage exist.
+
 ## 2026-09-09 — T10 technical report engineering draft complete
 
 - Replaced the report stub with a compact 1,805-word draft covering architecture, all three tier designs and devices, drift/ablation, error budget, calibration, claims-agent boundaries, the shipped fix loop, and hostile-scene failure modes.

@@ -112,6 +112,17 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/agent/__init__.py` | Exposes claims enrichment to the main pipeline. |
 | `docs/formats/damage-observations.md` | Input boundary between calibrated CV/manual proposals and agent classification/policy decisions. |
 
+## Reproduction
+
+| File | Responsibility |
+| --- | --- |
+| `src/cozmo_floorplan/reproduction/config.py` | Stable public fixture paths, required output names, and expected pass/missing-evidence gates. |
+| `src/cozmo_floorplan/reproduction/commands.py` | Runs visible subprocesses and fails when a CLI exit differs from its documented contract. |
+| `src/cozmo_floorplan/reproduction/verify.py` | Validates the generated FloorPlan, entity counts, artifact set, and expected synthetic gate states. |
+| `src/cozmo_floorplan/reproduction/runner.py` | Orchestrates deterministic run, intentionally red overall eval, generated-artifact checks, fix-loop hash verification, and elapsed-time reporting. |
+| `src/cozmo_floorplan/reproduction/__init__.py` | Declares the reproduction package. |
+| `tests/test_reproduction.py` | Exercises the full public reproduction in a temporary output directory and rejects unexpected subprocess exits. |
+
 ## Tests and fixtures
 
 | File | Responsibility |
