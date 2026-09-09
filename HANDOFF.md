@@ -12,6 +12,18 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
+- Completed **T20c**, the final multi-tier benchmark/readiness runner.
+- Added safe manifest/config/readiness/report/runner modules, CLI and Make
+  entrypoints, a public template, tests, code map, README, and capture preflight.
+- Ran the real partial private root: all three primary jobs executed and four
+  required evidence classes remain pending. No commit was made.
+- Completed **T7g**, conservative calibrated-video room fitting and FloorPlan
+  conversion.
+- Added separate room, measurement, output, and test modules. The pipeline now
+  returns successful video adapter output instead of discarding it.
+- Sidecar v1.2 identifies its ARKit/ARCore scale source and shared tracking
+  frame. Incomplete surfaces and unrelated frames are refused. No commit was
+  made.
 - Completed **T7f**, calibrated sparse metric video triangulation and diagnostic
   surface candidates.
 - Added a backward-compatible pose-sidecar v1.1 contract with display-oriented
@@ -29,7 +41,7 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 - Product: local CLI. Folder in → JSON + SVG out. No Redis, no our servers.
 - Plane-anchored stitch + regenerable `floorplan.ablation-off.json` work on the two-room RoomPlan fixture. Drift gate passes when that ablation is supplied.
-- Video jobs ingest every MP4/MOV in stable order, retain source-frame/time identity, qualify relative-VO evidence, recover disconnected unitless pose segments, and strictly validate/align optional metric camera poses. They do **not** emit wall centimetres yet.
+- Video jobs ingest every MP4/MOV in stable order, retain source-frame/time identity, qualify relative-VO evidence, recover disconnected unitless pose segments, and strictly validate/align optional metric camera poses. Calibrated v1.2 sidecars can now emit conservative partial rooms/walls after complete surface qualification.
 - Photo jobs validate one folder per room, 2–8 decodable images, stable identity, and all-pairs geometric overlap. Disconnected evidence now returns actionable `insufficient_overlap` before SfM.
 - Raw Record3D `.r3d` ZIPs now emit schema-valid metric rooms, walls, ceiling heights, areas, and evidence-gated openings. Output stays `partial` because intervals and cross-archive registration are not yet measured.
 - T19 before is pinned to `523ceea`; the shipped code is pinned to `68acdf6`. The complete bundle is under `data/fix-loop/`.
@@ -39,51 +51,58 @@ The current agent overwrites the **Current handoff** section at the end of every
 - Both current videos pass the internal 35% eligible-pair threshold: my-room 23/60 with median 1,166 keypoints, 262 matches, 178 F-inliers, 1.15 px parallax, 23.5% coverage; pooja-room 27/60 with 1,188, 257, 190, 1.23 px, 20.6%. These are trackability diagnostics, not metric accuracy.
 - With at most 90 selected frames, my-room recovers 21/89 relative-pose edges in 10 local segments and pooja-room recovers 17/89 in 9. The 576 px focal length is an unvalidated image-size prior; unit steps and separate identity anchors are not metric or globally aligned.
 - Metric pose sidecar v1 requires metres, camera-to-world, right-handed y-up, video-start timestamps, increasing source-frame/time keys, finite positions, and unit XYZW quaternions. Segment alignment requires ≥3 exact frame/time matches, trajectory rank ≥2, and ≤0.15 m RMSE.
-- Metric pose sidecar v1.1 additionally requires display-oriented calibrated
-  pinhole intrinsics and `x_right_y_down_z_forward` axes. Accepted aligned
-  segments can now yield filtered metric sparse points and plane-band
-  diagnostics; v1.0 cannot authorize triangulation.
+- Metric pose sidecar v1.1 adds display-oriented calibrated pinhole intrinsics
+  and `x_right_y_down_z_forward` axes. v1.2 adds an ARKit/ARCore scale source and
+  shared `world_frame_id`. Accepted aligned segments can yield filtered sparse
+  points; complete camera-bracketing room surfaces can then enter the shared
+  IR. v1.0 cannot authorize triangulation.
 - The current private MP4s contain no sidecars, so both report `metric_alignment=not-available`; no scale was inferred.
 - The current photo graphs fail connectivity: drawing-room has 3/21 eligible edges and 4 components, my-room 2/28 and 6, and pooja-room 2/28 and 6. No cross-room connector candidate passes. This is capture evidence, not an accuracy score.
 - The three clouds use 61 frames each and contain 252,694 drawing-room, 224,435 my-room, and 260,653 pooja-room 2.5 cm voxel centroids. The complete private LiDAR command takes about 8 s locally.
 - The private output contains 3 rooms, 12 walls, and 4 opening candidates: one in my-room and three in pooja-room. The SVG was rendered and visually inspected. These candidates are not tape-backed accuracy results.
 - Separate archives preserve their exported world-pose coordinates, but no shared session/door association is invented. T9 records an empty ablation and one disconnected warning rather than claiming correction.
-- All 106 tests, Ruff, touched-file formatting, compileall, synthetic reproduction, private photo/video smokes, and diff checks pass. Photo refusal is intentional and classified `insufficient_overlap`; video refusal is intentional and classified `unsupported_tier`.
+- All 117 tests, Ruff, touched-file formatting, compileall, synthetic reproduction, real partial benchmark, private photo/video smokes, and diff checks pass. Photo refusal is intentional and classified `insufficient_overlap`; current uncalibrated video refusal is intentional and classified `unsupported_tier`.
 - T10 is structurally drafted but remains `doing` until real LiDAR/video/photo, repeatability, incumbent, calibration, and timing evidence replaces the pending cells.
+- `make benchmark` now writes per-tier artifacts plus a single JSON/Markdown
+  status. The current report is `pending_inputs`: ground truth, repeat LiDAR,
+  incumbent, and staged damage observations are missing; LiDAR is `partial`
+  while photos/video are structured `failed` on current evidence.
 
 ### Blockers
 
 - Human T3 remainder: drawing-room video, connector/hallway in all tiers, repeat capture, tape/laser GT, two staged damage classes/evidence, and Polycam/magicplan output for two rooms.
 - T6 calibration/repeatability/shared-opening hardening remains blocked on the human capture remainder.
-- T7 metric FloorPlan accuracy still needs T7g conservative room-surface/IR conversion; the current captures lack the calibrated v1.1 pose sidecars needed to exercise T7f on real media.
+- T7 room/FloorPlan conversion is implemented synthetically; current captures lack calibrated v1.2 pose sidecars. Video openings, shared-room constraints, interval calibration, and the official ±3% evaluation remain media-dependent.
 - T8c metric SfM is blocked on a photo reshoot with overlapping intermediate views and doorway/connector evidence. Do not loosen the evidence thresholds to force the current capture through.
 - T21: full Xcode.app (this machine has Command Line Tools only).
 - Metric video VO and photo SfM/adjacency/interval calibration need the actual media.
 
 ### Next agent should
 
-1. Implement **T7g** conservative video room-surface qualification and FloorPlan conversion without weakening the metric evidence boundary.
-2. After Harsh reshoots photos, rerun T8b; start T8c SfM only if every room graph connects and connector candidates exist.
-3. Keep collecting the missing T3 evidence in parallel; do not score accuracy without tape truth.
+1. Wait for/ingest the remaining **T3** capture and evidence, then run `make benchmark`.
+2. Start T8c only if every reshot photo room graph connects and connector candidates exist; otherwise report the measured reshoot defect.
+3. Use the first complete benchmark to choose the worst measured gate for the next code fix. Do not score accuracy without tape truth.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `src/cozmo_floorplan/recon/video_triangulation.py`
-3. `src/cozmo_floorplan/recon/video_surfaces.py`
-4. `src/cozmo_floorplan/recon/video.py`
-5. `docs/formats/video-job.md`
+2. `src/cozmo_floorplan/benchmark/runner.py`
+3. `data/templates/benchmark.yaml`
+4. `out/benchmark/benchmark-summary.md`
+5. `docs/capture-protocol.md`
 
 ### Exact next command
 
 ```text
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src python3 -m pytest -q tests/test_video_triangulation.py
+make benchmark
 ```
 
 ---
 
 ## History
 
+- **2026-09-09** — T20c final benchmark runner complete; real partial audit reports exactly four missing evidence classes.
+- **2026-09-09** — T7g conservative calibrated-video room/FloorPlan path complete; current native MP4s remain sidecar-blocked.
 - **2026-09-09** — T7f calibrated sidecar-backed sparse metric triangulation and diagnostic floor/wall candidates complete; current Camera MP4s remain uncalibrated.
 - **2026-09-09** — T8b photo overlap graph complete; all three current rooms are disconnected and have no cross-room connector candidate, so reshoot precedes SfM.
 - **2026-09-09** — T7e strict metric pose-sidecar validation and exact frame/time segment alignment complete; current native MP4s remain unitless.

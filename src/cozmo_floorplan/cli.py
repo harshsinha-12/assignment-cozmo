@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from cozmo_floorplan.config import ABLATION_OFF_FILENAME, ExitCode
+from cozmo_floorplan.benchmark import run_benchmark
 from cozmo_floorplan.errors import CozmoFloorPlanError, JobLoadError
 from cozmo_floorplan.eval.evaluator import evaluate_floorplans
 from cozmo_floorplan.eval.io import load_floorplan, write_evaluation
@@ -51,6 +52,21 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         help="Optional normalized Polycam or magicplan FloorPlan for head-to-head scoring.",
     )
+    benchmark_parser = subparsers.add_parser(
+        "benchmark",
+        help="Run all available capture tiers and report missing evidence.",
+    )
+    benchmark_parser.add_argument(
+        "capture_root",
+        type=Path,
+        help="Directory containing benchmark.yaml and tier job directories.",
+    )
+    benchmark_parser.add_argument(
+        "--out",
+        type=Path,
+        required=True,
+        help="Directory for tier artifacts and benchmark status files.",
+    )
     return parser
 
 
@@ -69,6 +85,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.ablation_off,
             args.incumbent,
         )
+    if args.command == "benchmark":
+        return _benchmark_command(args.capture_root, args.out)
     return int(ExitCode.INTERNAL_ERROR)
 
 
@@ -133,6 +151,19 @@ def _run_command(job_dir: Path, out_dir: Path, *, drift_correction: bool) -> int
 
     _print_result(document["status"], artifacts)
     return int(ExitCode.OK if document["status"] == "ok" else ExitCode.STRUCTURED_FAILURE)
+
+
+def _benchmark_command(capture_root: Path, out_dir: Path) -> int:
+    try:
+        report = run_benchmark(capture_root, out_dir)
+    except (CozmoFloorPlanError, OSError, ValueError) as exc:
+        print(f"benchmark_error={exc}", file=sys.stderr)
+        return int(ExitCode.INTERNAL_ERROR)
+    print(
+        f"status={report['status']} pending={len(report['pending_inputs'])} "
+        f"output={(out_dir.resolve() / 'benchmark-status.json')}"
+    )
+    return int(ExitCode.OK)
 
 
 def _write_last_resort_failure(job_dir: Path, out_dir: Path, message: str) -> int:

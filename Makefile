@@ -1,9 +1,12 @@
-.PHONY: setup test reproduce-synthetic fmt
+.PHONY: setup test reproduce-synthetic benchmark fmt
 
 PYTHON ?= python3
 VENV ?= .venv
 BIN := $(VENV)/bin
 REPRO_OUT ?= out/reproduction
+BENCHMARK_ROOT ?= data/private
+BENCHMARK_OUT ?= out/benchmark
+BENCHMARK_AGENT_MODE ?= auto
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -23,6 +26,13 @@ reproduce-synthetic:
 		$(BIN)/python -m cozmo_floorplan.reproduction.runner --repo . --out $(REPRO_OUT); \
 	else \
 		PYTHONPATH=src $(PYTHON) -m cozmo_floorplan.reproduction.runner --repo . --out $(REPRO_OUT); \
+	fi
+
+benchmark:
+	@if [ -x $(BIN)/python ]; then \
+		COZMO_AGENT_MODE=$(BENCHMARK_AGENT_MODE) $(BIN)/python -m cozmo_floorplan benchmark $(BENCHMARK_ROOT) --out $(BENCHMARK_OUT); \
+	else \
+		PYTHONPATH=src COZMO_AGENT_MODE=$(BENCHMARK_AGENT_MODE) $(PYTHON) -m cozmo_floorplan benchmark $(BENCHMARK_ROOT) --out $(BENCHMARK_OUT); \
 	fi
 
 fmt:

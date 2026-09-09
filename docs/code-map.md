@@ -150,6 +150,18 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/reproduction/__init__.py` | Declares the reproduction package. |
 | `tests/test_reproduction.py` | Exercises the full public reproduction in a temporary output directory and rejects unexpected subprocess exits. |
 
+## Final benchmark runner
+
+| File | Responsibility |
+| --- | --- |
+| `src/cozmo_floorplan/benchmark/config.py` | Stable benchmark manifest/report names, tier order, and default capture-root paths. |
+| `src/cozmo_floorplan/benchmark/manifest.py` | Loads path-only `benchmark.yaml`, preserves documented defaults when absent, and prevents paths escaping the capture root. |
+| `src/cozmo_floorplan/benchmark/readiness.py` | Audits three tier jobs, tape truth, required LiDAR repeat, incumbent, and staged-damage evidence as ready or pending. |
+| `src/cozmo_floorplan/benchmark/report.py` | Renders the machine-readable benchmark result as a concise Markdown checklist. |
+| `src/cozmo_floorplan/benchmark/runner.py` | Runs available jobs/repeats, writes tier artifacts/evals, and emits one honest status bundle without treating absent evidence as zero. |
+| `data/templates/benchmark.yaml` | Joins separate tier, truth, repeat, and incumbent inputs through safe capture-root-relative paths. |
+| `tests/test_benchmark.py` | Tests pending roots, path containment, complete mocked three-tier orchestration, and successful pending-audit CLI behavior. |
+
 ## Tests and fixtures
 
 | File | Responsibility |
@@ -188,7 +200,6 @@ This is the maintained guide to what each implementation file owns. Update it wh
 Later tasks add real modules only when they contain working behavior:
 
 - Metric SfM, Manhattan regularization, scale, and calibrated intervals inside `recon/photos.py` once real capture evidence exists.
-- Metric visual odometry inside `recon/video.py` once a real walkthrough exists.
 - Additional `geom/` modules — point-cloud and plane operations as required.
 
 Do not create empty placeholders for these directories. Add each one with its implementing task and document its files here.

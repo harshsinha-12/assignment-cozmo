@@ -16,9 +16,14 @@ Copy one job template and replace every `replace-me` manifest value:
 cp -R data/templates/photos data/private/benchmark-photos
 cp -R data/templates/video data/private/benchmark-video
 cp -R data/templates/lidar data/private/benchmark-lidar
+cp data/templates/benchmark.yaml data/private/benchmark.yaml
 ```
 
 Use one tier per job. Turn on lights; use the rear camera with no flash, zoom, portrait, or cinematic mode. Clear people and pets when possible. Walk slowly and pause at corners and doors.
+
+After each handoff, run `make benchmark` and open
+`out/benchmark/benchmark-summary.md`. It lists each missing capture/evidence
+class while still running every tier already present.
 
 ## Photos — exactly eight per room
 
@@ -35,6 +40,12 @@ For a non-four-wall room, retain the doorway, through-door, and ceiling views an
 ## Video — one continuous clip
 
 Start at the entry at chest height. Walk each room perimeter, pause two seconds at every corner, and keep recording through each doorway. Give a connector/hallway its own slow pass. Stop after the final room. Target 60–180 seconds; do not run or use the selfie camera. Save as `video/walkthrough.mov` or `.mp4`.
+
+**Current metric boundary:** the built-in Camera file carries no ARKit poses or
+calibrated intrinsics, so it exercises ingest/tracking but cannot by itself
+authorize centimetres. If a capture tool supplies the v1.2 sidecar documented
+in `docs/formats/video-job.md`, preserve it beside the matching video. Do not
+manufacture that sidecar from timestamps or EXIF.
 
 ## LiDAR — one complete export
 

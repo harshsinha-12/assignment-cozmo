@@ -71,6 +71,22 @@ make reproduce-synthetic
 
 Artifacts are written to `out/reproduction/`: `floorplan.json`, `floorplan.svg`, `floorplan.ablation-off.json`, and `eval.json`. The wrapper returns 0 only when the plan is schema-valid and `ok`, required counts match, the yield/opening/ceiling/drift/calibration gates pass, repeatability and incumbent gates remain explicitly `missing_evidence`, and fix-loop hashes are valid. The internal eval command exits 3 by design because those two inputs are absent; the wrapper verifies that expected exit instead of hiding it.
 
+After capture files begin arriving, one command runs every available tier and
+writes one explicit readiness list:
+
+```bash
+cp data/templates/benchmark.yaml data/private/benchmark.yaml  # once; edit paths
+make benchmark
+```
+
+Review `out/benchmark/benchmark-status.json` and
+`out/benchmark/benchmark-summary.md`. Missing truth, repeat capture, incumbent,
+or damage evidence is reported as `pending`; it is never scored as zero or
+silently skipped. The target defaults to `COZMO_AGENT_MODE=auto`, so the final
+run uses the configured `.env` key and retains the normal fallback if the API
+is unavailable. Use `make benchmark BENCHMARK_AGENT_MODE=fallback` for an
+explicit offline rehearsal.
+
 For live claims enrichment, copy `.env.example` to the ignored `.env` and set `OPENAI_API_KEY`. The default `COZMO_AGENT_MODE=auto` uses OpenAI when the key exists and the same deterministic tools otherwise. Set `COZMO_AGENT_MODE=fallback` to force an offline run. Never commit `.env`.
 
 `run` emits `floorplan.json` and a self-contained `floorplan.svg`, including a readable placeholder for structured failures.

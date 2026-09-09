@@ -13,6 +13,32 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T20c final benchmark runner complete
+
+- Added a safe root-relative `benchmark.yaml` contract and separate config,
+  manifest, readiness, report, and runner modules. Paths cannot escape the
+  capture root.
+- `python -m cozmo_floorplan benchmark CAPTURE_ROOT --out OUT` and
+  `make benchmark` run every available primary/repeat job, preserve per-tier
+  JSON/SVG/ablation/eval artifacts, and write both `benchmark-status.json` and
+  `benchmark-summary.md`. The Make target defaults to live-capable `auto` agent
+  mode and exposes an explicit fallback override for offline rehearsal.
+- Missing jobs, tape truth, LiDAR repeat, incumbent, or staged damage evidence
+  remain explicitly `pending`; a successful audit exits zero without converting
+  missing proof into a numeric failure.
+- Added a public template and preflight instructions. The private root now has
+  its ignored manifest. Its real audit runs all three tiers: LiDAR is `partial`,
+  photos/video are structured `failed`, and exactly four inputs remain pending:
+  ground truth, repeat LiDAR, incumbent, and damage observations.
+- Added pending-root, path-escape, complete mocked three-tier, and CLI tests.
+  All 117 tests, Ruff, new-file formatting, compileall, synthetic
+  reproduction, real partial benchmark, and `git diff --check` pass.
+- Audited the remaining queue: photo SfM/stitch, real video metric output,
+  LiDAR calibration/repeatability, incumbent comparison, report tables, and
+  walk-in rehearsal all require new capture/evidence; T21 requires full Xcode.
+- Next: no unblocked pre-shoot implementation remains. Complete T3, run
+  `make benchmark`, and fix the worst measured result.
+
 ## 2026-09-09 — T7g conservative video FloorPlan complete
 
 - Added rotated Manhattan yaw search and strict room qualification: supported

@@ -4,6 +4,20 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-09 — Version calibrated video output separately from triangulation
+
+**Context:** Sidecar v1.1 already enables calibrated sparse triangulation, but
+multi-room FloorPlan output also needs a declared metric provider and proof
+that room coordinates share one tracking frame. Adding required fields to v1.1
+would silently break its published contract.
+
+**Decision:** Preserve v1.1 for intrinsics and camera axes. Sidecar v1.2 adds
+required `scale_source` and `world_frame_id`. Only v1.2 may authorize video
+FloorPlan output, and every video in one job must name the same world frame.
+
+**Consequence:** Existing v1.1 inputs remain valid for diagnostics. Unrelated
+room coordinates cannot be overlaid or mislabeled as a whole-property plan.
+
 ## 2026-09-09 — Refuse photo SfM before the evidence graph connects
 
 **Context:** Passing the 2–8 file-count contract does not mean the views share

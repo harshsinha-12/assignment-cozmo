@@ -2,4 +2,4 @@ job_id: replace-me-video
 tier: video
 device: replace-me-exact-iphone-model
 capture_tool: iPhone Camera
-notes: One continuous 1080p rear-camera walkthrough.
+notes: One continuous 1080p rear-camera walkthrough. Native Camera video supports tracking diagnostics; metric FloorPlan output additionally requires the calibrated pose sidecar documented in docs/formats/video-job.md.

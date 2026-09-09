@@ -73,3 +73,14 @@ Ground truth is **tape/laser**, never RoomPlan or Polycam.
 ## Avoid
 
 Mirrors dead-on as the only wall evidence, shooting through glass, wet glossy floors as the only floor, digital zoom, other people’s faces.
+
+## Preflight after copying files
+
+Copy `data/templates/benchmark.yaml` to `data/private/benchmark.yaml`, edit only
+its relative paths, then run `make benchmark`. Review:
+
+- `out/benchmark/benchmark-summary.md` — human checklist and tier outcomes;
+- `out/benchmark/benchmark-status.json` — machine-readable pending/run/eval state.
+
+The command exits successfully when the audit runs even if evidence is pending.
+Pipeline failures remain visible per tier and are not reclassified as scores.

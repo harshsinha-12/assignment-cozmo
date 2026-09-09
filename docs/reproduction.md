@@ -43,9 +43,29 @@ This command forces deterministic agent mode, runs the public two-room RoomPlan 
 
 After adding the reproduction runner’s own tests, the full suite contains 59 tests and passes. The recorded 28.37-second total remains the exact initial clean-environment rehearsal rather than a retroactive estimate.
 
+## Private benchmark command
+
+After copying and editing `data/templates/benchmark.yaml`:
+
+```bash
+make benchmark
+```
+
+This runs every available photos/video/LiDAR job plus configured repeat jobs,
+writes each tier's JSON/SVG and any possible eval, and produces
+`out/benchmark/benchmark-status.json` plus a Markdown checklist. Missing input
+classes remain `pending_inputs`; the audit command itself does not fail merely
+because shooting is unfinished. It defaults to agent mode `auto`; pass
+`BENCHMARK_AGENT_MODE=fallback` for deterministic offline rehearsal.
+
+The 2026-09-09 partial private run found all three primary job folders and ran
+them. LiDAR returned `partial`; photos and video returned structured `failed`.
+Exactly four required input classes remain absent: tape/laser truth, repeat
+LiDAR, normalized incumbent output, and staged damage observations.
+
 ## Remaining reproduction work
 
 - Repeat the README from a fresh clone on a second clean machine.
 - Add raw benchmark captures, tape truth, repeat runs, and incumbent exports.
-- Extend the reproduction entrypoint to regenerate every real table once those inputs exist.
+- Re-run `make benchmark` to regenerate real evals after those inputs exist.
 - Time the cold walk-in command without a warmed environment.

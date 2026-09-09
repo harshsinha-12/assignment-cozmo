@@ -11,8 +11,8 @@ Product: local CLI + **disclosed LLM tool-calling agent**. Score policy: max eve
 ## Capture status (private upload arrived 2026-09-09)
 
 Three room-level Record3D scans, 23 photos across three room folders, and two
-room videos are now under gitignored `data/private/`. T6/T7/T8 algorithm work is
-unblocked. The capture is not complete: drawing-room video, a connector/hallway,
+room videos are now under gitignored `data/private/`. The pre-shoot code boundary
+is complete. The capture is not complete: drawing-room video, a connector/hallway,
 repeat captures, tape/laser ground truth, damage evidence, and incumbent exports
 remain missing. Do **not** invent centimetres or mark a scored gate pass without
 those eval inputs.
@@ -21,7 +21,7 @@ those eval inputs.
 | --- | --- | --- |
 | **T21** | Yes, if Xcode.app | Thin iOS RoomPlan exporter. Blocked on full Xcode, **not** on captures. Command Line Tools only → skip. |
 | **T10** | **Draft done** | Architecture, tier design, drift, error budget, calibration, agent, fix loop, and known failures are drafted. Final real benchmark tables wait on T3. |
-| **T20** | **T20a/T20b done** | Fresh-venv reproduction and structural compliance audit are verified; final real benchmark bundle and measured coverage remain T3-dependent. |
+| **T20** | **Pre-shoot code done** | T20a reproduction, T20b audit, and T20c one-command benchmark/readiness runner are verified; measured coverage remains T3-dependent. |
 | **T17** | **Protocol stage done** | Route 2 operator card, loader-checked per-tier templates, and honest runtime/device matrix ship; measured intervals remain T3-dependent. |
 | T8 remainder | Overlap measured | Current photo graphs fail connectivity. Metric SfM, scale, adjacency, and ±8% walls need overlapping reshoots. |
 | T7 remainder | Calibrated path implemented | T7b–T7g can emit conservative rooms from calibrated v1.2 pose sidecars. Current Camera videos lack sidecars; openings, shared constraints, calibration, and ±3% eval need media. |
@@ -49,7 +49,7 @@ advance against the partial upload.
 | T17 | doing | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | T17a protocol/templates done; walk-in validation and measured rows wait on T3 |
 | T18 | todo | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | **yes** | Beat/tie ≥ 70% shared dims |
 | T10 | doing | Technical report ≤ 6 pages + benchmark tables | T19 | draft **no**; tables **yes** | 1,805-word engineering draft complete; real benchmark/repeat/incumbent/timing tables remain T3-dependent |
-| T20 | doing | README 15 min + reproduction bundle + compliance matrix | T10 | partial **no**; measured rows **yes** | T20a reproduction + T20b 27-row structural audit done; real bundle/coverage remain T3-dependent |
+| T20 | doing | README 15 min + reproduction bundle + compliance matrix | T10 | partial **no**; measured rows **yes** | T20a–T20c code/docs done; final real bundle and coverage remain T3-dependent |
 | T11 | todo | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | Follow submitted capture route |
 
 ---
@@ -76,10 +76,11 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-**T20c:** add a one-command final benchmark/evidence runner that reports
-required inputs as pending instead of manufacturing results. T8c SfM remains
-blocked on an overlapping photo reshoot; do not loosen T8b thresholds to force
-the current evidence to pass.
+**Pre-shoot code boundary reached.** No remaining task is both unblocked and
+independent of new capture evidence or full Xcode.app. Run `make benchmark`,
+complete T3, then use its reported failures to unlock T6/T7/T8 calibration and
+the remaining scored evidence. Do not loosen T8b thresholds to force the
+current photos to pass.
 
 ### Media-ready freeze sequence
 
@@ -98,7 +99,7 @@ ground truth.
    scale, and calibrated uncertainty.
 5. **T8e (blocked on connector evidence)** — Cross-room photo registration and
    connected whole-property stitch.
-6. **T20c (todo)** — One-command final benchmark/evidence runner with explicit
+6. **T20c (done)** — One-command final benchmark/evidence runner with explicit
    pending results when required capture or ground truth is absent.
 
 After these stages, remaining work is expected to be media ingestion, measured
@@ -109,6 +110,7 @@ scaffolding. Minor fixes after real captures remain normal and allowed.
 
 ## Done
 
+- **2026-09-09 T20c final benchmark runner** — Safe root-relative benchmark manifest, three-tier/repeat orchestration, per-tier JSON/SVG/eval output, readiness checks for truth/repeat/incumbent/damage, JSON and Markdown status artifacts, CLI/Make target, templates, and pending/complete tests. Current private audit runs all three tiers and reports exactly four missing evidence classes.
 - **2026-09-09 T7g conservative video FloorPlan** — Backward-compatible sidecar v1.2, rotated Manhattan yaw search, floor/ceiling and camera-bracketing wall qualification, shared-world-frame enforcement, candidate-stage intervals, schema-valid room/wall conversion, main-pipeline return/enrichment, and synthetic rejection/integration tests. Openings, adjacency, interval calibration, and real ±3% evidence remain media-dependent.
 - **2026-09-09 T7f calibrated video triangulation** — Sidecar v1.1 display intrinsics and camera-axis contract, accepted-segment/exact-pose guards, calibrated two-view metric triangulation, depth/reprojection/ray-angle filters, voxelization, sparse floor/wall support diagnostics, and synthetic metric regressions. Schema v1.0 and current native MP4s remain uncalibrated; no wall dimensions emitted.
 - **2026-09-09 T8b photo overlap graph** — Bounded ORB features, mutual matching, seeded homography/fundamental support, spatial-coverage gates, within-room components, conservative cross-room candidates, synthetic graph tests, and measured real-capture refusal. Current rooms have 4/6/6 components and no connector candidate; no metric claim.

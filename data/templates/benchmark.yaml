@@ -1,0 +1,10 @@
+schema_version: "1.0.0"
+benchmark_id: benchmark-home-01
+jobs:
+  photos: benchmark-photos
+  video: benchmark-video
+  lidar: benchmark-lidar
+ground_truth: ground_truth.json
+repeats:
+  lidar: benchmark-lidar-repeat
+incumbent: incumbent/floorplan.json
