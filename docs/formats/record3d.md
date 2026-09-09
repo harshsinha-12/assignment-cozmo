@@ -18,6 +18,15 @@ The adapter now reads the real September 9 captures and checks:
 The Python `lzfse` package is the portable decoder. On macOS, the reader also
 uses the system Compression framework if the package is not installed.
 
+## T21 Cozmo Capture archives
+
+The iOS app can write Record3D-compatible `.r3d` files from ARKit `sceneDepth`
+while a RoomPlan scan is running. Those files ship inside the job ZIP next to
+`roomplan.json` (`docs/formats/cozmo-capture-job.md`). Sampling is 2 Hz, at most
+90 frames per room. Frames without depth and confidence are skipped. ZIP
+members, LZFSE payloads, XYZW camera-to-world poses, and `fx, fy, cx, cy`
+intrinsics match this adapter.
+
 ## Metric point generation
 
 T6b1 deterministically samples 61 frames, scales the RGB intrinsics to the depth

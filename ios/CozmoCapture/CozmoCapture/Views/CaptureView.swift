@@ -24,6 +24,11 @@ struct CaptureView: View {
           .foregroundStyle(.secondary)
       }
 
+      if store.state == .capturing {
+        Text("LiDAR frames: \(store.lidarFrameCount)")
+          .font(.footnote.monospacedDigit())
+      }
+
       if !store.sessionRooms.isEmpty {
         roomList
       }
@@ -51,7 +56,8 @@ struct CaptureView: View {
       )
       .font(.subheadline.weight(.semibold))
       ForEach(store.sessionRooms) { room in
-        Text(room.label)
+        let frames = room.lidarRecording?.frames.count ?? 0
+        Text(frames == 0 ? room.label : "\(room.label) · \(frames) LiDAR frames")
           .font(.footnote)
       }
     }
@@ -81,7 +87,7 @@ struct CaptureView: View {
       Button("Scan \(displayLabel)", systemImage: "viewfinder", action: store.start)
       if !store.sessionRooms.isEmpty {
         Button(
-          "Export roomplan.json", systemImage: "square.and.arrow.down", action: store.exportMerged
+          "Export capture job", systemImage: "square.and.arrow.down", action: store.exportMerged
         )
         .buttonStyle(.bordered)
         Button("Start over", systemImage: "trash", action: store.reset)
@@ -92,9 +98,9 @@ struct CaptureView: View {
 
   private var exportedActions: some View {
     VStack(spacing: 8) {
-      if let exportURL = store.exportURL {
-        ShareLink(item: exportURL) {
-          Label("Share roomplan.json", systemImage: "square.and.arrow.up")
+      if !store.exportURLs.isEmpty {
+        ShareLink(items: store.exportURLs) {
+          Label("Share capture job ZIP", systemImage: "square.and.arrow.up")
         }
       }
       Button("Scan \(displayLabel)", systemImage: "viewfinder", action: store.start)
@@ -119,7 +125,7 @@ struct CaptureView: View {
         .buttonStyle(.bordered)
       } else if !store.sessionRooms.isEmpty {
         Button(
-          "Export roomplan.json", systemImage: "square.and.arrow.down", action: store.exportMerged
+          "Export capture job", systemImage: "square.and.arrow.down", action: store.exportMerged
         )
         .buttonStyle(.bordered)
       }

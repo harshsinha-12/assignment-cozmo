@@ -5,12 +5,20 @@ import RoomPlan
 final class RoomCaptureStore: ObservableObject {
   @Published private(set) var state: CaptureState = .ready
   @Published private(set) var sessionRooms: [CapturedSessionRoom] = []
-  @Published private(set) var exportURL: URL?
+  @Published private(set) var exportURLs: [URL] = []
+  @Published private(set) var lidarFrameCount = 0
   @Published var draftLabel: String = AppConfig.defaultLabel(forIndex: 0)
 
   private var session: RoomCaptureSession?
+  private let lidarRecorder = ARKitLiDARRecorder()
+  private var pendingRecording: RawLiDARRecording?
+
+  var exportURL: URL? { exportURLs.first }
 
   init() {
+    lidarRecorder.onFrameCountChange = { [weak self] count in
+      self?.lidarFrameCount = count
+    }
     if !RoomCaptureSession.isSupported {
       state = .unsupported
     }
@@ -33,21 +41,31 @@ final class RoomCaptureStore: ObservableObject {
       return
     }
     guard canStart else { return }
-    exportURL = nil
+    exportURLs = []
+    pendingRecording = nil
+    lidarFrameCount = 0
     state = .capturing
     session?.run(configuration: RoomCaptureSession.Configuration())
+    if let arSession = session?.arSession {
+      lidarRecorder.start(session: arSession)
+    }
   }
 
   func stop() {
     guard state == .capturing else { return }
+    pendingRecording = lidarRecorder.finish()
+    lidarFrameCount = pendingRecording?.frames.count ?? 0
     state = .processing
     session?.stop()
   }
 
   func reset() {
     guard canStart else { return }
+    _ = lidarRecorder.finish()
     sessionRooms = []
-    exportURL = nil
+    exportURLs = []
+    pendingRecording = nil
+    lidarFrameCount = 0
     draftLabel = AppConfig.defaultLabel(forIndex: 0)
     state = RoomCaptureSession.isSupported ? .ready : .unsupported
   }
@@ -71,9 +89,17 @@ final class RoomCaptureStore: ObservableObject {
     }
 
     let label = AppConfig.uniquedLabel(draftLabel, existing: sessionRooms.map(\.label))
-    sessionRooms.append(CapturedSessionRoom(label: label, capturedRoom: room))
+    sessionRooms.append(
+      CapturedSessionRoom(
+        label: label,
+        capturedRoom: room,
+        lidarRecording: pendingRecording
+      )
+    )
+    pendingRecording = nil
     draftLabel = AppConfig.defaultLabel(forIndex: sessionRooms.count)
-    exportURL = nil
+    exportURLs = []
+    lidarFrameCount = 0
     state = .ready
   }
 
@@ -106,10 +132,14 @@ final class RoomCaptureStore: ObservableObject {
 
   private func write(_ plan: PortableRoomPlan) {
     do {
-      exportURL = try RoomPlanExporter.write(plan)
+      let package = try JobPackageBuilder.writeToDocuments(
+        plan: plan,
+        recordings: sessionRooms.map { ($0.label, $0.lidarRecording) }
+      )
+      exportURLs = [package.zipURL]
       state = .exported
     } catch {
-      state = .failed("Could not write the RoomPlan export: \(error.localizedDescription)")
+      state = .failed("Could not write the capture job: \(error.localizedDescription)")
     }
   }
 }

@@ -10,21 +10,23 @@ Product: local CLI + **disclosed LLM tool-calling agent**. Score policy: max eve
 
 ## Capture status (reshoot layout prepared 2026-09-09)
 
-Three room-level Record3D scans remain under gitignored `data/private/`. The 23
-WhatsApp photos and two MP4s were removed from the active jobs before the clean
-reshoot; exact primary/repeat/evidence/incumbent/Route 1 upload folders and
-templates now exist. Photos, videos, connector LiDAR, repeats, tape/laser ground
-truth, damage evidence, and incumbent exports remain missing. Do **not** invent
-centimetres or mark a scored gate pass without those eval inputs.
+Three room-level Record3D scans remain under gitignored `data/private/`. Clean
+photo sets now contain 8 files each for drawing-room, my-room, and pooja-room;
+the connector has only 1 and still fails the 2-photo minimum. Four room/connector
+videos are present. Three damage evidence images are classified as `crack` and
+`impact_damage`, with dimensions/surface ids still waiting on Harsh. Repeat
+captures, tape/laser ground truth, connector LiDAR, and incumbent exports remain
+missing. Do **not** invent centimetres or mark a scored gate pass without those
+eval inputs.
 
 | ID | Can finish now? | What to do without uploads |
 | --- | --- | --- |
-| **T21** | **T21b code done** | Named multi-room RoomPlan capture/export with StructureBuilder merge. Xcode 26.6 plus iOS 26.5 simulator are installed; simulator and unsigned device builds succeed. Signed phone install remains T21g. |
+| **T21** | **T21c code done** | Named multi-room RoomPlan JSON plus Record3D-compatible ARKit `.r3d` logging. Simulator and unsigned device builds succeed. Signed phone install remains T21g. |
 | **T10** | **Draft done** | Architecture, tier design, drift, error budget, calibration, agent, fix loop, and known failures are drafted. Final real benchmark tables wait on T3. |
 | **T20** | **Pre-shoot code done** | T20a reproduction, T20b audit, and T20c one-command benchmark/readiness runner are verified; measured coverage remains T3-dependent. |
 | **T17** | **Protocol stage done** | Route 2 operator card, loader-checked per-tier templates, and honest runtime/device matrix ship; measured intervals remain T3-dependent. |
-| T8 remainder | Awaiting clean reshoot | Archived photo graphs failed connectivity. Metric SfM, scale, adjacency, and ±8% walls need the new overlapping originals. |
-| T7 remainder | Calibrated path implemented | T7b–T7g can emit conservative rooms from calibrated v1.2 pose sidecars. The active video folder is empty pending the clean walkthrough; openings, shared constraints, calibration, and ±3% eval need media. |
+| T8 remainder | Partial reshoot present | Three rooms have 8 originals; connector has 1 and needs at least one more. Re-run overlap before metric SfM. |
+| T7 remainder | New videos present | Four room/connector MP4s are active; T7b–T7g still require calibrated v1.2 pose sidecars for metric output. |
 
 **Still evidence-blocked:** measured T17 intervals, T18 Polycam/magicplan,
 repeatability gates, and T11 walk-in. T6 raw Record3D, T7 VO, and T8 SfM can now
@@ -40,12 +42,12 @@ advance against the partial upload.
 | T1 | done | Official prompt in `docs/takehome.md` | human | no | 2026-09-08 |
 | T2 | done | Synthetic two-room fixture | — | no | 2026-09-07 |
 | T4 | done | Reconcile plan with official prompt | T1 | no | 2026-09-08 ingest |
-| T3 | doing | Human benchmark capture | human + Pro phone | **yes — LiDAR partial** | Three prior room `.r3d` files remain; clean photo/video folders plus repeat, GT, damage, incumbent, and connector paths are prepared in `mytask.md` |
+| T3 | doing | Human benchmark capture | human + Pro phone | **yes — partial upload** | Photos 8/8/8/1, four videos, three room `.r3d`, and damage images present; connector photos, damage dimensions, repeats, GT, incumbent, and connector LiDAR remain |
 | T6 | doing | LiDAR export → FloorPlan | — | **present** | T6a–T6b3 raw `.r3d` partial IR works; calibration, repeatability, shared-opening registration, and GT hardening remain |
 | T9 | done | Stitch + drift correction + on/off ablation | T6 | no | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
-| T7 | doing | Video path | T6 | clean reshoot pending | T7b–T7g calibrated room/FloorPlan path done; active video job is empty, and openings/stitch/calibrated ±3% evidence remain |
-| T8 | doing | Photos path, 2–8 stills, folder stitch | — | clean reshoot pending | T8a ingest + T8b overlap graph done; archived WhatsApp set had 4/6/6 components and zero connector candidates; reshoot blocks SfM |
-| T21 | doing | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | no | T21a–T21b multi-room portable JSON app builds; T21c raw ARKit logging and T21g signed phone install remain. Scored route stays Route 2 until install works |
+| T7 | doing | Video path | T6 | four MP4s present | T7b–T7g calibrated room/FloorPlan path done; new captures need ingest diagnostics and lack metric sidecars |
+| T8 | doing | Photos path, 2–8 stills, folder stitch | — | reshoot partial | Drawing/my/pooja have 8 files; connector has 1 and fails ingest minimum; overlap graph must be rerun after completion |
+| T21 | doing | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | no | T21a–T21c RoomPlan JSON plus ARKit `.r3d` logging build; T21e job ZIP and T21g signed phone install remain. Scored route stays Route 2 until install works |
 | T17 | doing | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | T17a protocol/templates done; walk-in validation and measured rows wait on T3 |
 | T18 | todo | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | **yes** | Beat/tie ≥ 70% shared dims |
 | T10 | doing | Technical report ≤ 6 pages + benchmark tables | T19 | draft **no**; tables **yes** | 1,805-word engineering draft complete; real benchmark/repeat/incumbent/timing tables remain T3-dependent |
@@ -76,12 +78,12 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-**Pre-shoot Python boundary reached.** T21b multi-room capture/export is
-implemented. Next media-independent iOS stage is T21c raw ARKit RGB-D logging,
-after review. T21g remains a signed 10-minute phone-install rehearsal. Separately,
-complete T3 and run `make benchmark` to unlock T6/T7/T8 calibration and the
-remaining scored evidence. Do not loosen T8b thresholds to force the current
-photos to pass.
+**Pre-shoot Python boundary reached.** T21c raw ARKit RGB-D logging is
+implemented as Record3D-compatible `.r3d` files beside `roomplan.json`. Next
+media-independent iOS stage is T21e job packaging after review. T21g remains a
+signed 10-minute phone-install rehearsal. Separately, complete T3 and run
+`make benchmark` to unlock T6/T7/T8 calibration and the remaining scored
+evidence. Do not loosen T8b thresholds to force the current photos to pass.
 
 ### Media-ready freeze sequence
 
@@ -110,6 +112,8 @@ scaffolding. Minor fixes after real captures remain normal and allowed.
 ---
 
 ## Done
+
+- **2026-09-09 T21c raw ARKit LiDAR recorder** — 2 Hz `sceneDepth` sampling during RoomPlan scans, JPEG RGB plus LZFSE depth/confidence, XYZW camera-to-world poses, Record3D-compatible `.r3d` ZIP writer, live frame count, multi-file share, and archive contract tests. Simulator, unsigned iPhoneOS, and test-target builds succeed. Signed install remains T21g.
 
 - **2026-09-09 T21b multi-room RoomPlan capture/export** — Named session accumulation, Apple `StructureBuilder` merge, portable `rooms[]` export with shared-wall/`connectsRoomIds` annotation, merge-failure fallback, contract tests, bundle-id Info.plist, and operator README. Simulator and unsigned generic iPhoneOS builds succeed. Signed install remains T21g.
 - **2026-09-09 T21a iOS RoomPlan exporter foundation** — Buildable iOS 17 SwiftUI app, native RoomPlan capture, explicit portable JSON v1 conversion, atomic local export/system share, unsupported-device guard, compiled contract test, operator README, and code map. Simulator app and test targets compile; on-phone sensing/install remains T21b.

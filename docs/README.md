@@ -28,6 +28,7 @@ Read `AGENTS.md` first, not this folder.
 | `prompts/` | Kickoff + ingest |
 | `schemas/floorplan.schema.json` | IR |
 | `formats/roomplan-json.md` | Tested portable RoomPlan surface JSON accepted by T6 |
+| `formats/cozmo-capture-job.md` | Route 1 Cozmo Capture ZIP that unpacks into a lidar job folder |
 | `briefs/ai-backend-engineer.pdf` | Original JD |
 
 When implementation starts, `writeup.md` is the ≤6 page report (Phase 11).

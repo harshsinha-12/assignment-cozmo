@@ -105,17 +105,17 @@ and replace the Record3D version placeholder.
 
 ## 4. Route 1 Xcode/RoomPlan JSON
 
-Do not mix Route 1 output with the Record3D Route 2 job. When the Cozmo Capture
-app shares `roomplan.json`, save it here:
+Do not mix Route 1 output with the Record3D Route 2 job. When Cozmo Capture
+shares the job ZIP, unzip it here (keep `manifest.yaml` and `lidar/`):
 
 ```text
+data/private/route1-roomplan/manifest.yaml
 data/private/route1-roomplan/lidar/roomplan.json
+data/private/route1-roomplan/lidar/<room>.r3d
 ```
 
-Then rename `route1-roomplan/manifest.TEMPLATE.yaml` to `manifest.yaml`.
-This is optional parallel Route 1 evidence. The T21b app can export several
-named rooms as one `rooms[]` file; signed phone install and a real round-trip
-remain T21g.
+Signed phone install and a real round-trip remain T21g. The T21e app already
+packs RoomPlan JSON plus per-room `.r3d` archives into that ZIP.
 
 ## 5. Safe staged damage
 
@@ -128,17 +128,17 @@ the real wall:
 Keep both in place during photos, video, and LiDAR. Add these evidence photos:
 
 ```text
-data/private/benchmark-evidence/damage/
-  my-room-damage-wide.jpg
-  my-room-water-stain-close.jpg
-  my-room-water-stain-measurement.jpg
-  my-room-puncture-close.jpg
-  my-room-puncture-measurement.jpg
+data/private/benchmark-photos/evidence/damage/
+  my-room-crack-wide.JPG
+  my-room-impact-damage-close.JPG
+  drawing-room-impact-damage-close.JPG
   measurements.txt
 ```
 
-Fill the supplied `measurements.txt`. After upload, the agent will create the
-validated `damage_observations.json`; you do not need to write that JSON.
+The current images are classified as a `crack` plus `impact_damage`; no water
+stain is claimed. Fill the blank width, height, and surface fields in the
+supplied `measurements.txt`. After upload, the agent will create the validated
+job-root `damage_observations.json`; you do not need to write that JSON.
 
 ## 6. Tape/laser ground truth
 
@@ -210,7 +210,7 @@ That normalized JSON—not the PDF—is what `make benchmark` evaluates.
 - [ ] Existing three room `.r3d` files preserved
 - [ ] Continuous Record3D connector scan
 - [ ] Independent `my-room` repeat `.r3d`
-- [ ] Two staged damage classes and five evidence images
+- [ ] Two damage classes (`crack` and `impact_damage`) with filled measurements
 - [ ] All wall/opening/ceiling/diagonal measurements and evidence photographs
 - [ ] magicplan raw output for `drawing-room` and `my-room`, including version
 - [ ] Originals transferred without WhatsApp compression

@@ -12,15 +12,13 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Implemented **T21b** multi-room Cozmo Capture: name rooms, keep each
-  `CapturedRoom`, merge two or more with Apple `StructureBuilder`, and share one
-  portable `roomplan.json` `rooms[]` file.
-- Shared wall identifiers get `roomIds`; openings on those walls get
-  `connectsRoomIds`. Merge failure can export unmerged rooms instead of
-  discarding the session.
-- Downloaded the iOS 26.5 simulator runtime. Simulator and unsigned generic
-  iPhoneOS builds succeed. XCTest compiled; launching tests on the first-boot
-  simulator hung, so on-device RoomPlan is still unproven.
+- Implemented **T21c** raw ARKit LiDAR logging inside Cozmo Capture: 2 Hz
+  `sceneDepth` samples (RGB JPEG, LZFSE depth/confidence, XYZW camera-to-world
+  poses, `fx/fy/cx/cy` intrinsics, timestamps) written as Record3D-compatible
+  `.r3d` files beside `roomplan.json`.
+- Simulator, unsigned generic iPhoneOS, and XCTest compile succeed. Tests were
+  not launched on the simulator. On-device RoomPlan/LiDAR sensing is still
+  unproven.
 - No commit was made.
 
 ### What is true now
@@ -29,19 +27,21 @@ The current agent overwrites the **Current handoff** section at the end of every
 - Route 2 remains the default/scored capture route. T21 Route 1 is parallel and
   must not replace it until a signed device install completes in under 10
   minutes.
-- The T21b app names rooms, accumulates sessions, merges with
-  `StructureBuilder`, and writes portable `rooms[]` JSON. Simulator and unsigned
-  generic iPhoneOS builds succeed. RoomPlan sensing and sharing have not yet
-  been exercised on the iPhone.
+- The T21c app names rooms, accumulates sessions, merges with
+  `StructureBuilder`, writes portable `rooms[]` JSON, and logs per-room ARKit
+  `.r3d` archives when LiDAR depth is available. Simulator and unsigned generic
+  iPhoneOS builds succeed. RoomPlan sensing and sharing have not yet been
+  exercised on the iPhone.
 - Plane-anchored stitch + regenerable `floorplan.ablation-off.json` work on the two-room RoomPlan fixture. Drift gate passes when that ablation is supplied.
 - Video jobs ingest every MP4/MOV in stable order, retain source-frame/time identity, qualify relative-VO evidence, recover disconnected unitless pose segments, and strictly validate/align optional metric camera poses. Calibrated v1.2 sidecars can now emit conservative partial rooms/walls after complete surface qualification.
 - Photo jobs validate one folder per room, 2–8 decodable images, stable identity, and all-pairs geometric overlap. Disconnected evidence now returns actionable `insufficient_overlap` before SfM.
 - Raw Record3D `.r3d` ZIPs now emit schema-valid metric rooms, walls, ceiling heights, areas, and evidence-gated openings. Output stays `partial` because intervals and cross-archive registration are not yet measured.
 - T19 before is pinned to `523ceea`; the shipped code is pinned to `68acdf6`. The complete bundle is under `data/fix-loop/`.
 - The after run exits 0. Its eval still exits 3 because unrelated repeatability/incumbent evidence is missing, while the selected `pipeline_yield` gate passes.
-- The active private upload contains only the three earlier room LiDAR scans.
-  Photo/video job folders are intentionally empty for original-quality reshoots.
-  Repeat template manifests are not active until their media is copied.
+- The active private upload contains 8/8/8/1 photos across drawing-room,
+  my-room, pooja-room, and connector; four MP4s; three earlier room LiDAR scans;
+  and three job-relative damage evidence images. Repeat template manifests are
+  not active until their media is copied.
 - OpenCV reports both video transforms as 90° clockwise. Explicit normalization yields 720×1280 RGB: my-room 138 samples / 68.56 s, pooja-room 148 samples / 73.91 s at about 2 Hz. The second video is no longer ignored.
 - Both archived videos passed the internal 35% eligible-pair threshold: my-room 23/60 with median 1,166 keypoints, 262 matches, 178 F-inliers, 1.15 px parallax, 23.5% coverage; pooja-room 27/60 with 1,188, 257, 190, 1.23 px, 20.6%. These are historical trackability diagnostics, not metric accuracy.
 - With at most 90 selected frames, my-room recovers 21/89 relative-pose edges in 10 local segments and pooja-room recovers 17/89 in 9. The 576 px focal length is an unvalidated image-size prior; unit steps and separate identity anchors are not metric or globally aligned.
@@ -52,7 +52,7 @@ The current agent overwrites the **Current handoff** section at the end of every
   points; complete camera-bracketing room surfaces can then enter the shared
   IR. v1.0 cannot authorize triangulation.
 - The archived MP4s contained no sidecars, so both reported `metric_alignment=not-available`; no scale was inferred.
-- The archived photo graphs failed connectivity: drawing-room had 3/21 eligible edges and 4 components, my-room 2/28 and 6, and pooja-room 2/28 and 6. No cross-room connector candidate passed. The new active folders are empty.
+- The archived photo graphs failed connectivity: drawing-room had 3/21 eligible edges and 4 components, my-room 2/28 and 6, and pooja-room 2/28 and 6. No cross-room connector candidate passed. The new active photos have not yet been run because connector ingest is incomplete.
 - The three clouds use 61 frames each and contain 252,694 drawing-room, 224,435 my-room, and 260,653 pooja-room 2.5 cm voxel centroids. The complete private LiDAR command takes about 8 s locally.
 - The private output contains 3 rooms, 12 walls, and 4 opening candidates: one in my-room and three in pooja-room. The SVG was rendered and visually inspected. These candidates are not tape-backed accuracy results.
 - Separate archives preserve their exported world-pose coordinates, but no shared session/door association is invented. T9 records an empty ablation and one disconnected warning rather than claiming correction.
@@ -65,24 +65,28 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### Blockers
 
-- Human T3 remainder: drawing-room video, connector/hallway in all tiers, repeat capture, tape/laser GT, two staged damage classes/evidence, and Polycam/magicplan output for two rooms.
+- Human T3 remainder: at least one more connector photo, connector LiDAR,
+  repeat captures, tape/laser GT, damage dimensions/wall ids, and
+  Polycam/magicplan output for two rooms.
 - T6 calibration/repeatability/shared-opening hardening remains blocked on the human capture remainder.
 - T7 room/FloorPlan conversion is implemented synthetically; current captures lack calibrated v1.2 pose sidecars. Video openings, shared-room constraints, interval calibration, and the official ±3% evaluation remain media-dependent.
 - T8c metric SfM is blocked on a photo reshoot with overlapping intermediate views and doorway/connector evidence. Do not loosen the evidence thresholds to force the current capture through.
-- T21c raw ARKit RGB-D logging, T21g Apple-team signing/device install, a real
-  RoomPlan export round-trip through the Python CLI, and the timed under-10-minute
+- T21e job-folder ZIP packaging, T21g Apple-team signing/device install, a real
+  RoomPlan/`.r3d` round-trip through the Python CLI, and the timed under-10-minute
   installation remain.
 - Metric video VO and photo SfM/adjacency/interval calibration need the actual media.
 
 ### Next agent should
 
-1. Review T21b, then start T21c raw ARKit RGB/depth/confidence/pose logging in
-   the iOS project. Do not overlap another agent on the same Xcode files.
+1. Review T21c, then start T21e shareable job-folder/ZIP packaging using
+   separate archive-builder files. Do not overlap another agent on the same
+   Xcode capture-session files.
 2. Harsh: T21g — select an Apple team in Signing & Capabilities, install on the
-   iPhone 17 Pro, capture several rooms, and save `roomplan.json` under
-   `data/private/route1-roomplan/lidar/`.
-3. Follow `mytask.md` for the T3 reshoot; do not start T8c until photo graphs
-   connect.
+   iPhone 17 Pro, capture several rooms, and save `roomplan.json` plus `.r3d`
+   files under `data/private/route1-roomplan/lidar/`. Watch LiDAR frame count
+   during the scan.
+3. Follow `mytask.md` for the T3 remainder; do not start T8c until the connector
+   photo set meets the two-image minimum and overlap graphs connect.
 
 ### Read next (max five)
 
@@ -106,6 +110,8 @@ xcodebuild \
 
 ## History
 
+- **2026-09-09** — T21c ARKit RGB-D logging writes Record3D-compatible `.r3d` beside roomplan.json.
+- **2026-09-09** — Damage evidence classified as crack/impact damage; measurements intentionally left for Harsh.
 - **2026-09-09** — T21b named multi-room RoomPlan capture/`rooms[]` export; simulator and unsigned iPhoneOS builds succeed.
 - **2026-09-09** — T3 clean-reshoot folders/templates prepared; old photo/video media archived outside active jobs.
 - **2026-09-09** — T21a single-room iOS RoomPlan exporter foundation complete; device/multi-room T21b remains.

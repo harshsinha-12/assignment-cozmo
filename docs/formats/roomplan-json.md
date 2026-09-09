@@ -13,6 +13,8 @@ Put one of these files in `job/lidar/`:
 The root may be one room with `walls`, or a multi-room object with `rooms`.
 The T21 Cozmo Capture app writes this `rooms[]` wrapper after each named
 RoomPlan session; two or more rooms are merged with `StructureBuilder` first.
+Share the job ZIP from the app, unzip it, and keep `roomplan.json` under
+`lidar/` (`docs/formats/cozmo-capture-job.md`).
 
 ## Surface contract
 

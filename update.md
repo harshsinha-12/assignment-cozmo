@@ -13,6 +13,37 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T21c raw ARKit LiDAR recorder
+
+- Context: T21b exported processed RoomPlan walls only. T21c logs the raw RGB,
+  LiDAR depth, confidence, poses, intrinsics, resolution, and timestamps.
+- Done: 2 Hz `ARSession.currentFrame` sampling during each named scan (max 90
+  frames), JPEG plus LZFSE depth/confidence, XYZW camera-to-world poses,
+  Record3D-compatible `.r3d` ZIP writer, live frame count, multi-file share,
+  and archive contract tests. Simulator, unsigned iPhoneOS, and test-target
+  builds succeed.
+- Learned: RoomPlan does not expose an ARFrame delegate; polling
+  `sceneDepth`/`smoothedSceneDepth` is the non-invasive hook. Frames without
+  both depth and confidence are skipped rather than inventing values. The
+  Python T6 adapter can read these archives without a new format.
+- Next: review, then T21e job ZIP. Harsh does T21g signed install and checks
+  that LiDAR frame count increments on the iPhone 17 Pro.
+
+## 2026-09-09 — Real damage evidence classified
+
+- Inspected the supplied my-room wide/close images and drawing-room close image.
+  They show a hairline `crack` and localized `impact_damage`; the old water-stain
+  and puncture placeholders were removed.
+- Moved damage-only close-ups out of geometry room folders so drawing-room and
+  my-room each remain within the official eight-photo maximum. Evidence now
+  lives job-relative under `benchmark-photos/evidence/damage/` for later agent
+  image loading.
+- Updated `measurements.txt` with three evidence records and blank width,
+  height, and wall fields for Harsh to measure/fill. No centimetres were inferred
+  from unscaled photographs.
+- Current photo counts are drawing-room 8, my-room 8, pooja-room 8, connector 1;
+  the connector still needs at least one more photo.
+
 ## 2026-09-09 — T21b multi-room RoomPlan capture/export
 
 - Context: T21a was the single-room exporter. T21b is named multi-room

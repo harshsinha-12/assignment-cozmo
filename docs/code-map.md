@@ -20,26 +20,35 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `ios/CozmoCapture/CozmoCapture.xcodeproj/project.pbxproj` | Buildable iOS 17 application and unit-test target definition. |
 | `ios/CozmoCapture/CozmoCapture.xcodeproj/xcshareddata/xcschemes/CozmoCapture.xcscheme` | Shared build/test/run scheme used by Xcode and command-line verification. |
 | `ios/CozmoCapture/CozmoCapture/App/CozmoCaptureApp.swift` | SwiftUI application entry point. |
-| `ios/CozmoCapture/CozmoCapture/Config/AppConfig.swift` | Portable format, export filename, directory, and unique default room-label helpers. |
+| `ios/CozmoCapture/CozmoCapture/Config/AppConfig.swift` | Portable format, job ZIP names, export directory, and unique default room-label helpers. |
 | `ios/CozmoCapture/CozmoCapture/Models/PortableRoomPlan.swift` | Codable DTOs for the exact portable RoomPlan JSON v1 contract consumed by Python, including optional `roomIds` / `connectsRoomIds`. |
-| `ios/CozmoCapture/CozmoCapture/Models/CapturedSessionRoom.swift` | Named in-session `CapturedRoom` record retained until export or reset. |
+| `ios/CozmoCapture/CozmoCapture/Models/CapturedSessionRoom.swift` | Named in-session `CapturedRoom` plus optional ARKit LiDAR recording, retained until export or reset. |
+| `ios/CozmoCapture/CozmoCapture/Models/RawLiDARRecording.swift` | In-memory encoded RGB-D frames (JPEG, LZFSE depth/confidence, pose, intrinsics, timestamps). |
+| `ios/CozmoCapture/CozmoCapture/Capture/ARKitLiDARRecorder.swift` | Samples `ARSession.currentFrame` at 2 Hz during RoomPlan scans, skipping frames without LiDAR depth and confidence. |
+| `ios/CozmoCapture/CozmoCapture/Export/ARKitFrameEncoder.swift` | Packs ARKit camera-to-world XYZW poses, RGB intrinsics, JPEG, and LZFSE depth/confidence into Record3D payloads. |
+| `ios/CozmoCapture/CozmoCapture/Export/Record3DArchiveWriter.swift` | Writes a ZIP `.r3d` with `metadata` plus matched `rgbd/<i>.jpg/.depth/.conf` members. |
+| `ios/CozmoCapture/CozmoCapture/Export/CaptureJobManifest.swift` | Emits the YAML `manifest.yaml` consumed by the Python job loader. |
+| `ios/CozmoCapture/CozmoCapture/Export/JobPackageBuilder.swift` | Writes a CLI job folder plus a shareable ZIP (`manifest.yaml` + `lidar/`). |
+| `ios/CozmoCapture/CozmoCaptureTests/Record3DArchiveTests.swift` | Contract tests for pose/intrinsic layout, unique archive names, ZIP members, and LZFSE round-trip. |
+| `ios/CozmoCapture/CozmoCaptureTests/JobPackageTests.swift` | Contract tests for job-folder layout, ZIP members, unique job ids, and empty-plan rejection. |
 | `ios/CozmoCapture/CozmoCapture/Export/RoomPlanAdapter.swift` | Converts Apple `CapturedRoom` surfaces, parent wall ids, and column-major transforms into portable DTOs. |
 | `ios/CozmoCapture/CozmoCapture/Export/RoomAssociation.swift` | Marks shared wall identifiers and connecting openings after merge without inventing geometry. |
 | `ios/CozmoCapture/CozmoCapture/Export/StructureMerger.swift` | Runs Apple `StructureBuilder` for two or more rooms and preserves operator labels. |
-| `ios/CozmoCapture/CozmoCapture/Export/RoomPlanExporter.swift` | Deterministically encodes JSON and atomically writes it in the app Documents directory. |
+| `ios/CozmoCapture/CozmoCapture/Export/RoomPlanExporter.swift` | Encodes portable RoomPlan JSON used inside the job package. |
 | `ios/CozmoCapture/CozmoCapture/Capture/CaptureState.swift` | Small capture-state model and operator-facing guidance text. |
-| `ios/CozmoCapture/CozmoCapture/Capture/RoomCaptureStore.swift` | Owns RoomPlan session commands, named multi-room accumulation, merge/export, and errors. |
+| `ios/CozmoCapture/CozmoCapture/Capture/RoomCaptureStore.swift` | Owns RoomPlan session commands, named multi-room accumulation, ARKit LiDAR recording, and job-ZIP export. |
 | `ios/CozmoCapture/CozmoCapture/Capture/RoomCaptureContainer.swift` | Bridges `RoomCaptureView` and its delegate into SwiftUI. |
-| `ios/CozmoCapture/CozmoCapture/Views/CaptureView.swift` | Room naming, scanned-room list, scan/export/share controls, and merge-failure fallback. |
+| `ios/CozmoCapture/CozmoCapture/Views/CaptureView.swift` | Room naming, scanned-room list, LiDAR frame count, scan/export/share-ZIP controls, and merge-failure fallback. |
 | `ios/CozmoCapture/CozmoCapture/Info.plist` | Camera purpose string, display name, launch metadata, and portrait orientation. |
 | `ios/CozmoCapture/CozmoCaptureTests/PortableRoomPlanTests.swift` | Compiled contract tests for format metadata, multi-room `rooms[]`, shared-wall association, and unique labels. |
-| `ios/CozmoCapture/README.md` | Build, phone-install, multi-room capture, export-placement, and current raw-sensor boundary instructions. |
+| `ios/CozmoCapture/README.md` | Build, phone-install, multi-room capture, and job-ZIP share/unpack steps. |
 
 ## Contract and I/O
 
 | File | Responsibility |
 | --- | --- |
 | `src/cozmo_floorplan/io/job.py` | Reads `manifest.yaml`, checks the tier-specific job directory, and produces immutable normalized job metadata. |
+| `src/cozmo_floorplan/io/capture_package.py` | Inspects Cozmo Capture ZIPs, rejects incomplete archives, and extracts them into a `load_job` folder. |
 | `src/cozmo_floorplan/io/photos.py` | Discovers stable per-room image sets, decodes every supported image, and records immutable path/dimension metadata. |
 | `src/cozmo_floorplan/io/video.py` | Discovers every MP4/MOV walkthrough, reads typed container/display metadata, disables backend auto-rotation, and returns bounded display-oriented RGB samples with stable video, source-frame, and timestamp identity. |
 | `src/cozmo_floorplan/io/video_poses.py` | Strictly parses versioned metric camera-to-world sidecars: v1.1 adds display intrinsics/camera axes and v1.2 adds scale source/shared world-frame identity, while all versions validate frame/time keys, positions, and quaternions. |
@@ -76,6 +85,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/recon/record3d_measurements.py` | Builds Record3D measurement objects with disclosed, deliberately uncalibrated candidate-stage intervals. |
 | `src/cozmo_floorplan/recon/record3d_floorplan.py` | Converts per-archive room/opening candidates into shared FloorPlan rooms, walls, openings, provenance, and honest partial-state warnings. |
 | `docs/formats/roomplan-json.md` | Public input contract for the tested RoomPlan JSON adapter. |
+| `docs/formats/cozmo-capture-job.md` | Route 1 job ZIP layout that unpacks into the CLI lidar job folder. |
 | `docs/formats/record3d.md` | Documents the tested raw Record3D archive contract, decompression path, and current plane-extraction boundary. |
 | `src/cozmo_floorplan/recon/photos_config.py` | Official ingest limits plus immutable ORB, robust-geometry, within-room, and cross-room overlap thresholds. |
 | `src/cozmo_floorplan/recon/photo_features.py` | Decodes and bounds photos, extracts ORB observations, retains mutual ratio matches, and measures seeded homography/fundamental support and spatial coverage. |
