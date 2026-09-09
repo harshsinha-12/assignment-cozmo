@@ -12,5 +12,5 @@ DEFAULT_JOB_PATHS = {
     "lidar": "benchmark-lidar",
 }
 DEFAULT_TRUTH_PATH = "ground_truth.json"
-DEFAULT_LIDAR_REPEAT_PATH = "benchmark-lidar-repeat"
+DEFAULT_REPEAT_PATHS = {"photos": "benchmark-photos-repeat"}
 DEFAULT_INCUMBENT_PATH = "incumbent/floorplan.json"

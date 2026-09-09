@@ -6,10 +6,12 @@ from dataclasses import dataclass
 from itertools import combinations
 
 from cozmo_floorplan.io.photos import PhotoRoom
+from cozmo_floorplan.recon.photo_feature_ensemble import (
+    extract_photo_feature_ensemble,
+)
 from cozmo_floorplan.recon.photo_features import (
     PhotoFeatures,
     PhotoMatchEvidence,
-    extract_photo_features,
     match_photo_features,
 )
 from cozmo_floorplan.recon.photos_config import (
@@ -46,6 +48,7 @@ class PhotoRoomConnectivity:
     possible_edges: int
     component_count: int
     connected: bool
+    components: tuple[tuple[str, ...], ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,7 +82,9 @@ def analyze_photo_overlap(
 
     _validate_config(config)
     features = {
-        (room.identifier, frame.path.name): extract_photo_features(frame.path, config)
+        (room.identifier, frame.path.name): extract_photo_feature_ensemble(
+            frame.path, config
+        )
         for room in rooms
         for frame in room.frames
     }
@@ -99,7 +104,7 @@ def analyze_photo_overlap(
             )
             room_pairs.append(pair)
             pair_results.append(pair)
-        component_count = _component_count(
+        components = _components(
             tuple(frame.path.name for frame in room.frames),
             room_pairs,
         )
@@ -109,8 +114,9 @@ def analyze_photo_overlap(
                 image_count=len(room.frames),
                 eligible_edges=sum(pair.eligible for pair in room_pairs),
                 possible_edges=len(room_pairs),
-                component_count=component_count,
-                connected=component_count == 1,
+                component_count=len(components),
+                connected=len(components) == 1,
+                components=components,
             )
         )
 
@@ -160,23 +166,38 @@ def analyze_photo_overlap(
 
 def _analyze_pair(
     left_room: str,
-    left: PhotoFeatures,
+    left: tuple[PhotoFeatures, ...],
     right_room: str,
-    right: PhotoFeatures,
+    right: tuple[PhotoFeatures, ...],
     relationship: str,
     config: PhotoOverlapConfig,
 ) -> PhotoPairDiagnostics:
-    evidence = match_photo_features(left, right, config)
-    reasons = _rejection_reasons(left, right, evidence, relationship, config)
+    candidates = []
+    for left_variant, right_variant in zip(left, right, strict=True):
+        evidence = match_photo_features(left_variant, right_variant, config)
+        reasons = _rejection_reasons(
+            left_variant, right_variant, evidence, relationship, config
+        )
+        candidates.append((left_variant, right_variant, evidence, reasons))
+    left_variant, right_variant, evidence, reasons = max(
+        candidates,
+        key=lambda item: (
+            not item[3],
+            -len(item[3]),
+            item[2].coverage_fraction,
+            item[2].geometric_inliers,
+            item[2].matches,
+        ),
+    )
     return PhotoPairDiagnostics(
         left_room=left_room,
-        left_image=left.path.name,
+        left_image=left_variant.path.name,
         right_room=right_room,
-        right_image=right.path.name,
+        right_image=right_variant.path.name,
         relationship=relationship,
         matches=evidence.matches,
         geometric_inliers=evidence.geometric_inliers,
-        geometric_model=evidence.geometric_model,
+        geometric_model=f"{left_variant.method}:{evidence.geometric_model}",
         geometric_inlier_ratio=evidence.geometric_inlier_ratio,
         coverage_fraction=evidence.coverage_fraction,
         eligible=not reasons,
@@ -225,10 +246,10 @@ def _rejection_reasons(
     return tuple(reasons)
 
 
-def _component_count(
+def _components(
     image_names: tuple[str, ...],
     pairs: list[PhotoPairDiagnostics],
-) -> int:
+) -> tuple[tuple[str, ...], ...]:
     parents = {name: name for name in image_names}
 
     def find(name: str) -> str:
@@ -244,14 +265,31 @@ def _component_count(
         right_root = find(pair.right_image)
         if left_root != right_root:
             parents[right_root] = left_root
-    return len({find(name) for name in image_names})
+    groups: dict[str, list[str]] = {}
+    for name in image_names:
+        groups.setdefault(find(name), []).append(name)
+    return tuple(
+        sorted(
+            (tuple(sorted(names)) for names in groups.values()),
+            key=lambda names: (-len(names), names),
+        )
+    )
 
 
 def _validate_config(config: PhotoOverlapConfig) -> None:
-    if config.resize_max_dimension_px <= 0 or config.orb_feature_count <= 0:
+    if (
+        config.resize_max_dimension_px <= 0
+        or config.orb_feature_count <= 0
+        or config.sift_resize_max_dimension_px <= 0
+        or config.sift_feature_count <= 0
+    ):
         raise ValueError("photo overlap image and feature bounds must be positive")
-    if config.orb_fast_threshold < 0:
-        raise ValueError("photo overlap FAST threshold must be non-negative")
+    if (
+        config.orb_fast_threshold < 0
+        or config.sift_contrast_threshold <= 0
+        or config.sift_edge_threshold <= 0
+    ):
+        raise ValueError("photo overlap detector thresholds are invalid")
     counts = (
         config.minimum_keypoints_per_image,
         config.minimum_within_matches,
@@ -261,10 +299,14 @@ def _validate_config(config: PhotoOverlapConfig) -> None:
     )
     if any(value <= 0 for value in counts):
         raise ValueError("photo overlap evidence counts must be positive")
-    if config.ransac_reprojection_threshold_px <= 0:
+    if (
+        config.ransac_reprojection_threshold_px <= 0
+        or config.sift_ransac_reprojection_threshold_px <= 0
+    ):
         raise ValueError("photo overlap RANSAC threshold must be positive")
     ratios = (
         config.ratio_test,
+        config.sift_ratio_test,
         config.minimum_within_inlier_ratio,
         config.minimum_within_coverage_fraction,
         config.minimum_cross_inlier_ratio,

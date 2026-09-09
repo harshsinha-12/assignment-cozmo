@@ -6,7 +6,12 @@ from pathlib import Path
 from typing import Any
 
 from cozmo_floorplan.benchmark.config import TIERS
+from cozmo_floorplan.benchmark.evidence import (
+    find_damage_evidence,
+    floorplan_evidence_ready,
+)
 from cozmo_floorplan.benchmark.manifest import BenchmarkManifest
+from cozmo_floorplan.benchmark.repeat import find_repeat_evidence
 
 
 def audit_benchmark_inputs(manifest: BenchmarkManifest) -> list[dict[str, Any]]:
@@ -35,44 +40,46 @@ def audit_benchmark_inputs(manifest: BenchmarkManifest) -> list[dict[str, Any]]:
         )
         for tier in TIERS
     )
+    truth_ready, truth_problem = floorplan_evidence_ready(manifest.truth)
     checks.append(
         _check(
             "ground_truth",
             manifest.truth,
-            manifest.truth.is_file(),
-            "Add tape/laser ground_truth.json in FloorPlan schema format.",
+            truth_ready,
+            "Add valid tape/laser ground_truth.json in FloorPlan schema format "
+            f"({truth_problem}).",
         )
     )
-    lidar_repeat = manifest.repeats.get("lidar")
+    repeat, repeat_problem = find_repeat_evidence(manifest)
     checks.append(
         _check(
-            "repeat_lidar",
-            lidar_repeat or manifest.root / "benchmark-lidar-repeat",
-            lidar_repeat is not None and (lidar_repeat / "manifest.yaml").is_file(),
-            "Add the required second LiDAR capture job.",
+            "repeat_capture",
+            repeat.path if repeat is not None else manifest.root,
+            repeat is not None,
+            "Add one same-room repeat at any tier with repeat_of_job_id and "
+            f"repeat_room_ids ({repeat_problem}).",
         )
+    )
+    incumbent_ready, incumbent_problem = floorplan_evidence_ready(
+        manifest.incumbent, minimum_rooms=2
     )
     checks.append(
         _check(
             "incumbent",
             manifest.incumbent,
-            manifest.incumbent.is_file(),
-            "Add normalized Polycam or magicplan FloorPlan evidence for two rooms.",
+            incumbent_ready,
+            "Add normalized Polycam or magicplan FloorPlan evidence for two rooms "
+            f"({incumbent_problem}).",
         )
     )
-    damage_files = [
-        path / "damage_observations.json"
-        for path in manifest.jobs.values()
-        if (path / "damage_observations.json").is_file()
-    ]
+    damage_path, damage_problem = find_damage_evidence(list(manifest.jobs.values()))
     checks.append(
         _check(
             "damage_evidence",
-            damage_files[0]
-            if damage_files
-            else manifest.root / "damage_observations.json",
-            bool(damage_files),
-            "Add staged damage observations with image evidence to at least one job.",
+            damage_path or manifest.root / "damage_observations.json",
+            damage_path is not None,
+            "Add two-class staged damage observations with local image evidence "
+            f"({damage_problem}).",
         )
     )
     return checks

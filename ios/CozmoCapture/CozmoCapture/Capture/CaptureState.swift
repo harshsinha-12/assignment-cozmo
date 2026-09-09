@@ -32,7 +32,7 @@ enum CaptureState: Equatable {
     case .merging:
       "StructureBuilder is aligning rooms into one metric frame."
     case .exported:
-      "Share the job ZIP, unzip it, and run the CLI on that folder."
+      "Share the job ZIP and run the CLI on the ZIP or the unpacked folder."
     case .failed(let message):
       message
     }

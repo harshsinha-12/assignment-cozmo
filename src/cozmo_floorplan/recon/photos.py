@@ -24,16 +24,25 @@ def reconstruct_photos(
     counts = ", ".join(f"{room.identifier}={len(room.frames)}" for room in rooms)
     total = sum(len(room.frames) for room in rooms)
     overlap = analyze_photo_overlap(rooms, config=overlap_config)
-    connectivity = "; ".join(
-        f"{room.identifier}: edges={room.eligible_edges}/{room.possible_edges}, "
-        f"components={room.component_count}"
-        for room in overlap.rooms
-    )
+    connectivity_parts = []
+    for room in overlap.rooms:
+        isolated = [group[0] for group in room.components if len(group) == 1]
+        isolated_note = f", isolated={','.join(isolated)}" if isolated else ""
+        connectivity_parts.append(
+            f"{room.identifier}: edges={room.eligible_edges}/{room.possible_edges}, "
+            f"components={room.component_count}{isolated_note}"
+        )
+    connectivity = "; ".join(connectivity_parts)
     disconnected = [room.identifier for room in overlap.rooms if not room.connected]
     cross_pair_count = len(rooms) * (len(rooms) - 1) // 2
+    candidate_pairs = ",".join(
+        f"{item.left_room}<->{item.right_room}"
+        for item in overlap.cross_room_candidates
+    )
     cross_note = (
         f"cross-room candidates={len(overlap.cross_room_candidates)}/"
         f"{cross_pair_count} room pairs"
+        + (f" ({candidate_pairs})" if candidate_pairs else "")
     )
     if disconnected:
         raise ReconstructionError(

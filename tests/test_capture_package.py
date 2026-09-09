@@ -9,6 +9,7 @@ from cozmo_floorplan.errors import JobLoadError
 from cozmo_floorplan.io.capture_package import (
     extract_capture_zip,
     inspect_capture_zip,
+    open_job_directory,
     validate_capture_zip,
 )
 from cozmo_floorplan.io.job import load_job
@@ -120,3 +121,11 @@ def test_zip_slip_member_is_rejected(tmp_path):
 
     with pytest.raises(JobLoadError, match="escapes destination"):
         extract_capture_zip(archive, tmp_path / "unpacked")
+
+
+def test_open_job_directory_rejects_non_zip_files(tmp_path):
+    payload = tmp_path / "notes.txt"
+    payload.write_text("not a job\n", encoding="utf-8")
+
+    with pytest.raises(JobLoadError, match="directory or .zip"):
+        open_job_directory(payload)

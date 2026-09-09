@@ -68,7 +68,7 @@ Runs on their machine. No calls to **our** servers. **Disclosed LLM API with too
 - 3+ rooms plus a connector
 - Same spaces at photos, video, and LiDAR
 - One furnished room, two staged damage classes
-- One room captured twice at the **same** tier (required: LiDAR pair). Also recapture photos and video of that room if time — repeatability is a scored gate, not LiDAR-only in the prompt.
+- One room captured twice at the **same** tier. The active benchmark uses the independent photo repeat; photo or video repeats are optional extra evidence, and a LiDAR repeat is not required by the prompt.
 - Laser or tape on everything
 - Incumbent export (Polycam or magicplan, named version) on two rooms
 - iPhone 15+ ; Pro required for LiDAR
@@ -103,7 +103,7 @@ Runs on their machine. No calls to **our** servers. **Disclosed LLM API with too
 | --- | --- | --- |
 | Openings | ≤ 2 cm on ≥ 85%; miss or phantom = miss | Pass on every tier we submit |
 | Ceiling | ≤ 1.5 cm; recapture spread ≤ 1 cm | Pass |
-| Repeatability | 1 cm or 0.5% per wall, two captures | Pass (LiDAR pair required; other tiers if captured) |
+| Repeatability | 1 cm or 0.5% per wall, two captures | Pass using any same-room, same-tier pair; active pair is photos |
 | Drift | Method + ablation | Pass (must not use poses as-is) |
 | Photo stitch | Adjacency, no overlap, footprint ±8% | Pass |
 | Photo walls | ±8% + calibrated intervals | Pass |

@@ -57,19 +57,61 @@ def test_complete_manifest_runs_every_tier_and_writes_evaluations(
     incumbent = capture_root / "incumbent" / "floorplan.json"
     incumbent.parent.mkdir()
     incumbent.write_text(truth_text, encoding="utf-8")
-    for name in (
-        "benchmark-photos",
-        "benchmark-video",
-        "benchmark-lidar",
-        "benchmark-lidar-repeat",
-    ):
+    jobs = {
+        "benchmark-photos": "photos",
+        "benchmark-video": "video",
+        "benchmark-lidar": "lidar",
+        "benchmark-photos-repeat": "photos",
+    }
+    for name, tier in jobs.items():
         job = capture_root / name
         job.mkdir()
         (job / "manifest.yaml").write_text(
-            f"job_id: {name}\ntier: lidar\n", encoding="utf-8"
+            f"job_id: {name}\ntier: {tier}\n", encoding="utf-8"
         )
-    (capture_root / "benchmark-lidar" / "damage_observations.json").write_text(
-        "[]\n", encoding="utf-8"
+    (capture_root / "benchmark-photos-repeat" / "manifest.yaml").write_text(
+        "job_id: benchmark-photos-repeat\n"
+        "tier: photos\n"
+        "repeat_of_job_id: benchmark-photos\n"
+        "repeat_room_ids: [room_a]\n",
+        encoding="utf-8",
+    )
+    damage_job = capture_root / "benchmark-lidar"
+    (damage_job / "damage-a.jpg").write_bytes(b"evidence-a")
+    (damage_job / "damage-b.jpg").write_bytes(b"evidence-b")
+    (damage_job / "damage_observations.json").write_text(
+        json.dumps(
+            {
+                "version": "1.0",
+                "observations": [
+                    {
+                        "id": "damage-a",
+                        "surface": {"kind": "wall", "id": "a_south"},
+                        "fallback_class": "crack",
+                        "confidence": 0.9,
+                        "extent": {
+                            "value": 10,
+                            "unit": "cm2",
+                            "interval": {"low": 9, "high": 11, "confidence": 0.9},
+                        },
+                        "evidence_refs": ["damage-a.jpg"],
+                    },
+                    {
+                        "id": "damage-b",
+                        "surface": {"kind": "wall", "id": "b_south"},
+                        "fallback_class": "impact_damage",
+                        "confidence": 0.9,
+                        "extent": {
+                            "value": 12,
+                            "unit": "cm2",
+                            "interval": {"low": 11, "high": 13, "confidence": 0.9},
+                        },
+                        "evidence_refs": ["damage-b.jpg"],
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
     )
     template = (ROOT / "data" / "templates" / "benchmark.yaml").read_text(
         encoding="utf-8"
@@ -88,6 +130,85 @@ def test_complete_manifest_runs_every_tier_and_writes_evaluations(
     assert len(report["runs"]) == 4
     assert all(item["status"] == "complete" for item in report["runs"])
     assert all(item["status"] == "complete" for item in report["evaluations"])
+
+
+def test_any_same_tier_repeat_satisfies_readiness(tmp_path):
+    capture_root = tmp_path / "capture"
+    capture_root.mkdir()
+    (capture_root / "benchmark.yaml").write_text(
+        """schema_version: '1.0.0'
+benchmark_id: photo-repeat
+jobs:
+  photos: benchmark-photos
+  video: benchmark-video
+  lidar: benchmark-lidar
+ground_truth: ground_truth.json
+repeats: {photos: benchmark-photos-repeat}
+incumbent: incumbent/floorplan.json
+""",
+        encoding="utf-8",
+    )
+    primary = capture_root / "benchmark-photos"
+    repeat = capture_root / "benchmark-photos-repeat"
+    primary.mkdir()
+    repeat.mkdir()
+    (primary / "manifest.yaml").write_text(
+        "job_id: primary-photos\ntier: photos\n", encoding="utf-8"
+    )
+    (repeat / "manifest.yaml").write_text(
+        "job_id: repeat-photos\n"
+        "tier: photos\n"
+        "repeat_of_job_id: primary-photos\n"
+        "repeat_room_ids: [my-room]\n",
+        encoding="utf-8",
+    )
+
+    report = run_benchmark(capture_root, tmp_path / "output")
+
+    repeat_check = next(
+        item for item in report["inputs"] if item["id"] == "repeat_capture"
+    )
+    assert repeat_check["status"] == "ready"
+
+
+def test_repeat_must_link_to_primary_job(tmp_path):
+    capture_root = tmp_path / "capture"
+    capture_root.mkdir()
+    (capture_root / "benchmark.yaml").write_text(
+        """schema_version: '1.0.0'
+benchmark_id: bad-repeat
+jobs:
+  photos: benchmark-photos
+  video: benchmark-video
+  lidar: benchmark-lidar
+ground_truth: ground_truth.json
+repeats: {photos: benchmark-photos-repeat}
+incumbent: incumbent/floorplan.json
+""",
+        encoding="utf-8",
+    )
+    primary = capture_root / "benchmark-photos"
+    repeat = capture_root / "benchmark-photos-repeat"
+    primary.mkdir()
+    repeat.mkdir()
+    (primary / "manifest.yaml").write_text(
+        "job_id: primary-photos\ntier: photos\n", encoding="utf-8"
+    )
+    (repeat / "manifest.yaml").write_text(
+        "job_id: repeat-photos\n"
+        "tier: photos\n"
+        "repeat_of_job_id: another-job\n"
+        "repeat_room_ids: [my-room]\n",
+        encoding="utf-8",
+    )
+
+    report = run_benchmark(capture_root, tmp_path / "output")
+
+    repeat_check = next(
+        item for item in report["inputs"] if item["id"] == "repeat_capture"
+    )
+    assert repeat_check["status"] == "pending"
+    assert "repeat_of_job_id" in repeat_check["detail"]
 
 
 def test_benchmark_cli_treats_pending_as_a_successful_audit(tmp_path):

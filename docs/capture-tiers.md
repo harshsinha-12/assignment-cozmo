@@ -71,14 +71,15 @@ If none exist: output a unitless plan (`units: "relative"`) and a warning. Do **
 **Failure modes:** two photos of opposite corners with no overlap, HDR ghosts, HEIC orientation, wide-angle distortion. Fail early with `insufficient_overlap`.
 
 **Current implementation:** T8a validates the folder/count/decode contract.
-T8b extracts bounded ORB features, keeps mutual ratio matches, accepts the
-stronger seeded homography/fundamental support model, and gates pairs on match,
-inlier, ratio, and spatial coverage evidence. It builds connected components
-within each room and treats stronger cross-room pairs only as connector
-candidates—not proven adjacency. The uploaded sets fail: drawing-room has 3/21
-eligible edges and 4 components; my-room 2/28 and 6; pooja-room 2/28 and 6.
-No cross-room pair passes the connector threshold. Metric SfM does not start on
-this capture.
+T8b extracts bounded ORB features and T8b2 adds a CLAHE-assisted SIFT fallback;
+both retain mutual ratio matches, compare seeded homography/fundamental support,
+and use the same match, inlier, ratio, and normalized spatial-coverage gates.
+It builds named connected components within rooms and treats stronger
+cross-room pairs only as connector candidates—not proven adjacency. On the
+uploaded 8/8/8/5 set, connector improves from 5 to 2 components, drawing-room
+from 6 to 2, my-room from 7 to 5, and pooja-room from 7 to 3. Two cross-room
+candidates now link the connector to my-room and pooja-room. Every room remains
+disconnected, so metric SfM still does not start and centimetres are not guessed.
 
 ## Mixed jobs
 

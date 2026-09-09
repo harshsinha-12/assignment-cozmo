@@ -105,8 +105,9 @@ and replace the Record3D version placeholder.
 
 ## 4. Route 1 Xcode/RoomPlan JSON
 
-Do not mix Route 1 output with the Record3D Route 2 job. When Cozmo Capture
-shares the job ZIP, unzip it here (keep `manifest.yaml` and `lidar/`):
+Do not mix Route 1 output with the Record3D Route 2 job. Follow
+`ios/CozmoCapture/README.md` to install on the iPhone. After you AirDrop the
+job ZIP, either save it here unpacked or run the ZIP directly:
 
 ```text
 data/private/route1-roomplan/manifest.yaml
@@ -114,8 +115,9 @@ data/private/route1-roomplan/lidar/roomplan.json
 data/private/route1-roomplan/lidar/<room>.r3d
 ```
 
-Signed phone install and a real round-trip remain T21g. The T21e app already
-packs RoomPlan JSON plus per-room `.r3d` archives into that ZIP.
+```bash
+python -m cozmo_floorplan run ~/Downloads/cozmo-capture-*.zip --out out/route1
+```
 
 ## 5. Safe staged damage
 

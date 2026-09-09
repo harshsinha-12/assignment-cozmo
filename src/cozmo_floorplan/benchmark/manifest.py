@@ -12,7 +12,7 @@ from cozmo_floorplan.benchmark.config import (
     BENCHMARK_SCHEMA_VERSION,
     DEFAULT_INCUMBENT_PATH,
     DEFAULT_JOB_PATHS,
-    DEFAULT_LIDAR_REPEAT_PATH,
+    DEFAULT_REPEAT_PATHS,
     DEFAULT_TRUTH_PATH,
     TIERS,
 )
@@ -78,7 +78,10 @@ def load_benchmark_manifest(capture_root: str | Path) -> BenchmarkManifest:
             for tier, relative in DEFAULT_JOB_PATHS.items()
         }
         truth = _resolve_beneath(root, DEFAULT_TRUTH_PATH)
-        repeats = {"lidar": _resolve_beneath(root, DEFAULT_LIDAR_REPEAT_PATH)}
+        repeats = {
+            tier: _resolve_beneath(root, relative)
+            for tier, relative in DEFAULT_REPEAT_PATHS.items()
+        }
         incumbent = _resolve_beneath(root, DEFAULT_INCUMBENT_PATH)
         present = False
     return BenchmarkManifest(

@@ -7,9 +7,14 @@ ARKit RGB, LiDAR depth, confidence, poses, and intrinsics into
 Record3D-compatible `.r3d` files (`docs/formats/record3d.md`). The ZIP matches
 the CLI lidar job layout (`docs/formats/cozmo-capture-job.md`).
 
-## Build
+This is an **iPhone app**, not a Mac app. macOS is only the Xcode build host.
+The iOS Simulator can compile and launch the UI, but RoomPlan and LiDAR are
+unavailable there — first flight has to be a LiDAR iPhone (iPhone 17 Pro).
+
+## Compile on the Mac (no phone)
 
 ```bash
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 xcodebuild \
   -project ios/CozmoCapture/CozmoCapture.xcodeproj \
   -scheme CozmoCapture \
@@ -17,28 +22,40 @@ xcodebuild \
   CODE_SIGNING_ALLOWED=NO build
 ```
 
-The simulator build verifies compilation only. RoomPlan capture and LiDAR
-logging require a LiDAR-equipped iPhone. To install, open the project in Xcode,
-select a personal development team under Signing & Capabilities, connect the
-phone, and Run.
+That only proves the project builds. It does not capture rooms.
 
-## Capture several rooms
+## First flight on your iPhone (about 10 minutes)
 
-1. Enter a room name (defaults are `Room 1`, `Room 2`, …).
-2. Tap **Scan**, start at the doorway, and slowly show every wall and opening.
-3. Watch **LiDAR frames** increment. If it stays at 0, the device is not
-   exposing `sceneDepth`; RoomPlan JSON is still exported.
-4. Tap **Finish scan** and wait for RoomPlan to process.
-5. Repeat for each additional room, walking through the connecting doorway.
-6. Tap **Export capture job**. If merge fails, retry from the doorway or use
-   **Export without merging**.
-7. Share the ZIP, unzip it, and run the normal repository command against the
-   unpacked folder. Expected members:
+1. Unlock the iPhone, plug it into the Mac with a data cable, and tap **Trust**
+   if asked. On the phone, Settings → Privacy & Security → **Developer Mode**
+   → On, then restart if iOS asks.
+2. Open `ios/CozmoCapture/CozmoCapture.xcodeproj` in Xcode.
+3. Select the **CozmoCapture** target → **Signing & Capabilities**.
+   - Check **Automatically manage signing**.
+   - Team: your Apple ID (a free Personal Team is enough). Xcode may prompt
+     to add the account under Xcode → Settings → Accounts.
+   - Confirm the bundle id stays `dev.harshsinha.assignmentcozmo.CozmoCapture`.
+4. In the scheme toolbar, pick your **iPhone 17 Pro** (not a simulator).
+5. Press **Run** (⌘R). The first install can take a few minutes while Xcode
+   registers the device.
+6. If the phone says the developer is untrusted: Settings → General → VPN &
+   Device Management → your Apple ID → **Trust**. Then open **Cozmo Capture**.
+7. Allow **Camera** when prompted. The screen should say **Ready**, not
+   “RoomPlan unavailable”.
+8. First scan:
+   - Name the room (or keep `Room 1`).
+   - Tap **Scan**, start at the doorway, slowly show every wall and opening.
+   - Watch **LiDAR frames** increment. If it stays at 0, RoomPlan JSON still
+     exports; note that in the share.
+   - Tap **Finish scan**, wait for processing.
+   - Repeat for a second room, walking through the connecting doorway.
+   - Tap **Export capture job**, then **Share capture job ZIP** (AirDrop to
+     the Mac, or Files).
+9. On the Mac, run the ZIP through the CLI (unzipping is optional):
 
-```text
-<job>/manifest.yaml
-<job>/lidar/roomplan.json
-<job>/lidar/<room>.r3d
+```bash
+python -m cozmo_floorplan run ~/Downloads/cozmo-capture-*.zip --out out/route1
 ```
 
-This stage does not replace the scored Route 2 capture protocol.
+Save a copy under `data/private/route1-roomplan/` for the benchmark. This app
+does not replace the scored Route 2 capture protocol.

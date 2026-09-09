@@ -1,0 +1,8 @@
+job_id: replace-me-photos-repeat
+tier: photos
+device: replace-me
+capture_tool: iPhone Camera
+repeat_of_job_id: replace-me-primary-photos-job-id
+repeat_room_ids:
+  - replace-me-room-id
+notes: Independent same-room repeat for the official repeatability gate.

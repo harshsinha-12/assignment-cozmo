@@ -96,7 +96,7 @@ final class JobPackageTests: XCTestCase {
     )
     XCTAssertEqual(
       entries["cozmo-capture-test/manifest.yaml"],
-      Data(contentsOf: package.jobDirectory.appendingPathComponent("manifest.yaml"))
+      try Data(contentsOf: package.jobDirectory.appendingPathComponent("manifest.yaml"))
     )
   }
 

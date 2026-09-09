@@ -98,6 +98,12 @@ The synthetic RoomPlan job now emits dimensioned geometry:
 python -m cozmo_floorplan run data/fixtures/roomplan_two_room --out out/roomplan_two_room
 ```
 
+A Cozmo Capture ZIP is the same command with a `.zip` path:
+
+```bash
+python -m cozmo_floorplan run path/to/cozmo-capture-*.zip --out out/route1
+```
+
 For multi-room jobs, the normal run plane-anchors shared openings and also writes `floorplan.ablation-off.json` with reconstructed poses preserved. Use `--no-drift-correction` to generate only that poses-as-is path. Explicit, successful deterministic-agent mode preserves healthy status; automatic missing-key or provider-failure fallback remains `partial`. Geometry correction status is recorded separately under `stitch.drift_correction`. The SVG shows room polygons, measured wall intervals, openings, a metric scale bar, and provenance summary. See `docs/formats/roomplan-json.md` and `docs/formats/record3d.md` for accepted inputs and current boundaries.
 
 The optional `damage_observations.json` contract supplies surface-mapped metric extents to the claims stage. The LLM can select damage classes, concealed-rule ids, and allowed actions, but tools copy all quantities. See `docs/formats/damage-observations.md`.

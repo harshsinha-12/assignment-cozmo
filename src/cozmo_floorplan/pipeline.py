@@ -1,11 +1,14 @@
 """Top-level orchestration boundary shared by the CLI and future callers."""
 
+from contextlib import ExitStack
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 
 from cozmo_floorplan.agent import enrich_floorplan
 from cozmo_floorplan.floorplan import build_failed_floorplan
 from cozmo_floorplan.errors import ReconstructionError
+from cozmo_floorplan.io.capture_package import open_job_directory
 from cozmo_floorplan.io.job import Job, load_job
 from cozmo_floorplan.recon.lidar import reconstruct_lidar
 from cozmo_floorplan.recon.photos import reconstruct_photos
@@ -31,8 +34,13 @@ def run_job_with_ablation(
 ) -> tuple[FloorPlan, FloorPlan | None]:
     """Return the primary document plus a poses-as-is ablation when correction ran."""
 
-    job = load_job(job_dir)
-    return run_loaded_job(job, drift_correction=drift_correction)
+    with ExitStack() as stack:
+        source = Path(job_dir)
+        unpack_root = None
+        if source.is_file() and source.suffix.lower() == ".zip":
+            unpack_root = Path(stack.enter_context(TemporaryDirectory(prefix="cozmo-job-")))
+        job = load_job(open_job_directory(source, unpack_root=unpack_root))
+        return run_loaded_job(job, drift_correction=drift_correction)
 
 
 def run_loaded_job(

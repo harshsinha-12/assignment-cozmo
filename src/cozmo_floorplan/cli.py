@@ -25,8 +25,14 @@ def build_parser() -> argparse.ArgumentParser:
         description="Convert one local phone-capture job into FloorPlan artifacts.",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
-    run_parser = subparsers.add_parser("run", help="Process one job directory.")
-    run_parser.add_argument("job", type=Path, help="Directory containing manifest.yaml and capture files.")
+    run_parser = subparsers.add_parser(
+        "run", help="Process one job directory or Cozmo Capture ZIP."
+    )
+    run_parser.add_argument(
+        "job",
+        type=Path,
+        help="Directory containing manifest.yaml, or a Cozmo Capture .zip export.",
+    )
     run_parser.add_argument("--out", type=Path, required=True, help="Directory for floorplan.json and later artifacts.")
     run_parser.add_argument(
         "--no-drift-correction",

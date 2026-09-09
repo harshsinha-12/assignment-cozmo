@@ -4,6 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 from xml.etree import ElementTree as ET
+from zipfile import ZipFile
 
 import jsonschema
 
@@ -99,3 +100,37 @@ def test_exact_module_command_is_runnable(tmp_path):
     assert "floorplan.svg" in result.stdout
     _read_and_validate(out_dir / "floorplan.json")
     ET.parse(out_dir / "floorplan.svg")
+
+
+def test_run_accepts_cozmo_capture_zip(tmp_path):
+    fixture = ROOT / "data" / "fixtures" / "roomplan_two_room"
+    archive = tmp_path / "cozmo-capture-test.zip"
+    with ZipFile(archive, "w") as zip_file:
+        zip_file.write(fixture / "manifest.yaml", "cozmo-capture-test/manifest.yaml")
+        zip_file.write(
+            fixture / "lidar" / "roomplan.json",
+            "cozmo-capture-test/lidar/roomplan.json",
+        )
+
+    exit_code = main(["run", str(archive), "--out", str(tmp_path / "out")])
+    document = _read_and_validate(tmp_path / "out" / "floorplan.json")
+
+    assert document["status"] != "failed"
+    assert document["provenance"]["tier"] == "lidar"
+    assert len(document["rooms"]) == 2
+    assert len(document["walls"]) == 8
+    assert exit_code == (0 if document["status"] == "ok" else 2)
+
+
+def test_incomplete_capture_zip_is_a_structured_failure(tmp_path):
+    archive = tmp_path / "broken.zip"
+    with ZipFile(archive, "w") as zip_file:
+        zip_file.writestr("cozmo-capture-test/lidar/roomplan.json", b"{}")
+
+    exit_code = main(["run", str(archive), "--out", str(tmp_path / "out")])
+    document = _read_and_validate(tmp_path / "out" / "floorplan.json")
+
+    assert exit_code == 2
+    assert document["status"] == "failed"
+    assert document["warnings"][0]["code"] == "incomplete_scan"
+    assert "manifest.yaml" in document["warnings"][0]["message"]

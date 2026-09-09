@@ -321,3 +321,20 @@ The top-level `damage`, `concealed_flags`, and `scope` arrays are required even 
 **Decision:** Repo-managed Cloud Agent install from `requirements.txt`.
 
 **Why:** User asked for setup files; committed env overrides dashboard and makes the next agent reproducible. Keep install small so we do not trap the project in a 20-minute COLMAP image.
+## 2026-09-09 — Repeatability accepts any one same-tier pair
+
+**Context:** Earlier planning and readiness code required a LiDAR repeat, but the
+official prompt says only: “At least one room captured twice at the same tier.”
+Harsh supplied independent photo and video repeats; the additional Record3D free
+plan is unavailable.
+
+**Decision:** The benchmark accepts a correctly linked repeat at any declared
+tier. The active evidence pair is `my-room` at the photo tier. Repeat manifests
+must name `repeat_of_job_id` and at least one `repeat_room_ids` entry. A lone
+folder or mismatched tier is not sufficient evidence.
+
+**Consequences:** LiDAR repeat is no longer a readiness blocker. This changes
+input eligibility only; the repeatability gate still fails honestly until both
+runs emit comparable wall measurements within the official tolerance.
+
+---

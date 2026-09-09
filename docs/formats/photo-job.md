@@ -18,24 +18,29 @@ Supported ingest extensions are JPEG, PNG, and WebP. Use JPEG for the submitted 
 
 ## Overlap graph
 
-T8b bounds each image to 900 px, extracts up to 1,800 ORB features, retains
-mutual Hamming ratio matches, and runs seeded homography and fundamental-matrix
-RANSAC. The stronger geometric support model is accepted only with minimum
-match, inlier, inlier-ratio, and convex-hull coverage evidence. Within-room
-edges build connected components; stricter cross-room edges produce connector
-candidates, not automatic adjacency.
+T8b first bounds each image to 900 px and extracts up to 1,800 ORB features.
+T8b2 adds a bounded 1,200 px, 3,000-feature CLAHE+SIFT fallback for indoor
+images whose useful texture is too low-contrast or viewpoint-sensitive for
+ORB. Each method retains mutual ratio matches and runs seeded homography and
+fundamental-matrix RANSAC. The acceptance counts, ratios, and normalized
+convex-hull coverage gates are unchanged; SIFT's 2.5 px threshold at 1,200 px
+is tighter in normalized image coordinates than ORB's 2 px at 900 px.
+Within-room edges build named connected components; stricter cross-room edges
+produce connector candidates, not automatic adjacency.
 
 Current private result:
 
 | Room | Eligible/possible edges | Components | Connected |
 | --- | ---: | ---: | --- |
-| drawing-room | 3/21 | 4 | no |
-| my-room | 2/28 | 6 | no |
-| pooja-room | 2/28 | 6 | no |
+| connector | 3/10 | 2 | no |
+| drawing-room | 6/28 | 2 | no |
+| my-room | 3/28 | 5 | no |
+| pooja-room | 6/28 | 3 | no |
 
-No room pair has an eligible cross-room connector image. The CLI therefore
-returns `insufficient_overlap` and asks for intermediate views with at least
-60% visual overlap. These are graph diagnostics, not metric accuracy.
+The ensemble finds conservative connector candidates for connector↔my-room and
+connector↔pooja-room, but no room graph is fully connected. The CLI therefore
+still returns `insufficient_overlap`, now naming isolated images where possible.
+These are graph diagnostics, not metric accuracy.
 
 Current boundary: metric SfM, adjacency verification, walls, and scale are not
 implemented. A connected graph would advance to `unsupported_tier`; it would

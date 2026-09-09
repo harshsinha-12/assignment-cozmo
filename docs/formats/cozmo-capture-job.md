@@ -19,8 +19,14 @@ cozmo-capture-YYYYMMDD-HHmmss.zip
 RoomPlan JSON is the wall source; `.r3d` files are raw ARKit RGB-D and are
 omitted when a room recorded no depth frames.
 
-Unzip, then run the normal CLI against the folder. Incomplete archives
-(missing `manifest.yaml`, missing `lidar/roomplan.json`, empty `rooms[]`)
-are rejected by `cozmo_floorplan.io.capture_package`.
+Unzip, then run the normal CLI against the folder, **or** pass the ZIP
+directly:
+
+```bash
+python -m cozmo_floorplan run cozmo-capture-YYYYMMDD-HHmmss.zip --out out/route1
+```
+
+Incomplete archives (missing `manifest.yaml`, missing `lidar/roomplan.json`,
+empty `rooms[]`) are rejected before reconstruction.
 
 This does not replace the scored Route 2 capture protocol.

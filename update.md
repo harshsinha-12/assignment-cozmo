@@ -13,6 +13,34 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T21f CLI ZIP ingest
+
+- Context: T21e packed a job ZIP but the CLI still required a directory.
+- Done: `run` accepts a `.zip`, unpacks it, reconstructs RoomPlan JSON, and
+  writes a structured failure for incomplete archives. First-flight iPhone
+  install steps are in `ios/CozmoCapture/README.md`.
+- Learned: Do not treat `.r3d` as a job ZIP (suffix must be `.zip`). RoomPlan
+  JSON remains the wall source when both JSON and `.r3d` are present. The app
+  cannot capture on the Simulator.
+- Next: Harsh T21g signed install on the iPhone 17 Pro, then AirDrop the ZIP
+  into `python -m cozmo_floorplan run`.
+
+## 2026-09-09 — T21e capture job ZIP
+
+- Context: T21c wrote loose `roomplan.json` plus `.r3d` files. T21e packages
+  them into the CLI job-folder contract so AirDrop is one ZIP.
+- Done: iOS `JobPackageBuilder` writes `manifest.yaml` + `lidar/` as a folder
+  and ZIP; ShareLink shares the ZIP; Python `capture_package` inspects, rejects
+  incomplete archives, and extracts into `load_job`. Simulator, unsigned
+  iPhoneOS, and test-target builds succeed. Seven new Python tests pass.
+- Learned: Keep the package builder in Export files, not capture-session
+  types, so T21d/T21f can proceed in parallel. ZIP members are wrapped in
+  `cozmo-capture-<timestamp>/`; Python strips that prefix. Rooms with no LiDAR
+  frames omit `.r3d` rather than writing empty archives.
+- Next: T21f CLI ZIP ingest / reconstruct round-trip. Harsh does T21g signed
+  install, confirms LiDAR frame count, and unzips the job into
+  `data/private/route1-roomplan/`.
+
 ## 2026-09-09 — T21c raw ARKit LiDAR recorder
 
 - Context: T21b exported processed RoomPlan walls only. T21c logs the raw RGB,
@@ -584,3 +612,82 @@ Cloud Agent run on `github.com/harshsinha-12/assignment-cozmo` (private). User a
 ### Files added (map)
 
 See `README.md` for the map. Do not delete the original PDF even though the filename is hostile; a clean copy exists under `docs/briefs/`.
+
+---
+
+## 2026-09-09 — T20d benchmark evidence activation and honest readiness
+
+### Done
+
+- Activated the supplied independent `my-room` photo and video repeats with
+  primary-job and room linkage. The unsupported USD repeat remains preserved
+  but is not mislabeled as a Record3D `.r3d` job.
+- Corrected the primary manifests to describe the real 8/8/8/5 photos and four
+  separate walkthrough clips.
+- Normalized supplied tape measurements into an explicitly partial
+  `ground_truth.json`; unmeasured connector width, property placement, opening
+  support/offsets, and windows remain absent instead of invented.
+- Normalized three measured crack/impact observations and their local evidence
+  paths into `damage_observations.json`.
+- Normalized Magicplan summaries for `my-room` and `pooja-room`. Display
+  rounding is represented in intervals; individual wall lengths remain absent.
+- Added separate `benchmark/repeat.py` and `benchmark/evidence.py` modules and
+  documented their responsibilities in `docs/code-map.md`.
+- Corrected readiness to accept any linked same-room, same-tier repeat and to
+  semantically validate truth, two-room incumbent, and two-class damage inputs.
+- Verification before final benchmark: 129 tests pass; Ruff, compileall, and
+  `git diff --check` pass.
+
+### Decision
+
+- The official prompt does not require a LiDAR repeat. The active photo repeat
+  satisfies capture eligibility; the numeric repeatability gate remains honest
+  until both photo runs emit comparable wall measurements.
+
+### Final benchmark
+
+- `make benchmark` reports `status=complete` with zero pending input classes.
+- The LiDAR head-to-head passes 2/2 shared ceiling dimensions. This is sparse
+  evidence because the Magicplan screenshots do not expose individual walls.
+
+### Next
+
+- Review/commit this stage. Next implementation stage is evidence-driven
+  photo-overlap work.
+
+---
+
+## 2026-09-10 — T8b2 robust indoor photo overlap
+
+### Done
+
+- Added a separate bounded grayscale loader, CLAHE-assisted SIFT extractor, and
+  ORB/SIFT ensemble composition layer. SIFT is used as complementary evidence,
+  not as an excuse to relax the pair gates.
+- Matching is descriptor-norm aware and uses method-specific ratio/RANSAC
+  settings. The 2.5 px SIFT reprojection threshold at 1,200 px is tighter in
+  normalized coordinates than the existing 2 px ORB threshold at 900 px.
+- Connected-component diagnostics now retain actual image membership and name
+  isolated images in the structured failure warning.
+- Added a deterministic low-contrast regression proving the SIFT fallback while
+  retaining featureless-image rejection.
+
+### Real evidence
+
+- Before → after components: connector 5→2, drawing-room 6→2, my-room 7→5,
+  pooja-room 7→3.
+- Cross-room candidates improve from zero to two:
+  connector↔my-room and connector↔pooja-room.
+- All four room graphs remain disconnected, so the result still returns
+  `insufficient_overlap` and emits no centimetres. T8c metric SfM remains
+  blocked rather than consuming an unsafe graph.
+- Full `make benchmark` completes with zero pending inputs after the change;
+  photos/repeat photos and videos remain failed, while LiDAR remains partial.
+- Verification: 130 tests pass; Ruff, compileall, and `git diff --check` pass.
+
+### Next
+
+- Review this stage. If capture replacement is possible, use the named
+  components/isolates to replace weak photos with corner-transition views.
+  Otherwise proceed to a different evidence-driven tier rather than weakening
+  photo acceptance thresholds.

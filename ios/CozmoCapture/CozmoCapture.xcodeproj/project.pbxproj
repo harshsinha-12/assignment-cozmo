@@ -1,7 +1,8 @@
 // !$*UTF8*$!
 {
 	archiveVersion = 1;
-	classes = {};
+	classes = {
+	};
 	objectVersion = 56;
 	objects = {
 
@@ -50,6 +51,9 @@
 		100000000000000000000008 /* CaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
 		100000000000000000000009 /* CozmoCaptureApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CozmoCaptureApp.swift; sourceTree = "<group>"; };
 		100000000000000000000010 /* PortableRoomPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortableRoomPlanTests.swift; sourceTree = "<group>"; };
+		100000000000000000000011 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		100000000000000000000012 /* CozmoCapture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CozmoCapture.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		100000000000000000000013 /* CozmoCaptureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CozmoCaptureTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		100000000000000000000014 /* CapturedSessionRoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturedSessionRoom.swift; sourceTree = "<group>"; };
 		100000000000000000000015 /* RoomAssociation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomAssociation.swift; sourceTree = "<group>"; };
 		100000000000000000000016 /* StructureMerger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StructureMerger.swift; sourceTree = "<group>"; };
@@ -61,14 +65,23 @@
 		100000000000000000000022 /* CaptureJobManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureJobManifest.swift; sourceTree = "<group>"; };
 		100000000000000000000023 /* JobPackageBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobPackageBuilder.swift; sourceTree = "<group>"; };
 		100000000000000000000024 /* JobPackageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobPackageTests.swift; sourceTree = "<group>"; };
-		100000000000000000000011 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		100000000000000000000012 /* CozmoCapture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CozmoCapture.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		100000000000000000000013 /* CozmoCaptureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CozmoCaptureTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		100000000000000000000501 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-		100000000000000000000502 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		100000000000000000000501 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		100000000000000000000502 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -95,23 +108,100 @@
 			path = CozmoCapture;
 			sourceTree = "<group>";
 		};
-		100000000000000000000603 /* App */ = {isa = PBXGroup; children = (100000000000000000000009 /* CozmoCaptureApp.swift */,); path = App; sourceTree = "<group>"; };
-		100000000000000000000604 /* Capture */ = {isa = PBXGroup; children = (100000000000000000000005 /* CaptureState.swift */, 100000000000000000000006 /* RoomCaptureStore.swift */, 100000000000000000000007 /* RoomCaptureContainer.swift */, 100000000000000000000020 /* ARKitLiDARRecorder.swift */,); path = Capture; sourceTree = "<group>"; };
-		100000000000000000000605 /* Config */ = {isa = PBXGroup; children = (100000000000000000000001 /* AppConfig.swift */,); path = Config; sourceTree = "<group>"; };
-		100000000000000000000606 /* Export */ = {isa = PBXGroup; children = (100000000000000000000003 /* RoomPlanAdapter.swift */, 100000000000000000000015 /* RoomAssociation.swift */, 100000000000000000000016 /* StructureMerger.swift */, 100000000000000000000004 /* RoomPlanExporter.swift */, 100000000000000000000018 /* ARKitFrameEncoder.swift */, 100000000000000000000019 /* Record3DArchiveWriter.swift */, 100000000000000000000022 /* CaptureJobManifest.swift */, 100000000000000000000023 /* JobPackageBuilder.swift */,); path = Export; sourceTree = "<group>"; };
-		100000000000000000000607 /* Models */ = {isa = PBXGroup; children = (100000000000000000000002 /* PortableRoomPlan.swift */, 100000000000000000000014 /* CapturedSessionRoom.swift */, 100000000000000000000017 /* RawLiDARRecording.swift */,); path = Models; sourceTree = "<group>"; };
-		100000000000000000000608 /* Views */ = {isa = PBXGroup; children = (100000000000000000000008 /* CaptureView.swift */,); path = Views; sourceTree = "<group>"; };
-		100000000000000000000609 /* CozmoCaptureTests */ = {isa = PBXGroup; children = (100000000000000000000010 /* PortableRoomPlanTests.swift */, 100000000000000000000021 /* Record3DArchiveTests.swift */, 100000000000000000000024 /* JobPackageTests.swift */,); path = CozmoCaptureTests; sourceTree = "<group>"; };
-		100000000000000000000610 /* Products */ = {isa = PBXGroup; children = (100000000000000000000012 /* CozmoCapture.app */, 100000000000000000000013 /* CozmoCaptureTests.xctest */,); name = Products; sourceTree = "<group>"; };
+		100000000000000000000603 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000009 /* CozmoCaptureApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		100000000000000000000604 /* Capture */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000005 /* CaptureState.swift */,
+				100000000000000000000006 /* RoomCaptureStore.swift */,
+				100000000000000000000007 /* RoomCaptureContainer.swift */,
+				100000000000000000000020 /* ARKitLiDARRecorder.swift */,
+			);
+			path = Capture;
+			sourceTree = "<group>";
+		};
+		100000000000000000000605 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000001 /* AppConfig.swift */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		100000000000000000000606 /* Export */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000003 /* RoomPlanAdapter.swift */,
+				100000000000000000000015 /* RoomAssociation.swift */,
+				100000000000000000000016 /* StructureMerger.swift */,
+				100000000000000000000004 /* RoomPlanExporter.swift */,
+				100000000000000000000018 /* ARKitFrameEncoder.swift */,
+				100000000000000000000019 /* Record3DArchiveWriter.swift */,
+				100000000000000000000022 /* CaptureJobManifest.swift */,
+				100000000000000000000023 /* JobPackageBuilder.swift */,
+			);
+			path = Export;
+			sourceTree = "<group>";
+		};
+		100000000000000000000607 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000002 /* PortableRoomPlan.swift */,
+				100000000000000000000014 /* CapturedSessionRoom.swift */,
+				100000000000000000000017 /* RawLiDARRecording.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		100000000000000000000608 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000008 /* CaptureView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		100000000000000000000609 /* CozmoCaptureTests */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000010 /* PortableRoomPlanTests.swift */,
+				100000000000000000000021 /* Record3DArchiveTests.swift */,
+				100000000000000000000024 /* JobPackageTests.swift */,
+			);
+			path = CozmoCaptureTests;
+			sourceTree = "<group>";
+		};
+		100000000000000000000610 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				100000000000000000000012 /* CozmoCapture.app */,
+				100000000000000000000013 /* CozmoCaptureTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
 		100000000000000000000401 /* CozmoCapture */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 100000000000000000000701 /* Build configuration list for PBXNativeTarget "CozmoCapture" */;
-			buildPhases = (100000000000000000000801 /* Sources */, 100000000000000000000501 /* Frameworks */, 100000000000000000000901 /* Resources */,);
-			buildRules = ();
-			dependencies = ();
+			buildPhases = (
+				100000000000000000000801 /* Sources */,
+				100000000000000000000501 /* Frameworks */,
+				100000000000000000000901 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
 			name = CozmoCapture;
 			productName = CozmoCapture;
 			productReference = 100000000000000000000012 /* CozmoCapture.app */;
@@ -120,9 +210,16 @@
 		100000000000000000000402 /* CozmoCaptureTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 100000000000000000000702 /* Build configuration list for PBXNativeTarget "CozmoCaptureTests" */;
-			buildPhases = (100000000000000000000802 /* Sources */, 100000000000000000000502 /* Frameworks */, 100000000000000000000902 /* Resources */,);
-			buildRules = ();
-			dependencies = (100000000000000000000202 /* PBXTargetDependency */,);
+			buildPhases = (
+				100000000000000000000802 /* Sources */,
+				100000000000000000000502 /* Frameworks */,
+				100000000000000000000902 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				100000000000000000000202 /* PBXTargetDependency */,
+			);
 			name = CozmoCaptureTests;
 			productName = CozmoCaptureTests;
 			productReference = 100000000000000000000013 /* CozmoCaptureTests.xctest */;
@@ -133,47 +230,235 @@
 /* Begin PBXProject section */
 		100000000000000000000300 /* Project object */ = {
 			isa = PBXProject;
-			attributes = {BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 2660; LastUpgradeCheck = 2660; TargetAttributes = {100000000000000000000401 = {CreatedOnToolsVersion = 26.6; }; 100000000000000000000402 = {CreatedOnToolsVersion = 26.6; TestTargetID = 100000000000000000000401; };};};
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2660;
+				LastUpgradeCheck = 2660;
+				TargetAttributes = {
+					100000000000000000000401 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					100000000000000000000402 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = 100000000000000000000401;
+					};
+				};
+			};
 			buildConfigurationList = 100000000000000000000700 /* Build configuration list for PBXProject "CozmoCapture" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
-			knownRegions = (en, Base);
+			knownRegions = (
+				en,
+				Base,
+			);
 			mainGroup = 100000000000000000000601;
 			productRefGroup = 100000000000000000000610 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = (100000000000000000000401 /* CozmoCapture */, 100000000000000000000402 /* CozmoCaptureTests */,);
+			targets = (
+				100000000000000000000401 /* CozmoCapture */,
+				100000000000000000000402 /* CozmoCaptureTests */,
+			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		100000000000000000000901 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-		100000000000000000000902 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		100000000000000000000901 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		100000000000000000000902 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		100000000000000000000801 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (100000000000000000000109, 100000000000000000000101, 100000000000000000000102, 100000000000000000000103, 100000000000000000000104, 100000000000000000000105, 100000000000000000000106, 100000000000000000000107, 100000000000000000000108, 100000000000000000000111, 100000000000000000000112, 100000000000000000000113, 100000000000000000000114, 100000000000000000000115, 100000000000000000000116, 100000000000000000000117, 100000000000000000000119, 100000000000000000000120,); runOnlyForDeploymentPostprocessing = 0; };
-		100000000000000000000802 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (100000000000000000000110, 100000000000000000000118, 100000000000000000000121,); runOnlyForDeploymentPostprocessing = 0; };
+		100000000000000000000801 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				100000000000000000000109 /* CozmoCaptureApp.swift in Sources */,
+				100000000000000000000101 /* AppConfig.swift in Sources */,
+				100000000000000000000102 /* PortableRoomPlan.swift in Sources */,
+				100000000000000000000103 /* RoomPlanAdapter.swift in Sources */,
+				100000000000000000000104 /* RoomPlanExporter.swift in Sources */,
+				100000000000000000000105 /* CaptureState.swift in Sources */,
+				100000000000000000000106 /* RoomCaptureStore.swift in Sources */,
+				100000000000000000000107 /* RoomCaptureContainer.swift in Sources */,
+				100000000000000000000108 /* CaptureView.swift in Sources */,
+				100000000000000000000111 /* CapturedSessionRoom.swift in Sources */,
+				100000000000000000000112 /* RoomAssociation.swift in Sources */,
+				100000000000000000000113 /* StructureMerger.swift in Sources */,
+				100000000000000000000114 /* RawLiDARRecording.swift in Sources */,
+				100000000000000000000115 /* ARKitFrameEncoder.swift in Sources */,
+				100000000000000000000116 /* Record3DArchiveWriter.swift in Sources */,
+				100000000000000000000117 /* ARKitLiDARRecorder.swift in Sources */,
+				100000000000000000000119 /* CaptureJobManifest.swift in Sources */,
+				100000000000000000000120 /* JobPackageBuilder.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		100000000000000000000802 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				100000000000000000000110 /* PortableRoomPlanTests.swift in Sources */,
+				100000000000000000000118 /* Record3DArchiveTests.swift in Sources */,
+				100000000000000000000121 /* JobPackageTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		100000000000000000000202 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = 100000000000000000000401 /* CozmoCapture */; targetProxy = 100000000000000000000201 /* PBXContainerItemProxy */; };
+		100000000000000000000202 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 100000000000000000000401 /* CozmoCapture */;
+			targetProxy = 100000000000000000000201 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		100000000000000000001001 /* Debug project */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CLANG_ENABLE_OBJC_ARC = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = dwarf; ENABLE_TESTABILITY = YES; GCC_C_LANGUAGE_STANDARD = gnu17; IPHONEOS_DEPLOYMENT_TARGET = 17.0; ONLY_ACTIVE_ARCH = YES; SDKROOT = iphoneos; SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)"; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; }; name = Debug; };
-		100000000000000000001002 /* Release project */ = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; CLANG_ENABLE_OBJC_ARC = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; ENABLE_NS_ASSERTIONS = NO; GCC_C_LANGUAGE_STANDARD = gnu17; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SDKROOT = iphoneos; SWIFT_COMPILATION_MODE = wholemodule; SWIFT_OPTIMIZATION_LEVEL = "-O"; VALIDATE_PRODUCT = YES; }; name = Release; };
-		100000000000000000001003 /* Debug app */ = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = CozmoCapture/Info.plist; MARKETING_VERSION = 0.1.0; PRODUCT_BUNDLE_IDENTIFIER = dev.harshsinha.assignmentcozmo.CozmoCapture; PRODUCT_NAME = "$(TARGET_NAME)"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; }; name = Debug; };
-		100000000000000000001004 /* Release app */ = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = CozmoCapture/Info.plist; MARKETING_VERSION = 0.1.0; PRODUCT_BUNDLE_IDENTIFIER = dev.harshsinha.assignmentcozmo.CozmoCapture; PRODUCT_NAME = "$(TARGET_NAME)"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; }; name = Release; };
-		100000000000000000001005 /* Debug tests */ = {isa = XCBuildConfiguration; buildSettings = {BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; PRODUCT_BUNDLE_IDENTIFIER = dev.harshsinha.assignmentcozmo.CozmoCaptureTests; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CozmoCapture.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CozmoCapture"; }; name = Debug; };
-		100000000000000000001006 /* Release tests */ = {isa = XCBuildConfiguration; buildSettings = {BUNDLE_LOADER = "$(TEST_HOST)"; CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 17.0; PRODUCT_BUNDLE_IDENTIFIER = dev.harshsinha.assignmentcozmo.CozmoCaptureTests; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 1; TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CozmoCapture.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CozmoCapture"; }; name = Release; };
+		100000000000000000001001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		100000000000000000001002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		100000000000000000001003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PH4KQ4LY92;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CozmoCapture/Info.plist;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.harshsinha.assignmentcozmo.CozmoCapture;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		100000000000000000001004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PH4KQ4LY92;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CozmoCapture/Info.plist;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.harshsinha.assignmentcozmo.CozmoCapture;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		100000000000000000001005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.harshsinha.assignmentcozmo.CozmoCaptureTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CozmoCapture.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CozmoCapture";
+			};
+			name = Debug;
+		};
+		100000000000000000001006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.harshsinha.assignmentcozmo.CozmoCaptureTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CozmoCapture.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CozmoCapture";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		100000000000000000000700 /* Build configuration list for PBXProject "CozmoCapture" */ = {isa = XCConfigurationList; buildConfigurations = (100000000000000000001001, 100000000000000000001002,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-		100000000000000000000701 /* Build configuration list for PBXNativeTarget "CozmoCapture" */ = {isa = XCConfigurationList; buildConfigurations = (100000000000000000001003, 100000000000000000001004,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-		100000000000000000000702 /* Build configuration list for PBXNativeTarget "CozmoCaptureTests" */ = {isa = XCConfigurationList; buildConfigurations = (100000000000000000001005, 100000000000000000001006,); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		100000000000000000000700 /* Build configuration list for PBXProject "CozmoCapture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				100000000000000000001001 /* Debug */,
+				100000000000000000001002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		100000000000000000000701 /* Build configuration list for PBXNativeTarget "CozmoCapture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				100000000000000000001003 /* Debug */,
+				100000000000000000001004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		100000000000000000000702 /* Build configuration list for PBXNativeTarget "CozmoCaptureTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				100000000000000000001005 /* Debug */,
+				100000000000000000001006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 	};
 	rootObject = 100000000000000000000300 /* Project object */;

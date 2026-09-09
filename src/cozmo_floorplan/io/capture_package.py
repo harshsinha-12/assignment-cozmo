@@ -65,6 +65,19 @@ def validate_capture_zip(path: str | Path) -> None:
             raise JobLoadError(f"Capture ZIP {ROOMPLAN_MEMBER} has no rooms: {archive_path}")
 
 
+def open_job_directory(path: str | Path, unpack_root: str | Path | None = None) -> Path:
+    """Return a job folder, extracting a Cozmo Capture ZIP when needed."""
+
+    source = Path(path)
+    if source.is_file() and source.suffix.lower() == ".zip":
+        if unpack_root is None:
+            raise JobLoadError(f"Capture ZIP extract destination is required: {source}")
+        return extract_capture_zip(source, unpack_root)
+    if source.is_file():
+        raise JobLoadError(f"Job path must be a directory or .zip: {source}")
+    return source
+
+
 def extract_capture_zip(path: str | Path, destination: str | Path) -> Path:
     """Extract a valid capture ZIP into a job folder and return that folder."""
 

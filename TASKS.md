@@ -10,27 +10,26 @@ Product: local CLI + **disclosed LLM tool-calling agent**. Score policy: max eve
 
 ## Capture status (reshoot layout prepared 2026-09-09)
 
-Three room-level Record3D scans remain under gitignored `data/private/`. Clean
-photo sets now contain 8 files each for drawing-room, my-room, and pooja-room;
-the connector has only 1 and still fails the 2-photo minimum. Four room/connector
-videos are present. Three damage evidence images are classified as `crack` and
-`impact_damage`, with dimensions/surface ids still waiting on Harsh. Repeat
-captures, tape/laser ground truth, connector LiDAR, and incumbent exports remain
-missing. Do **not** invent centimetres or mark a scored gate pass without those
-eval inputs.
+The active private benchmark now has 8/8/8/5 decodable primary photos, four
+primary videos, three room-level Record3D scans, an 8-photo `my-room` repeat, a
+repeat video, normalized tape measurements, and two-class damage evidence.
+Magicplan evidence covers `my-room` and `pooja-room`; its exact version and
+individual wall dimensions are unavailable. Connector LiDAR and measured
+whole-property placement/opening offsets remain unavailable. Do **not** invent
+centimetres or overstate sparse evidence.
 
 | ID | Can finish now? | What to do without uploads |
 | --- | --- | --- |
-| **T21** | **T21c code done** | Named multi-room RoomPlan JSON plus Record3D-compatible ARKit `.r3d` logging. Simulator and unsigned device builds succeed. Signed phone install remains T21g. |
+| **T21** | **T21f code done** | Named multi-room RoomPlan JSON, ARKit `.r3d`, job ZIP, and CLI ZIP ingest. Simulator and unsigned device builds succeed. Signed phone install remains T21g. |
 | **T10** | **Draft done** | Architecture, tier design, drift, error budget, calibration, agent, fix loop, and known failures are drafted. Final real benchmark tables wait on T3. |
 | **T20** | **Pre-shoot code done** | T20a reproduction, T20b audit, and T20c one-command benchmark/readiness runner are verified; measured coverage remains T3-dependent. |
 | **T17** | **Protocol stage done** | Route 2 operator card, loader-checked per-tier templates, and honest runtime/device matrix ship; measured intervals remain T3-dependent. |
-| T8 remainder | Partial reshoot present | Three rooms have 8 originals; connector has 1 and needs at least one more. Re-run overlap before metric SfM. |
+| T8 remainder | Full count present | T8b2 improves real graphs to connector/drawing/my/pooja = 2/2/5/3 components and finds two connector candidates; every room remains disconnected. |
 | T7 remainder | New videos present | Four room/connector MP4s are active; T7b–T7g still require calibrated v1.2 pose sidecars for metric output. |
 
-**Still evidence-blocked:** measured T17 intervals, T18 Polycam/magicplan,
-repeatability gates, and T11 walk-in. T6 raw Record3D, T7 VO, and T8 SfM can now
-advance against the partial upload.
+**Still evidence-blocked:** measured T17 intervals, numeric photo repeatability,
+and T11 walk-in. T18 has sparse two-room ceiling evidence. T6 raw Record3D, T7
+VO, and T8 can advance against the uploaded media.
 
 ---
 
@@ -42,14 +41,14 @@ advance against the partial upload.
 | T1 | done | Official prompt in `docs/takehome.md` | human | no | 2026-09-08 |
 | T2 | done | Synthetic two-room fixture | — | no | 2026-09-07 |
 | T4 | done | Reconcile plan with official prompt | T1 | no | 2026-09-08 ingest |
-| T3 | doing | Human benchmark capture | human + Pro phone | **yes — partial upload** | Photos 8/8/8/1, four videos, three room `.r3d`, and damage images present; connector photos, damage dimensions, repeats, GT, incumbent, and connector LiDAR remain |
-| T6 | doing | LiDAR export → FloorPlan | — | **present** | T6a–T6b3 raw `.r3d` partial IR works; calibration, repeatability, shared-opening registration, and GT hardening remain |
+| T3 | doing | Human benchmark capture | human + Pro phone | **yes — active** | Primary/repeat photos and videos, three room `.r3d`, measurements, damage, and two-room Magicplan summaries are active. Connector LiDAR and measured property placement remain unavailable |
+| T6 | doing | LiDAR export → FloorPlan | — | **present** | T6a–T6b3 raw `.r3d` partial IR works; calibration, shared-opening registration, and GT hardening remain. Official repeat evidence is satisfied by photos |
 | T9 | done | Stitch + drift correction + on/off ablation | T6 | no | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
 | T7 | doing | Video path | T6 | four MP4s present | T7b–T7g calibrated room/FloorPlan path done; new captures need ingest diagnostics and lack metric sidecars |
-| T8 | doing | Photos path, 2–8 stills, folder stitch | — | reshoot partial | Drawing/my/pooja have 8 files; connector has 1 and fails ingest minimum; overlap graph must be rerun after completion |
-| T21 | doing | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | no | T21a–T21c RoomPlan JSON plus ARKit `.r3d` logging build; T21e job ZIP and T21g signed phone install remain. Scored route stays Route 2 until install works |
+| T8 | doing | Photos path, 2–8 stills, folder stitch | — | present | CLAHE+SIFT fallback improves graphs to connector/drawing/my/pooja = 2/2/5/3 components and finds connector↔my-room/pooja-room candidates. All remain disconnected; T8c metric SfM is still blocked |
+| T21 | doing | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | no | T21a–T21f RoomPlan JSON, ARKit `.r3d`, job ZIP, and CLI ZIP ingest build; T21g signed phone install remains. Scored route stays Route 2 until install works |
 | T17 | doing | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | T17a protocol/templates done; walk-in validation and measured rows wait on T3 |
-| T18 | todo | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | **yes** | Beat/tie ≥ 70% shared dims |
+| T18 | doing | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | evidence present | Current gate is 2/2 wins on shared ceiling dimensions across my-room and pooja-room; individual incumbent walls and exact app version remain unavailable, so report this as sparse evidence |
 | T10 | doing | Technical report ≤ 6 pages + benchmark tables | T19 | draft **no**; tables **yes** | 1,805-word engineering draft complete; real benchmark/repeat/incumbent/timing tables remain T3-dependent |
 | T20 | doing | README 15 min + reproduction bundle + compliance matrix | T10 | partial **no**; measured rows **yes** | T20a–T20c code/docs done; final real bundle and coverage remain T3-dependent |
 | T11 | todo | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | Follow submitted capture route |
@@ -66,7 +65,7 @@ Not optional. Composition from the prompt:
 - Same spaces at **photos, video, LiDAR**
 - Photos = per-room folders, **8 stills** per room (protocol maximum — max-score capture)
 - One furnished room with **two staged damage classes**
-- One room **twice at LiDAR** (required). Also twice at photos and twice at video if time.
+- One room captured twice at the **same tier**. The active official pair is the independent `my-room` photo repeat; video repeat is extra evidence.
 - Laser or tape on walls, openings, **ceilings**; photo of tape
 - Polycam **or** magicplan export on two rooms (name version). Do not use that app as the capture route.
 
@@ -78,12 +77,12 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-**Pre-shoot Python boundary reached.** T21c raw ARKit RGB-D logging is
-implemented as Record3D-compatible `.r3d` files beside `roomplan.json`. Next
-media-independent iOS stage is T21e job packaging after review. T21g remains a
-signed 10-minute phone-install rehearsal. Separately, complete T3 and run
-`make benchmark` to unlock T6/T7/T8 calibration and the remaining scored
-evidence. Do not loosen T8b thresholds to force the current photos to pass.
+**Pre-shoot Python boundary reached.** T21f accepts a Cozmo Capture ZIP on
+`python -m cozmo_floorplan run` and reconstructs the RoomPlan JSON inside.
+T21g remains a signed 10-minute phone-install rehearsal — follow
+`ios/CozmoCapture/README.md`. Separately, complete T3 and run `make benchmark`
+to unlock T6/T7/T8 calibration and the remaining scored evidence. Do not loosen
+T8b thresholds to force the current photos to pass.
 
 ### Media-ready freeze sequence
 
@@ -96,13 +95,15 @@ ground truth.
    diagnostic floor/wall candidates.
 2. **T7g (done)** — Convert accepted video surface evidence into conservative
    room geometry and the shared FloorPlan IR.
-3. **T8c (blocked on photo reshoot)** — Incremental per-room photo SfM after
-   every overlap graph connects.
-4. **T8d (blocked on T8c + scale evidence)** — Photo Manhattan layout, metric
+3. **T8b2 (done)** — Bounded CLAHE+SIFT fallback, named components, real
+   before/after graph evidence, and exact isolated-image diagnostics.
+4. **T8c (blocked on connected evidence)** — Incremental per-room photo SfM
+   after every overlap graph connects.
+5. **T8d (blocked on T8c + scale evidence)** — Photo Manhattan layout, metric
    scale, and calibrated uncertainty.
-5. **T8e (blocked on connector evidence)** — Cross-room photo registration and
+6. **T8e (blocked on connector evidence)** — Cross-room photo registration and
    connected whole-property stitch.
-6. **T20c (done)** — One-command final benchmark/evidence runner with explicit
+7. **T20c (done)** — One-command final benchmark/evidence runner with explicit
    pending results when required capture or ground truth is absent.
 
 After these stages, remaining work is expected to be media ingestion, measured
@@ -112,6 +113,13 @@ scaffolding. Minor fixes after real captures remain normal and allowed.
 ---
 
 ## Done
+
+- **2026-09-10 T8b2 robust photo overlap** — Added bounded CLAHE+SIFT fallback without lowering normalized acceptance gates, exposed named components/isolated images, and improved real connector/drawing/my/pooja graphs from 5/6/7/7 to 2/2/5/3 components with two conservative cross-room candidates. Metric SfM remains blocked honestly.
+- **2026-09-09 T20d evidence activation/readiness** — Activated photo/video repeat manifests, corrected primary manifest descriptions, normalized supplied tape measurements and two-class damage records, encoded two-room Magicplan summary evidence without inventing walls, and aligned readiness with the official any-tier repeat rule. The real benchmark now has zero pending input classes.
+
+- **2026-09-09 T21f CLI ZIP ingest** — `python -m cozmo_floorplan run` accepts a Cozmo Capture `.zip`, unpacks it, reconstructs RoomPlan JSON, and writes a structured failure for incomplete archives. Signed install remains T21g.
+
+- **2026-09-09 T21e capture job ZIP** — App writes `manifest.yaml` + `lidar/roomplan.json` + per-room `.r3d` as a folder and shareable ZIP; Python inspects, rejects incomplete archives, and extracts into `load_job`. Simulator, unsigned iPhoneOS, and test-target builds succeed. Signed install remains T21g.
 
 - **2026-09-09 T21c raw ARKit LiDAR recorder** — 2 Hz `sceneDepth` sampling during RoomPlan scans, JPEG RGB plus LZFSE depth/confidence, XYZW camera-to-world poses, Record3D-compatible `.r3d` ZIP writer, live frame count, multi-file share, and archive contract tests. Simulator, unsigned iPhoneOS, and test-target builds succeed. Signed install remains T21g.
 

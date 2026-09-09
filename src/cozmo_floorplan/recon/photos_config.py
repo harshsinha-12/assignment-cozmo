@@ -18,13 +18,20 @@ DEFAULT_PHOTO_INGEST = PhotoIngestConfig()
 
 @dataclass(frozen=True, slots=True)
 class PhotoOverlapConfig:
-    """Bounded ORB and geometric graph policy for unordered room photos."""
+    """Bounded feature-ensemble and geometric graph policy for room photos."""
 
     resize_max_dimension_px: int = 900
     orb_feature_count: int = 1800
     orb_fast_threshold: int = 10
     ratio_test: float = 0.78
     ransac_reprojection_threshold_px: float = 2.0
+    enable_sift_fallback: bool = True
+    sift_resize_max_dimension_px: int = 1200
+    sift_feature_count: int = 3000
+    sift_contrast_threshold: float = 0.02
+    sift_edge_threshold: float = 12.0
+    sift_ratio_test: float = 0.76
+    sift_ransac_reprojection_threshold_px: float = 2.5
     minimum_keypoints_per_image: int = 100
     minimum_within_matches: int = 18
     minimum_within_inliers: int = 12

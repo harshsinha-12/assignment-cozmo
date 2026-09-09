@@ -45,6 +45,7 @@ def test_within_room_overlap_builds_connected_graph(tmp_path):
     room = diagnostics.rooms[0]
     assert room.connected is True
     assert room.component_count == 1
+    assert len(room.components[0]) == 3
     assert room.eligible_edges >= 2
     assert all(pair.geometric_inliers >= 12 for pair in diagnostics.pairs)
 
@@ -76,6 +77,35 @@ def test_featureless_image_remains_visible_as_disconnected_component(tmp_path):
     room = diagnostics.rooms[0]
     assert room.connected is False
     assert room.component_count == 2
+    assert ("02.jpg",) in room.components
     blank_pairs = [pair for pair in diagnostics.pairs if pair.right_image == "02.jpg"]
     assert blank_pairs
     assert all("low_keypoint_yield" in pair.rejection_reasons for pair in blank_pairs)
+
+
+def test_sift_fallback_connects_low_contrast_translated_views(tmp_path):
+    photos_dir = tmp_path / "photos"
+    base = np.full((480, 640, 3), 118, dtype=np.uint8)
+    rng = np.random.default_rng(73)
+    for _ in range(180):
+        center = tuple(int(value) for value in rng.integers([20, 20], [620, 460]))
+        shade = int(rng.integers(105, 132))
+        cv2.circle(base, center, int(rng.integers(2, 7)), (shade,) * 3, -1)
+    views = [
+        cv2.warpAffine(
+            base,
+            np.float32([[1.0, 0.0, offset], [0.0, 1.0, offset / 3]]),
+            (640, 480),
+        )
+        for offset in (0, 14, 28)
+    ]
+    _write_room(photos_dir, "room-a", views)
+
+    diagnostics = analyze_photo_overlap(load_photo_rooms(photos_dir))
+
+    assert diagnostics.rooms[0].connected is True
+    assert any(
+        pair.geometric_model.startswith("sift_clahe:")
+        for pair in diagnostics.pairs
+        if pair.eligible
+    )

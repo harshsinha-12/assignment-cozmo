@@ -8,8 +8,8 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | --- | --- |
 | `pyproject.toml` | Installable Python package metadata and the optional `cozmo-floorplan` console command. |
 | `src/cozmo_floorplan/__main__.py` | Entry point for the required `python -m cozmo_floorplan ...` command. |
-| `src/cozmo_floorplan/cli.py` | CLI arguments, exit codes, and the outer error boundary; writes the normal artifacts plus a regenerable correction-off JSON when stitching applies. |
-| `src/cozmo_floorplan/pipeline.py` | Application orchestration boundary. Dispatches LiDAR reconstruction + drift correction/ablation, then claims enrichment; video jobs go through T7 ingest and fail structurally until metric VO exists. |
+| `src/cozmo_floorplan/cli.py` | CLI arguments, exit codes, and the outer error boundary; accepts a job directory or Cozmo Capture ZIP; writes the normal artifacts plus a regenerable correction-off JSON when stitching applies. |
+| `src/cozmo_floorplan/pipeline.py` | Application orchestration boundary. Unpacks a Cozmo Capture ZIP when needed, then dispatches LiDAR reconstruction + drift correction/ablation, then claims enrichment; video jobs go through T7 ingest and fail structurally until metric VO exists. |
 | `src/cozmo_floorplan/config.py` | Shared artifact filenames (including the drift-ablation filename), schema version, supported tiers, directory conventions, and exit-code constants. |
 | `src/cozmo_floorplan/errors.py` | Expected domain exception types. Keeps error classification out of command and I/O code. |
 
@@ -41,14 +41,14 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `ios/CozmoCapture/CozmoCapture/Views/CaptureView.swift` | Room naming, scanned-room list, LiDAR frame count, scan/export/share-ZIP controls, and merge-failure fallback. |
 | `ios/CozmoCapture/CozmoCapture/Info.plist` | Camera purpose string, display name, launch metadata, and portrait orientation. |
 | `ios/CozmoCapture/CozmoCaptureTests/PortableRoomPlanTests.swift` | Compiled contract tests for format metadata, multi-room `rooms[]`, shared-wall association, and unique labels. |
-| `ios/CozmoCapture/README.md` | Build, phone-install, multi-room capture, and job-ZIP share/unpack steps. |
+| `ios/CozmoCapture/README.md` | Build, first-flight iPhone install, multi-room capture, and job-ZIP CLI ingest. |
 
 ## Contract and I/O
 
 | File | Responsibility |
 | --- | --- |
 | `src/cozmo_floorplan/io/job.py` | Reads `manifest.yaml`, checks the tier-specific job directory, and produces immutable normalized job metadata. |
-| `src/cozmo_floorplan/io/capture_package.py` | Inspects Cozmo Capture ZIPs, rejects incomplete archives, and extracts them into a `load_job` folder. |
+| `src/cozmo_floorplan/io/capture_package.py` | Inspects Cozmo Capture ZIPs, rejects incomplete archives, extracts them into a `load_job` folder, and opens a directory or `.zip` for the CLI. |
 | `src/cozmo_floorplan/io/photos.py` | Discovers stable per-room image sets, decodes every supported image, and records immutable path/dimension metadata. |
 | `src/cozmo_floorplan/io/video.py` | Discovers every MP4/MOV walkthrough, reads typed container/display metadata, disables backend auto-rotation, and returns bounded display-oriented RGB samples with stable video, source-frame, and timestamp identity. |
 | `src/cozmo_floorplan/io/video_poses.py` | Strictly parses versioned metric camera-to-world sidecars: v1.1 adds display intrinsics/camera axes and v1.2 adds scale source/shared world-frame identity, while all versions validate frame/time keys, positions, and quaternions. |
@@ -87,9 +87,12 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `docs/formats/roomplan-json.md` | Public input contract for the tested RoomPlan JSON adapter. |
 | `docs/formats/cozmo-capture-job.md` | Route 1 job ZIP layout that unpacks into the CLI lidar job folder. |
 | `docs/formats/record3d.md` | Documents the tested raw Record3D archive contract, decompression path, and current plane-extraction boundary. |
-| `src/cozmo_floorplan/recon/photos_config.py` | Official ingest limits plus immutable ORB, robust-geometry, within-room, and cross-room overlap thresholds. |
-| `src/cozmo_floorplan/recon/photo_features.py` | Decodes and bounds photos, extracts ORB observations, retains mutual ratio matches, and measures seeded homography/fundamental support and spatial coverage. |
-| `src/cozmo_floorplan/recon/photo_overlap.py` | Builds within-room connected components and conservative cross-room connector candidates with named pair-rejection evidence. |
+| `src/cozmo_floorplan/recon/photos_config.py` | Official ingest limits plus immutable ORB/SIFT, robust-geometry, within-room, and cross-room overlap policies. |
+| `src/cozmo_floorplan/recon/photo_image.py` | Shared grayscale decode and aspect-preserving size bound used by photo feature extractors. |
+| `src/cozmo_floorplan/recon/photo_features.py` | Extracts ORB observations and performs norm-aware mutual matching with seeded homography/fundamental support and spatial coverage. |
+| `src/cozmo_floorplan/recon/photo_sift.py` | Extracts bounded CLAHE-assisted SIFT evidence for indoor pairs that ORB cannot cover safely. |
+| `src/cozmo_floorplan/recon/photo_feature_ensemble.py` | Composes deterministic ORB-first and optional SIFT-fallback feature variants per image. |
+| `src/cozmo_floorplan/recon/photo_overlap.py` | Selects the strongest threshold-passing evidence, builds named connected components, and finds conservative cross-room connector candidates. |
 | `src/cozmo_floorplan/recon/photos.py` | Photo-tier adapter: validates folders, runs the overlap graph, returns actionable `insufficient_overlap`, and refuses metric output until SfM, adjacency, and scale exist. |
 | `docs/formats/photo-job.md` | Public per-room photo job layout and current metric-reconstruction boundary. |
 | `src/cozmo_floorplan/recon/video_config.py` | Immutable video ingest, tracking, trajectory, sidecar alignment, triangulation, surface, room-envelope, and candidate-output policies. |
@@ -186,19 +189,22 @@ This is the maintained guide to what each implementation file owns. Update it wh
 
 | File | Responsibility |
 | --- | --- |
-| `src/cozmo_floorplan/benchmark/config.py` | Stable benchmark manifest/report names, tier order, and default capture-root paths. |
+| `src/cozmo_floorplan/benchmark/config.py` | Stable benchmark manifest/report names, tier order, and default capture-root paths, including the default photo repeat. |
 | `src/cozmo_floorplan/benchmark/manifest.py` | Loads path-only `benchmark.yaml`, preserves documented defaults when absent, and prevents paths escaping the capture root. |
-| `src/cozmo_floorplan/benchmark/readiness.py` | Audits three tier jobs, tape truth, required LiDAR repeat, incumbent, and staged-damage evidence as ready or pending. |
+| `src/cozmo_floorplan/benchmark/repeat.py` | Validates that any declared repeat tier links back to its primary job and names at least one same-room capture. |
+| `src/cozmo_floorplan/benchmark/evidence.py` | Validates FloorPlan truth/incumbent files and two-class, locally resolvable damage observations. |
+| `src/cozmo_floorplan/benchmark/readiness.py` | Composes tier, truth, any-tier repeat, two-room incumbent, and staged-damage checks as ready or pending. |
 | `src/cozmo_floorplan/benchmark/report.py` | Renders the machine-readable benchmark result as a concise Markdown checklist. |
 | `src/cozmo_floorplan/benchmark/runner.py` | Runs available jobs/repeats, writes tier artifacts/evals, and emits one honest status bundle without treating absent evidence as zero. |
 | `data/templates/benchmark.yaml` | Joins separate tier, truth, repeat, and incumbent inputs through safe capture-root-relative paths. |
-| `tests/test_benchmark.py` | Tests pending roots, path containment, complete mocked three-tier orchestration, and successful pending-audit CLI behavior. |
+| `data/templates/photos-repeat/manifest.yaml` | Declares the primary job and repeated room ids needed to prove an independent same-tier repeat. |
+| `tests/test_benchmark.py` | Tests pending roots, path containment, any-tier repeat linkage, semantic evidence readiness, complete mocked orchestration, and pending-audit CLI behavior. |
 
 ## Tests and fixtures
 
 | File | Responsibility |
 | --- | --- |
-| `tests/test_cli.py` | Tests job validation, structured failures, schema-valid output, and the exact module command. |
+| `tests/test_cli.py` | Tests job validation, structured failures, schema-valid output, ZIP ingest, and the exact module command. |
 | `tests/test_eval.py` | Tests red empty predictions, detection misses/phantoms, repeatability evidence, photo stitching, head-to-head, and the eval command. |
 | `tests/test_schema.py` | Tests the FloorPlan v0.2 contract and its required interval/claims fields. |
 | `data/fixtures/synthetic_two_room/` | Small public-safe metric truth used by schema and later evaluation tests. |
@@ -223,7 +229,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `tests/test_video_triangulation.py` | Tests calibrated world-point recovery, reprojection rejection, v1 calibration and accepted-segment guards, and sparse floor/wall candidate support. |
 | `tests/test_video_rooms.py` | Tests rotated Manhattan room recovery and refusal when complete plane support is absent. |
 | `tests/test_video_floorplan.py` | Tests schema-valid video measurements, shared-world-frame enforcement, and successful video-result routing through the main pipeline. |
-| `tests/test_photo_overlap.py` | Tests connected transformed views, unrelated-room connector rejection, and featureless images remaining explicit disconnected components. |
+| `tests/test_photo_overlap.py` | Tests connected transformed views, low-contrast SIFT fallback, unrelated-room connector rejection, and explicit featureless components. |
 | `tests/test_capture_templates.py` | Loads every public handoff template through the production job loader and checks that tiers use separate job ids/directories. |
 | `tests/conftest.py` | Forces offline fallback during tests so local API keys are never used and tests never spend credits. |
 
