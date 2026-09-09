@@ -12,16 +12,15 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Completed **T21a**, the optional Route 1 single-room iOS RoomPlan exporter
-  foundation after Xcode 26.6 became available.
-- Added a native iOS 17 SwiftUI app with separate configuration, portable data
-  models, RoomPlan adapter, atomic exporter, capture state/store, UIKit bridge,
-  view, project, shared scheme, and contract test files.
-- The app captures a processed `CapturedRoom`, preserves metric surface
-  dimensions and column-major transforms, and shares `roomplan.json` in the
-  exact contract already accepted by the Python LiDAR adapter.
-- Added unsupported-device handling, repeat-scan behavior, build/install/export
-  instructions, device-matrix status, README status, and a complete code map.
+- Implemented **T21b** multi-room Cozmo Capture: name rooms, keep each
+  `CapturedRoom`, merge two or more with Apple `StructureBuilder`, and share one
+  portable `roomplan.json` `rooms[]` file.
+- Shared wall identifiers get `roomIds`; openings on those walls get
+  `connectsRoomIds`. Merge failure can export unmerged rooms instead of
+  discarding the session.
+- Downloaded the iOS 26.5 simulator runtime. Simulator and unsigned generic
+  iPhoneOS builds succeed. XCTest compiled; launching tests on the first-boot
+  simulator hung, so on-device RoomPlan is still unproven.
 - No commit was made.
 
 ### What is true now
@@ -30,19 +29,21 @@ The current agent overwrites the **Current handoff** section at the end of every
 - Route 2 remains the default/scored capture route. T21 Route 1 is parallel and
   must not replace it until a signed device install completes in under 10
   minutes.
-- The T21a app and XCTest target compile for the iOS Simulator SDK; the app also
-  builds for generic arm64 iPhoneOS without signing. No simulator runtime is
-  installed, so the compiled XCTest has not been executed. RoomPlan sensing and
-  sharing have not yet been exercised on the iPhone.
+- The T21b app names rooms, accumulates sessions, merges with
+  `StructureBuilder`, and writes portable `rooms[]` JSON. Simulator and unsigned
+  generic iPhoneOS builds succeed. RoomPlan sensing and sharing have not yet
+  been exercised on the iPhone.
 - Plane-anchored stitch + regenerable `floorplan.ablation-off.json` work on the two-room RoomPlan fixture. Drift gate passes when that ablation is supplied.
 - Video jobs ingest every MP4/MOV in stable order, retain source-frame/time identity, qualify relative-VO evidence, recover disconnected unitless pose segments, and strictly validate/align optional metric camera poses. Calibrated v1.2 sidecars can now emit conservative partial rooms/walls after complete surface qualification.
 - Photo jobs validate one folder per room, 2–8 decodable images, stable identity, and all-pairs geometric overlap. Disconnected evidence now returns actionable `insufficient_overlap` before SfM.
 - Raw Record3D `.r3d` ZIPs now emit schema-valid metric rooms, walls, ceiling heights, areas, and evidence-gated openings. Output stays `partial` because intervals and cross-archive registration are not yet measured.
 - T19 before is pinned to `523ceea`; the shipped code is pinned to `68acdf6`. The complete bundle is under `data/fix-loop/`.
 - The after run exits 0. Its eval still exits 3 because unrelated repeatability/incumbent evidence is missing, while the selected `pipeline_yield` gate passes.
-- The private upload contains three room LiDAR scans, 23 photos (drawing=7, my-room=8, pooja=8), and two 720p videos. The photos have no EXIF after WhatsApp transfer; both videos carry a -90° display transform. Their manifests now match the loader contract.
+- The active private upload contains only the three earlier room LiDAR scans.
+  Photo/video job folders are intentionally empty for original-quality reshoots.
+  Repeat template manifests are not active until their media is copied.
 - OpenCV reports both video transforms as 90° clockwise. Explicit normalization yields 720×1280 RGB: my-room 138 samples / 68.56 s, pooja-room 148 samples / 73.91 s at about 2 Hz. The second video is no longer ignored.
-- Both current videos pass the internal 35% eligible-pair threshold: my-room 23/60 with median 1,166 keypoints, 262 matches, 178 F-inliers, 1.15 px parallax, 23.5% coverage; pooja-room 27/60 with 1,188, 257, 190, 1.23 px, 20.6%. These are trackability diagnostics, not metric accuracy.
+- Both archived videos passed the internal 35% eligible-pair threshold: my-room 23/60 with median 1,166 keypoints, 262 matches, 178 F-inliers, 1.15 px parallax, 23.5% coverage; pooja-room 27/60 with 1,188, 257, 190, 1.23 px, 20.6%. These are historical trackability diagnostics, not metric accuracy.
 - With at most 90 selected frames, my-room recovers 21/89 relative-pose edges in 10 local segments and pooja-room recovers 17/89 in 9. The 576 px focal length is an unvalidated image-size prior; unit steps and separate identity anchors are not metric or globally aligned.
 - Metric pose sidecar v1 requires metres, camera-to-world, right-handed y-up, video-start timestamps, increasing source-frame/time keys, finite positions, and unit XYZW quaternions. Segment alignment requires ≥3 exact frame/time matches, trajectory rank ≥2, and ≤0.15 m RMSE.
 - Metric pose sidecar v1.1 adds display-oriented calibrated pinhole intrinsics
@@ -50,8 +51,8 @@ The current agent overwrites the **Current handoff** section at the end of every
   shared `world_frame_id`. Accepted aligned segments can yield filtered sparse
   points; complete camera-bracketing room surfaces can then enter the shared
   IR. v1.0 cannot authorize triangulation.
-- The current private MP4s contain no sidecars, so both report `metric_alignment=not-available`; no scale was inferred.
-- The current photo graphs fail connectivity: drawing-room has 3/21 eligible edges and 4 components, my-room 2/28 and 6, and pooja-room 2/28 and 6. No cross-room connector candidate passes. This is capture evidence, not an accuracy score.
+- The archived MP4s contained no sidecars, so both reported `metric_alignment=not-available`; no scale was inferred.
+- The archived photo graphs failed connectivity: drawing-room had 3/21 eligible edges and 4 components, my-room 2/28 and 6, and pooja-room 2/28 and 6. No cross-room connector candidate passed. The new active folders are empty.
 - The three clouds use 61 frames each and contain 252,694 drawing-room, 224,435 my-room, and 260,653 pooja-room 2.5 cm voxel centroids. The complete private LiDAR command takes about 8 s locally.
 - The private output contains 3 rooms, 12 walls, and 4 opening candidates: one in my-room and three in pooja-room. The SVG was rendered and visually inspected. These candidates are not tape-backed accuracy results.
 - Separate archives preserve their exported world-pose coordinates, but no shared session/door association is invented. T9 records an empty ablation and one disconnected warning rather than claiming correction.
@@ -68,38 +69,45 @@ The current agent overwrites the **Current handoff** section at the end of every
 - T6 calibration/repeatability/shared-opening hardening remains blocked on the human capture remainder.
 - T7 room/FloorPlan conversion is implemented synthetically; current captures lack calibrated v1.2 pose sidecars. Video openings, shared-room constraints, interval calibration, and the official ±3% evaluation remain media-dependent.
 - T8c metric SfM is blocked on a photo reshoot with overlapping intermediate views and doorway/connector evidence. Do not loosen the evidence thresholds to force the current capture through.
-- T21b: multi-room capture/merge, Apple-team signing, device install, real
-  RoomPlan export round-trip through the Python CLI, and timed under-10-minute
+- T21c raw ARKit RGB-D logging, T21g Apple-team signing/device install, a real
+  RoomPlan export round-trip through the Python CLI, and the timed under-10-minute
   installation remain.
 - Metric video VO and photo SfM/adjacency/interval calibration need the actual media.
 
 ### Next agent should
 
-1. Review T21a, then start T21b multi-room/session accumulation and signed
-   iPhone installation as its own stage.
-2. Wait for/ingest the remaining **T3** capture and evidence, then run
-   `make benchmark`.
-3. Start T8c only if every reshot photo room graph connects and connector
-   candidates exist; otherwise report the measured reshoot defect.
+1. Review T21b, then start T21c raw ARKit RGB/depth/confidence/pose logging in
+   the iOS project. Do not overlap another agent on the same Xcode files.
+2. Harsh: T21g — select an Apple team in Signing & Capabilities, install on the
+   iPhone 17 Pro, capture several rooms, and save `roomplan.json` under
+   `data/private/route1-roomplan/lidar/`.
+3. Follow `mytask.md` for the T3 reshoot; do not start T8c until photo graphs
+   connect.
 
 ### Read next (max five)
 
-1. `TASKS.md`
-2. `ios/CozmoCapture/README.md`
-3. `ios/CozmoCapture/CozmoCapture/Capture/RoomCaptureStore.swift`
-4. `ios/CozmoCapture/CozmoCapture/Export/RoomPlanAdapter.swift`
-5. `docs/formats/roomplan-json.md`
+1. `ios/CozmoCapture/README.md`
+2. `TASKS.md`
+3. `docs/formats/roomplan-json.md`
+4. `ios/CozmoCapture/CozmoCapture/Capture/RoomCaptureStore.swift`
+5. `mytask.md`
 
 ### Exact next command
 
 ```bash
-open ios/CozmoCapture/CozmoCapture.xcodeproj
+xcodebuild \
+  -project ios/CozmoCapture/CozmoCapture.xcodeproj \
+  -scheme CozmoCapture \
+  -destination 'generic/platform=iOS Simulator' \
+  CODE_SIGNING_ALLOWED=NO build
 ```
 
 ---
 
 ## History
 
+- **2026-09-09** — T21b named multi-room RoomPlan capture/`rooms[]` export; simulator and unsigned iPhoneOS builds succeed.
+- **2026-09-09** — T3 clean-reshoot folders/templates prepared; old photo/video media archived outside active jobs.
 - **2026-09-09** — T21a single-room iOS RoomPlan exporter foundation complete; device/multi-room T21b remains.
 - **2026-09-09** — T20c final benchmark runner complete; real partial audit reports exactly four missing evidence classes.
 - **2026-09-09** — T7g conservative calibrated-video room/FloorPlan path complete; current native MP4s remain sidecar-blocked.

@@ -2,6 +2,15 @@ import RoomPlan
 import simd
 
 enum RoomPlanAdapter {
+  static func portablePlan(
+    from rooms: [(capturedRoom: CapturedRoom, label: String)]
+  ) -> PortableRoomPlan {
+    let portableRooms = rooms.map { room, label in
+      portableRoom(from: room, identifier: room.identifier.uuidString, label: label)
+    }
+    return PortableRoomPlan(rooms: RoomAssociation.annotate(portableRooms))
+  }
+
   static func portableRoom(
     from capturedRoom: CapturedRoom,
     identifier: String,
@@ -22,7 +31,8 @@ enum RoomPlanAdapter {
       identifier: surface.identifier.uuidString,
       dimensions: [surface.dimensions.x, surface.dimensions.y, surface.dimensions.z],
       transform: columnMajorValues(surface.transform),
-      confidence: confidenceName(surface.confidence)
+      confidence: confidenceName(surface.confidence),
+      wallIdentifier: surface.parentIdentifier?.uuidString
     )
   }
 

@@ -46,7 +46,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 ## Current status
 
-**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, multi-video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, one-command synthetic reproduction, and the T21a iOS single-room RoomPlan exporter work. Calibrated video sidecars can produce conservative partial room geometry; photos have deterministic within/cross-room overlap graphs; real Record3D emits partial metric geometry. Video openings/shared constraints, photo SfM, cross-scan registration, calibration, scored accuracy, and the signed multi-room T21 install remain.**
+**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, multi-video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, one-command synthetic reproduction, and the T21b iOS multi-room RoomPlan exporter work. Calibrated video sidecars can produce conservative partial room geometry; photos have deterministic within/cross-room overlap graphs; real Record3D emits partial metric geometry. Video openings/shared constraints, photo SfM, cross-scan registration, calibration, scored accuracy, raw ARKit logging, and the signed T21 install remain.**
 
 See [`roadmap.md`](roadmap.md).
 

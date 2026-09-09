@@ -13,6 +13,39 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T21b multi-room RoomPlan capture/export
+
+- Context: T21a was the single-room exporter. T21b is named multi-room
+  accumulation plus portable `rooms[]` export before raw ARKit logging.
+- Done: session room names, retained `CapturedRoom`s, Apple `StructureBuilder`
+  merge, `parentIdentifier` → `wallIdentifier`, shared-wall `roomIds` /
+  `connectsRoomIds` annotation, merge-failure fallback, contract tests, bundle
+  ID in Info.plist, operator README, code map, and device-matrix notes.
+- Learned: Xcode 26.6 ships stub iOS platforms (~156 MB) until
+  `xcodebuild -downloadPlatform iOS` installs the 8.52 GB iOS 26.5 simulator.
+  After that, generic simulator and unsigned iPhoneOS builds succeed. XCTest
+  compiled; first-boot simulator launch hung, so tests were not executed.
+  RoomPlan capture still needs the LiDAR iPhone.
+- Next: review this stage, then T21c raw ARKit logging. Harsh does T21g signed
+  install and a real multi-room export into `data/private/route1-roomplan/`.
+
+## 2026-09-09 — T3 clean upload layout prepared
+
+- Removed the 23 WhatsApp photos and two MP4s from the active photo/video jobs;
+  preserved them recoverably under
+  `/private/tmp/assignment-cozmo-media-backup-20260909-1935`. The three existing
+  Record3D `.r3d` archives were not changed.
+- Rebuilt exact empty primary and repeat folders for four photo areas, a
+  continuous property video, photo/video/LiDAR repeats, staged damage evidence,
+  tape/laser evidence, magicplan raw exports, and isolated Route 1 RoomPlan JSON.
+- Replaced `mytask.md` with one path-specific capture checklist and added
+  fill-in measurement, damage, incumbent-notes, and manifest templates.
+- `benchmark.yaml` now knows the optional photo/video repeats and the normalized
+  magicplan output path. Template manifests intentionally remain named
+  `manifest.TEMPLATE.yaml` until media exists, so readiness stays honest.
+- Next: Harsh captures/transfers originals, fills the text templates, renames
+  repeat manifests only after upload, and runs `make benchmark`.
+
 ## 2026-09-09 — T21a iOS RoomPlan exporter foundation complete
 
 - Xcode 26.6 is now active at `/Applications/Xcode.app/Contents/Developer`.

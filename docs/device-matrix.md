@@ -5,8 +5,8 @@ Hardware eligibility and runtime support are different claims. “Capture” mea
 | Device | Photos capture | Video capture | LiDAR capture | Current accepted input | Measured accuracy |
 | --- | --- | --- | --- | --- | --- |
 | iPhone 15 / 16 non-Pro | yes | yes | no | JPEG; MOV/MP4 ingest | not measured |
-| iPhone Pro / Pro Max with LiDAR | yes | yes | yes | JPEG; MOV/MP4 ingest; T21a exports accepted single-room RoomPlan JSON; `.r3d` emits partial metric IR | not measured |
-| Harsh's iPhone 17 Pro | yes | yes | yes | Three real `.r3d` room captures produce partial rooms/walls/opening candidates; photos/video partial; T21a device install pending | not measured |
+| iPhone Pro / Pro Max with LiDAR | yes | yes | yes | JPEG; MOV/MP4 ingest; T21b exports accepted named multi-room RoomPlan JSON; `.r3d` emits partial metric IR | not measured |
+| Harsh's iPhone 17 Pro | yes | yes | yes | Three real `.r3d` room captures produce partial rooms/walls/opening candidates; photos/video partial; T21b device install pending | not measured |
 | LiDAR iPad Pro | possible, out of walk-in scope | possible, out of walk-in scope | possible | RoomPlan JSON only | not measured |
 | Android | not claimed | not claimed | not claimed | out of scope | not measured |
 

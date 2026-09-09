@@ -3,6 +3,7 @@ enum CaptureState: Equatable {
   case ready
   case capturing
   case processing
+  case merging
   case exported
   case failed(String)
 
@@ -12,6 +13,7 @@ enum CaptureState: Equatable {
     case .ready: "Ready"
     case .capturing: "Scanning"
     case .processing: "Building room"
+    case .merging: "Merging rooms"
     case .exported: "Export ready"
     case .failed: "Capture failed"
     }
@@ -22,15 +24,24 @@ enum CaptureState: Equatable {
     case .unsupported:
       "Use a LiDAR-equipped Pro iPhone for this capture route."
     case .ready:
-      "Start at the doorway, then slowly show every wall and opening."
+      "Name the next room, scan it, then export all rooms as one roomplan.json."
     case .capturing:
       "Move slowly and keep the phone pointed at walls from chest height."
     case .processing:
       "RoomPlan is converting the scan into metric surfaces."
+    case .merging:
+      "StructureBuilder is aligning rooms into one metric frame."
     case .exported:
       "Share roomplan.json into the job's lidar folder."
     case .failed(let message):
       message
+    }
+  }
+
+  var allowsNaming: Bool {
+    switch self {
+    case .ready, .exported, .failed: true
+    default: false
     }
   }
 }

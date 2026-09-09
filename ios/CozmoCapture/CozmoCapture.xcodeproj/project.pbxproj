@@ -16,6 +16,9 @@
 		100000000000000000000108 /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000008 /* CaptureView.swift */; };
 		100000000000000000000109 /* CozmoCaptureApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000009 /* CozmoCaptureApp.swift */; };
 		100000000000000000000110 /* PortableRoomPlanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000010 /* PortableRoomPlanTests.swift */; };
+		100000000000000000000111 /* CapturedSessionRoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000014 /* CapturedSessionRoom.swift */; };
+		100000000000000000000112 /* RoomAssociation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000015 /* RoomAssociation.swift */; };
+		100000000000000000000113 /* StructureMerger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000016 /* StructureMerger.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +42,9 @@
 		100000000000000000000008 /* CaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
 		100000000000000000000009 /* CozmoCaptureApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CozmoCaptureApp.swift; sourceTree = "<group>"; };
 		100000000000000000000010 /* PortableRoomPlanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortableRoomPlanTests.swift; sourceTree = "<group>"; };
+		100000000000000000000014 /* CapturedSessionRoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturedSessionRoom.swift; sourceTree = "<group>"; };
+		100000000000000000000015 /* RoomAssociation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoomAssociation.swift; sourceTree = "<group>"; };
+		100000000000000000000016 /* StructureMerger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StructureMerger.swift; sourceTree = "<group>"; };
 		100000000000000000000011 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		100000000000000000000012 /* CozmoCapture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CozmoCapture.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		100000000000000000000013 /* CozmoCaptureTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CozmoCaptureTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -76,8 +82,8 @@
 		100000000000000000000603 /* App */ = {isa = PBXGroup; children = (100000000000000000000009 /* CozmoCaptureApp.swift */,); path = App; sourceTree = "<group>"; };
 		100000000000000000000604 /* Capture */ = {isa = PBXGroup; children = (100000000000000000000005 /* CaptureState.swift */, 100000000000000000000006 /* RoomCaptureStore.swift */, 100000000000000000000007 /* RoomCaptureContainer.swift */,); path = Capture; sourceTree = "<group>"; };
 		100000000000000000000605 /* Config */ = {isa = PBXGroup; children = (100000000000000000000001 /* AppConfig.swift */,); path = Config; sourceTree = "<group>"; };
-		100000000000000000000606 /* Export */ = {isa = PBXGroup; children = (100000000000000000000003 /* RoomPlanAdapter.swift */, 100000000000000000000004 /* RoomPlanExporter.swift */,); path = Export; sourceTree = "<group>"; };
-		100000000000000000000607 /* Models */ = {isa = PBXGroup; children = (100000000000000000000002 /* PortableRoomPlan.swift */,); path = Models; sourceTree = "<group>"; };
+		100000000000000000000606 /* Export */ = {isa = PBXGroup; children = (100000000000000000000003 /* RoomPlanAdapter.swift */, 100000000000000000000015 /* RoomAssociation.swift */, 100000000000000000000016 /* StructureMerger.swift */, 100000000000000000000004 /* RoomPlanExporter.swift */,); path = Export; sourceTree = "<group>"; };
+		100000000000000000000607 /* Models */ = {isa = PBXGroup; children = (100000000000000000000002 /* PortableRoomPlan.swift */, 100000000000000000000014 /* CapturedSessionRoom.swift */,); path = Models; sourceTree = "<group>"; };
 		100000000000000000000608 /* Views */ = {isa = PBXGroup; children = (100000000000000000000008 /* CaptureView.swift */,); path = Views; sourceTree = "<group>"; };
 		100000000000000000000609 /* CozmoCaptureTests */ = {isa = PBXGroup; children = (100000000000000000000010 /* PortableRoomPlanTests.swift */,); path = CozmoCaptureTests; sourceTree = "<group>"; };
 		100000000000000000000610 /* Products */ = {isa = PBXGroup; children = (100000000000000000000012 /* CozmoCapture.app */, 100000000000000000000013 /* CozmoCaptureTests.xctest */,); name = Products; sourceTree = "<group>"; };
@@ -131,7 +137,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		100000000000000000000801 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (100000000000000000000109, 100000000000000000000101, 100000000000000000000102, 100000000000000000000103, 100000000000000000000104, 100000000000000000000105, 100000000000000000000106, 100000000000000000000107, 100000000000000000000108,); runOnlyForDeploymentPostprocessing = 0; };
+		100000000000000000000801 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (100000000000000000000109, 100000000000000000000101, 100000000000000000000102, 100000000000000000000103, 100000000000000000000104, 100000000000000000000105, 100000000000000000000106, 100000000000000000000107, 100000000000000000000108, 100000000000000000000111, 100000000000000000000112, 100000000000000000000113,); runOnlyForDeploymentPostprocessing = 0; };
 		100000000000000000000802 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (100000000000000000000110,); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
