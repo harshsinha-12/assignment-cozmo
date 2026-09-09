@@ -12,10 +12,10 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Completed the media-independent **T17a Route 2 protocol handoff**.
-- Added copyable photos/video/LiDAR job templates under `data/templates/`; a new contract test loads them through the production job loader and checks tier separation.
-- Reworked `docs/capture-route.md` into a 469-word operator card and aligned `data/README.md`, the compliance matrix, and device matrix.
-- Made the runtime boundary explicit: RoomPlan JSON reconstructs today; raw Record3D/USDZ must be preserved but is not yet runnable.
+- Completed **T6a**, the real Record3D archive/decode validation stage.
+- Added focused archive I/O, LZFSE utility, validation config/algorithm, tests, format docs, and dependency declarations.
+- Filled the three private manifests and ran all three uploaded `.r3d` files through the production LiDAR boundary.
+- Inventoried the partial photos/video upload and recorded the remaining capture gaps without inventing accuracy.
 
 ### What is true now
 
@@ -23,44 +23,47 @@ The current agent overwrites the **Current handoff** section at the end of every
 - Plane-anchored stitch + regenerable `floorplan.ablation-off.json` work on the two-room RoomPlan fixture. Drift gate passes when that ablation is supplied.
 - Video jobs with a real/synthetic MP4 are ingested (frame count in the warning) but do **not** emit centimetres yet.
 - Photo jobs validate one folder per room, 2–8 decodable images per folder, and stable room/image metadata. They intentionally remain `unsupported_tier` until metric reconstruction exists.
-- Raw Record3D/USDZ still structured-fail.
+- Raw Record3D `.r3d` ZIPs now validate metadata and matched frame modalities and decode sampled LZFSE depth/confidence. They still structured-fail before geometry until T6b plane extraction.
 - T19 before is pinned to `523ceea`; the shipped code is pinned to `68acdf6`. The complete bundle is under `data/fix-loop/`.
 - The after run exits 0. Its eval still exits 3 because unrelated repeatability/incumbent evidence is missing, while the selected `pipeline_yield` gate passes.
-- The Route 2 manifests now exist and match the loader contract. Accuracy and walk-in usability remain unmeasured until T3.
-- `make reproduce-synthetic`, all 63 tests, `ruff check .`, compileall, fix-loop verification, and diff checks pass.
+- The private upload contains three room LiDAR scans, 23 photos (drawing=7, my-room=8, pooja=8), and two 720p videos. The photos have no EXIF after WhatsApp transfer; both videos carry a -90° display transform. Their manifests now match the loader contract.
+- The three LiDAR captures contain 4,045, 4,057, and 4,235 complete RGB-D frames; representative-frame valid-depth fractions are 87.44%, 85.38%, and 97.23%.
+- All 68 tests, Ruff, compileall, synthetic reproduction, touched-file formatting, and diff checks pass. Accuracy and walk-in usability remain unmeasured. No commit was made.
 - T10 is structurally drafted but remains `doing` until real LiDAR/video/photo, repeatability, incumbent, calibration, and timing evidence replaces the pending cells.
 
 ### Blockers
 
-- Human T3 capture (photos, video, LiDAR, tape GT, Polycam/magicplan). Drop files under gitignored `data/private/` using `data/README.md`.
-- Raw Record3D `.r3d`/metadata/depth for Route 2 LiDAR.
+- Human T3 remainder: drawing-room video, connector/hallway in all tiers, repeat capture, tape/laser GT, two staged damage classes/evidence, and Polycam/magicplan output for two rooms.
+- T6b raw Record3D point-cloud fusion and plane extraction.
 - T21: full Xcode.app (this machine has Command Line Tools only).
 - Metric video VO and photo SfM/adjacency/interval calibration need the actual media.
 
 ### Next agent should
 
-1. Capture **T3** and inventory the resulting photos/video/LiDAR/tape/incumbent files before changing adapters.
-2. With captures present, implement metric **T7 VO** and/or **T8 photo** reconstruction against them; extend `make reproduce-synthetic` into the real bundle only after raw inputs exist.
-3. Without captures, no metric or remaining T17 stage is unblocked. Do not run T21 without Xcode.app.
+1. Implement **T6b**: transform sampled metric depth through per-frame intrinsics/poses, fit a single-room floor and Manhattan walls, and emit diagnostic artifacts before FloorPlan conversion.
+2. Then harden T7 for multiple videos and display rotation, or begin T8 SfM against the uploaded photos.
+3. Keep collecting the missing T3 evidence in parallel; do not score accuracy without tape truth.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `docs/capture-route.md`
-3. `data/templates/README.md`
-4. `data/README.md`
+2. `docs/formats/record3d.md`
+3. `src/cozmo_floorplan/io/record3d.py`
+4. `src/cozmo_floorplan/recon/record3d_validation.py`
 5. `docs/capture-protocol.md`
 
 ### Exact next command
 
 ```text
-cp -R data/templates/photos data/private/benchmark-photos  # repeat for video/lidar, replace manifest placeholders, then capture T3
+PYTHONPATH=src COZMO_AGENT_MODE=fallback python3 -m cozmo_floorplan run data/private/benchmark-lidar --out out/private-lidar
 ```
 
 ---
 
 ## History
 
+- **2026-09-09** — T6a real Record3D archive/LZFSE decode and integrity validation complete; T6b plane extraction next.
+- **2026-09-09** — T20b compliance matrix structure locked; remaining evidence is capture-dependent.
 - **2026-09-09** — T17a Route 2 operator card and loader-checked per-tier handoff templates complete; walk-in measurements remain T3-blocked.
 - **2026-09-09** — T20a clean-environment README path and one-command synthetic reproduction verified; real bundle remains T3-blocked.
 - **2026-09-09** — T10 engineering report draft complete; real benchmark tables remain capture-blocked.

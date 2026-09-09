@@ -12,9 +12,23 @@ from cozmo_floorplan.errors import ReconstructionError
 from cozmo_floorplan.geom.polygons import polygon_from_wall_segments
 from cozmo_floorplan.geom.transforms import floor_segment_cm
 from cozmo_floorplan.io.job import Job
-from cozmo_floorplan.io.roomplan import RoomPlanCapture, RoomPlanRoom, RoomPlanSurface, load_roomplan_capture
+from cozmo_floorplan.io.record3d import (
+    discover_record3d_archives,
+    load_record3d_capture,
+)
+from cozmo_floorplan.io.roomplan import (
+    RoomPlanCapture,
+    RoomPlanRoom,
+    RoomPlanSurface,
+    load_roomplan_capture,
+)
 from cozmo_floorplan.recon.lidar_config import LIDAR_UNCERTAINTY, ROOMPLAN_FILENAMES
-from cozmo_floorplan.recon.measurements import derived_diagnostic, lidar_area, lidar_length
+from cozmo_floorplan.recon.measurements import (
+    derived_diagnostic,
+    lidar_area,
+    lidar_length,
+)
+from cozmo_floorplan.recon.record3d_validation import validate_record3d_capture
 
 FloorPlan = dict[str, Any]
 
@@ -24,8 +38,29 @@ def reconstruct_lidar(job: Job) -> FloorPlan:
 
     lidar_dir = job.root / "lidar"
     source = _find_roomplan_json(lidar_dir)
-    capture = load_roomplan_capture(source)
-    return _capture_to_floorplan(job, capture)
+    if source is not None:
+        capture = load_roomplan_capture(source)
+        return _capture_to_floorplan(job, capture)
+
+    record3d_sources = discover_record3d_archives(lidar_dir)
+    if record3d_sources:
+        summaries = [
+            validate_record3d_capture(load_record3d_capture(record3d_source))
+            for record3d_source in record3d_sources
+        ]
+        details = ", ".join(
+            f"{source.name}: {summary.frame_count} frames, "
+            f"{summary.valid_depth_fraction:.1%} sampled valid depth"
+            for source, summary in zip(record3d_sources, summaries, strict=True)
+        )
+        raise ReconstructionError(
+            f"Validated {len(summaries)} Record3D RGB-D capture(s) ({details}). "
+            "Metric depth, poses, and intrinsics are readable; point-cloud plane "
+            "extraction into walls/openings is the remaining T6 stage.",
+            warning_code="unsupported_tier",
+        )
+
+    _raise_missing_lidar_source(lidar_dir)
 
 
 def _capture_to_floorplan(job: Job, capture: RoomPlanCapture) -> FloorPlan:
@@ -41,7 +76,9 @@ def _capture_to_floorplan(job: Job, capture: RoomPlanCapture) -> FloorPlan:
         built_walls, segments = _build_walls(room, evidence_file)
         polygon, is_closed = polygon_from_wall_segments(segments)
         if len(polygon) < 3:
-            raise ReconstructionError(f"Could not construct a polygon for room {room.identifier!r}")
+            raise ReconstructionError(
+                f"Could not construct a polygon for room {room.identifier!r}"
+            )
         if not is_closed:
             warnings.append(
                 {
@@ -66,7 +103,9 @@ def _capture_to_floorplan(job: Job, capture: RoomPlanCapture) -> FloorPlan:
                     confidence,
                     evidence_file,
                 ),
-                "area": lidar_area(float(polygon_shape.area), confidence, evidence_file),
+                "area": lidar_area(
+                    float(polygon_shape.area), confidence, evidence_file
+                ),
                 "confidence": LIDAR_UNCERTAINTY[confidence].score,
             }
         )
@@ -209,7 +248,9 @@ def _build_stitch_edges(
     edges: list[dict[str, Any]] = []
     for opening in openings:
         connected = opening.get("connects_room_ids", [])
-        if len(connected) != 2 or any(room_id not in room_centroids for room_id in connected):
+        if len(connected) != 2 or any(
+            room_id not in room_centroids for room_id in connected
+        ):
             continue
         left_room, right_room = connected
         left_center = room_centroids[left_room]
@@ -251,8 +292,12 @@ def _build_stitch_edges(
 def _nearest_wall_id(surface: RoomPlanSurface, walls: list[dict[str, Any]]) -> str:
     center = (surface.pose.center_m[0] * 100.0, surface.pose.center_m[2] * 100.0)
     if not walls:
-        raise ReconstructionError(f"Opening {surface.identifier!r} has no wall to attach to")
-    return min(walls, key=lambda wall: _point_segment_distance(center, wall["a"], wall["b"]))["id"]
+        raise ReconstructionError(
+            f"Opening {surface.identifier!r} has no wall to attach to"
+        )
+    return min(
+        walls, key=lambda wall: _point_segment_distance(center, wall["a"], wall["b"])
+    )["id"]
 
 
 def _offset_along_wall(point: list[float], wall: dict[str, Any]) -> float:
@@ -262,7 +307,13 @@ def _offset_along_wall(point: list[float], wall: dict[str, Any]) -> float:
     length = hypot(delta_x, delta_y)
     if length <= 1e-9:
         return 0.0
-    return max(0.0, min(length, ((point[0] - start_x) * delta_x + (point[1] - start_y) * delta_y) / length))
+    return max(
+        0.0,
+        min(
+            length,
+            ((point[0] - start_x) * delta_x + (point[1] - start_y) * delta_y) / length,
+        ),
+    )
 
 
 def _point_segment_distance(
@@ -285,23 +336,25 @@ def _lowest_confidence(confidences: Any) -> str:
     return min(confidences, key=lambda confidence: ranks[confidence])
 
 
-def _find_roomplan_json(lidar_dir: Path) -> Path:
+def _find_roomplan_json(lidar_dir: Path) -> Path | None:
     for filename in ROOMPLAN_FILENAMES:
         candidate = lidar_dir / filename
         if candidate.is_file():
             return candidate
 
+    return None
+
+
+def _raise_missing_lidar_source(lidar_dir: Path) -> None:
     if any(lidar_dir.glob("*.usdz")):
         raise ReconstructionError(
             "USDZ LiDAR export detected, but T6 requires RoomPlan JSON alongside it.",
             warning_code="unsupported_tier",
         )
-    if (lidar_dir / "metadata").is_file() or (lidar_dir / "metadata.json").is_file() or any(
-        lidar_dir.glob("*.r3d")
-    ):
+    if (lidar_dir / "metadata").is_file() or (lidar_dir / "metadata.json").is_file():
         raise ReconstructionError(
-            "Record3D depth/pose export detected; raw depth fusion awaits a real capture fixture. "
-            "Export RoomPlan JSON alongside it for the current adapter.",
+            "Unpacked Record3D metadata detected; provide the complete original .r3d "
+            "archive so matched RGB, depth, confidence, poses, and intrinsics can be validated.",
             warning_code="unsupported_tier",
         )
     raise ReconstructionError(

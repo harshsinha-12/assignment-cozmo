@@ -13,6 +13,25 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T6a real Record3D decode and validation complete
+
+- Inventoried the partial private upload: three genuine Record3D `.r3d` room archives, 23 unique decodable JPEGs across three room folders (8/8/7), and two valid H.264 1280×720 walkthroughs lasting 68.56 s and 73.91 s. The JPEGs have no EXIF after WhatsApp transfer; both MP4s carry a -90° display transform.
+- Filled the three gitignored private manifests so each job now passes the production loader. The capture remains incomplete: drawing-room video, connector/hallway, repeat capture, tape/laser truth, staged-damage evidence, and two-room incumbent output are missing.
+- Added separate Record3D archive I/O, validation config, bounded validation algorithm, and LZFSE utility modules. The reader validates matched JPEG/depth/confidence indices, timestamps, seven-value poses, four-value per-frame intrinsics, dimensions, and exact decompressed byte counts.
+- The portable path uses `python-lzfse`; macOS can use Compression.framework when the package is absent. Three representative frames per real archive decoded successfully.
+- Real evidence: drawing-room 4,045 frames / 87.44% sampled valid depth; my-room 4,057 / 85.38%; pooja-room 4,235 / 97.23%. These are integrity numbers, not wall-accuracy claims.
+- The CLI now reports exactly what Record3D evidence validated, then stops with structured `unsupported_tier` until T6b fuses points and extracts floor/wall/opening planes.
+- Added four focused tests and `docs/formats/record3d.md`; updated dependencies, code map, ADR, capture-tier docs, device matrix, README, and tasks. All 68 tests, Ruff, compileall, synthetic reproduction, and diff checks pass.
+- Next: T6b metric point-cloud fusion and single-room plane extraction. Do not start benchmark scoring until tape ground truth arrives.
+
+## 2026-09-09 — T20b compliance structure locked
+
+- Audited the complete 27-row compliance matrix against the shipped code and artifacts without changing capture-dependent accuracy claims.
+- Corrected R11 from the undocumented status `implemented` to `done`; the schema and contract tests already require intervals on every scalar measurement.
+- Added a structural regression test that requires R1–R27 exactly once, in order, using only the matrix’s allowed status vocabulary.
+- Verified all 64 tests, Ruff, compileall, fix-loop hashes, the one-command synthetic reproduction, and diff checks. No commit was made.
+- Remaining partial/missing rows genuinely require photo/video/LiDAR, tape, incumbent, or walk-in evidence. No further metric stage is honest before T3 capture; T21 separately needs full Xcode.
+
 ## 2026-09-09 — T17a Route 2 protocol handoff complete
 
 - Audited the promised walk-in handoff against the production job loader. The route referred to a manifest template that did not exist and could be read as claiming raw Record3D compatibility that has not shipped.

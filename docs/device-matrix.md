@@ -5,12 +5,12 @@ Hardware eligibility and runtime support are different claims. “Capture” mea
 | Device | Photos capture | Video capture | LiDAR capture | Current accepted input | Measured accuracy |
 | --- | --- | --- | --- | --- | --- |
 | iPhone 15 / 16 non-Pro | yes | yes | no | JPEG; MOV/MP4 ingest | not measured |
-| iPhone Pro / Pro Max with LiDAR | yes | yes | yes | JPEG; MOV/MP4 ingest; RoomPlan JSON reconstructs | not measured |
-| Harsh's iPhone 17 Pro | yes | yes | yes | Same contracts; benchmark device pending T3 | not measured |
+| iPhone Pro / Pro Max with LiDAR | yes | yes | yes | JPEG; MOV/MP4 ingest; RoomPlan JSON reconstructs; `.r3d` RGB-D decodes | not measured |
+| Harsh's iPhone 17 Pro | yes | yes | yes | Three real `.r3d` room captures validated; photos/video partial | not measured |
 | LiDAR iPad Pro | possible, out of walk-in scope | possible, out of walk-in scope | possible | RoomPlan JSON only | not measured |
 | Android | not claimed | not claimed | not claimed | out of scope | not measured |
 
-Raw Record3D and USDZ are preserved evidence but currently return a structured unsupported-format failure. Update this row only after a real export passes the adapter and evaluation.
+Raw Record3D archives now pass structural, metadata, LZFSE, and sampled-depth validation, but still return a structured failure before wall extraction. USDZ remains unsupported. Neither is an accuracy result.
 
 ## Accuracy we will claim (after eval)
 

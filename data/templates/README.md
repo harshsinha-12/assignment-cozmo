@@ -11,6 +11,7 @@ cp -R data/templates/lidar data/private/benchmark-lidar
 
 Keep the three tiers in separate job directories. The empty input directories
 are intentional; add the original capture files without committing private
-media. The LiDAR template is runnable only with one of the RoomPlan JSON names
-listed in `docs/formats/roomplan-json.md`. Preserve raw Record3D exports too, but
-the raw adapter remains blocked until it is tested against a real export.
+media. RoomPlan JSON produces geometry using one of the names in
+`docs/formats/roomplan-json.md`. Original `.r3d` archives are decoded and
+validated as described in `docs/formats/record3d.md`; plane extraction remains
+pending, so raw Record3D does not yet produce a FloorPlan.

@@ -10,13 +10,13 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R2 | Device matrix | `docs/device-matrix.md` | Hardware eligibility separated from accepted runtime formats and measured accuracy | partial (measurements pending) |
 | R3 | Photos tier, 2–8 stills, no depth/poses, per-room folders, whole-property stitch | `io/photos.py` + `recon/photos.py` | multi-room ingest/count/decode validation works; metric SfM and whole-property output pending | partial |
 | R4 | Video tier, handheld walkthrough | `recon/video.py` + `io/video.py` | Frames sampled; metric VO pending capture | partial |
-| R5 | LiDAR tier, depth+poses+intrinsics | `recon/lidar.py` | RoomPlan JSON → metric FloorPlan works; Record3D raw + real validation pending | partial |
+| R5 | LiDAR tier, depth+poses+intrinsics | `io/record3d.py`, `recon/lidar.py` | RoomPlan JSON → metric FloorPlan works; real Record3D frames/poses/intrinsics decode, plane extraction pending | partial |
 | R6 | Per-room: walls, ceiling, area, openings | schema + lidar recon | RoomPlan fixture emits walls, ceilings, areas, openings | partial |
 | R7 | Stitched multi-room adjacency | `stitch/constraints.py` + `stitch/pose_graph.py` | shared-opening graph + corrected whole-property SVG on synthetic RoomPlan | partial |
 | R8 | Damage regions, class + metric extent | `agent/openai_agent.py` + `agent/tools.py` | live/fallback `damage[]` works on synthetic observations; real images pending | partial |
 | R9 | Concealed-damage flags + rule id | `agent/tools.py::fire_concealed_rule` | policy-validated `concealed_flags[]` generated live and offline | done |
 | R10 | Scope line items keyed to surfaces | `agent/tools.py::add_scope_line` | quantity copied from metric damage observation; generated live and offline | done |
-| R11 | Confidence interval on every measurement | schema | v0.2 `{value, unit, interval}` measurement objects | implemented |
+| R11 | Confidence interval on every measurement | `docs/schemas/floorplan.schema.json` + `tests/test_schema.py` | v0.2 `{value, unit, interval}` measurement objects required and tested | done |
 | R12 | One command per capture | `src/cozmo_floorplan/cli.py` | command runs and emits structured JSON; successful adapters pending | partial |
 | R13 | JSON to published schema | `docs/schemas/floorplan.schema.json` | our IR until they attach one | partial |
 | R14 | Rendered plan | `src/cozmo_floorplan/render/svg.py` + `src/cozmo_floorplan/io/artifacts.py` | CLI-generated `floorplan.svg`; synthetic visual QA passed | done |

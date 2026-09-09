@@ -4,6 +4,20 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-09 — Decode Record3D first; fit geometry in a separate stage
+
+**Context:** Three real `.r3d` room captures are now available. Each is a ZIP
+containing thousands of matched JPEG, LZFSE float-depth, and confidence frames,
+plus timestamps, metric poses, and per-frame intrinsics.
+
+**Decision:** T6a adds a typed archive/decompression boundary and bounded real
+capture validation. T6b will own point-cloud fusion and plane extraction. The
+CLI reports the validated evidence but remains structurally failed until T6b,
+so decoded sensor data is not mislabeled as a dimensioned floor plan.
+
+**Consequence:** Format uncertainty is removed and the guaranteed Route 2 input
+is readable. No wall/opening/ceiling accuracy is claimed before tape-backed eval.
+
 ## 2026-09-09 — Plane-anchor shared openings; always emit a poses-as-is ablation
 
 **Context:** The official drift gate rejects RoomPlan poses used unchanged. No real repeated capture exists yet, but the synthetic two-room RoomPlan fixture can carry a controlled transform error.

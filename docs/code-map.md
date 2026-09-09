@@ -20,12 +20,14 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/io/job.py` | Reads `manifest.yaml`, checks the tier-specific job directory, and produces immutable normalized job metadata. |
 | `src/cozmo_floorplan/io/photos.py` | Discovers stable per-room image sets, decodes every supported image, and records immutable path/dimension metadata. |
 | `src/cozmo_floorplan/io/video.py` | Discovers MP4/MOV walkthroughs and samples RGB frames with OpenCV at a bounded rate. |
+| `src/cozmo_floorplan/io/record3d.py` | Validates `.r3d` ZIP members and metadata, indexes matched modalities, and decodes typed RGB/depth/confidence frames. |
 | `src/cozmo_floorplan/io/output.py` | Reusable atomic UTF-8 text and JSON persistence, plus the compatibility `floorplan.json` writer. |
 | `src/cozmo_floorplan/io/artifacts.py` | Validates once, renders in memory, and persists the paired `floorplan.json` and `floorplan.svg` run artifacts. |
 | `src/cozmo_floorplan/floorplan.py` | Creates stable FloorPlan documents, including the schema-valid failed result used before adapters exist. |
 | `src/cozmo_floorplan/schema.py` | Loads and compiles the canonical JSON Schema and validates generated documents. |
 | `src/cozmo_floorplan/utils/paths.py` | Finds repository runtime assets and handles the explicit schema-path override. |
 | `src/cozmo_floorplan/utils/env.py` | Loads simple local `.env` values without overriding variables already exported by the caller. |
+| `src/cozmo_floorplan/utils/lzfse.py` | Decodes Record3D LZFSE blocks through python-lzfse or the macOS system Compression framework and enforces exact output sizes. |
 | `docs/schemas/floorplan.schema.json` | Canonical external data contract. This remains the single schema source of truth. |
 
 ## Geometry and LiDAR reconstruction
@@ -38,8 +40,11 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/io/roomplan.py` | Parses the portable single- or multi-room RoomPlan JSON contract into typed immutable capture objects. |
 | `src/cozmo_floorplan/recon/lidar_config.py` | LiDAR confidence scores, uncertainty widths, and recognized RoomPlan filenames. |
 | `src/cozmo_floorplan/recon/measurements.py` | Builds interval-bearing LiDAR and derived diagnostic measurements without treating transforms as exact. |
-| `src/cozmo_floorplan/recon/lidar.py` | Converts RoomPlan rooms, walls, openings, and adjacency into FloorPlan v0.2; detects unsupported Record3D/USDZ inputs. |
+| `src/cozmo_floorplan/recon/lidar.py` | Converts RoomPlan surfaces into FloorPlan v0.2; dispatches real Record3D archives through integrity validation and stops before unfinished plane extraction. |
+| `src/cozmo_floorplan/recon/record3d_config.py` | Keeps Record3D integrity-sampling count and valid metric depth range out of archive and algorithm code. |
+| `src/cozmo_floorplan/recon/record3d_validation.py` | Decodes bounded representative RGB-D frames and reports valid-depth coverage, range, and camera-trajectory extent without claiming walls. |
 | `docs/formats/roomplan-json.md` | Public input contract for the tested RoomPlan JSON adapter. |
+| `docs/formats/record3d.md` | Documents the tested raw Record3D archive contract, decompression path, and current plane-extraction boundary. |
 | `src/cozmo_floorplan/recon/photos_config.py` | Official 2–8 photo count, accepted extensions, and minimum image-size settings. |
 | `src/cozmo_floorplan/recon/photos.py` | Photo-tier boundary: validates every room folder and refuses metric output until SfM, adjacency, and scale exist. |
 | `docs/formats/photo-job.md` | Public per-room photo job layout and current metric-reconstruction boundary. |
@@ -133,9 +138,11 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `data/fixtures/synthetic_two_room/` | Small public-safe metric truth used by schema and later evaluation tests. |
 | `data/fixtures/roomplan_two_room/` | Synthetic RoomPlan-format LiDAR job that reconstructs the same metric room dimensions. |
 | `tests/test_lidar.py` | Tests single/multi-room discovery, RoomPlan conversion, intervals, metric gates, CLI output, and honest unsupported fallbacks. |
+| `tests/test_record3d.py` | Tests Record3D metadata/index validation, typed RGB-D decoding, integrity summaries, and exact LZFSE output checks. |
 | `tests/test_render.py` | Tests parseable whole-property SVG, dimensions, openings, deterministic output, XML escaping, and failed-run placeholders. |
 | `tests/test_photos.py` | Tests room discovery, the official 2–8 count, corrupt-image rejection, multi-room ordering, and honest metric refusal using generated JPEGs. |
 | `tests/test_fix_loop.py` | Validates the frozen failing gate and ensures checksum verification catches artifact tampering. |
+| `tests/test_compliance.py` | Ensures all 27 compliance rows remain present, ordered, unique, and within the documented status vocabulary. |
 | `tests/test_agent.py` | Tests fallback and mocked-live agents, metric ownership, rule validation, transactional rollback, and schema-valid claims output. |
 | `tests/test_agent_status_policy.py` | Unit-tests explicit versus automatic fallback status semantics and ensures fallback never upgrades an already-partial run. |
 | `tests/test_stitch.py` | Tests correction-on/off metadata, ablation artifacts, injected 20 cm opening-gap closure, and the drift eval gate. |

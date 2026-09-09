@@ -38,9 +38,9 @@ data/private/benchmark/
     poses.json                  # optional ARKit/Record3D cameras
   lidar/
     roomplan.json               # if an exporter exists
-    # else Record3D: metadata.json, depth, .r3d — still a structured fail until T6
+    # else Record3D: original .r3d archive — decoded/validated; plane extraction pending
   extras/
     tape.jpg                    # photo of laser/tape on a wall
 ```
 
-Video contract: `docs/formats/video-job.md`. Photo contract: `docs/formats/photo-job.md`; capture instructions remain in `docs/capture-protocol.md` and `docs/capture-route.md`. LiDAR JSON: `docs/formats/roomplan-json.md`.
+Video contract: `docs/formats/video-job.md`. Photo contract: `docs/formats/photo-job.md`; capture instructions remain in `docs/capture-protocol.md` and `docs/capture-route.md`. LiDAR inputs: `docs/formats/roomplan-json.md` and `docs/formats/record3d.md`.

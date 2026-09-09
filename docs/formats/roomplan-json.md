@@ -37,4 +37,7 @@ See `data/fixtures/roomplan_two_room/lidar/roomplan.json` for the executable exa
 
 ## Current boundary
 
-This is a tested RoomPlan surface adapter, not a generic `.r3d` or USDZ decoder. Raw Record3D and USDZ files are detected and return structured unsupported warnings until a real export fixture is available. Do not claim the guaranteed Route 2 LiDAR path is walk-in-ready yet.
+This is the tested RoomPlan surface adapter, not the raw `.r3d` or USDZ path.
+Record3D archives have their own decoded input contract in
+`docs/formats/record3d.md`, but still stop before plane extraction. USDZ remains
+unsupported. Do not call Route 2 walk-in-ready until raw geometry and eval pass.

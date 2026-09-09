@@ -45,7 +45,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 ## Current status
 
-**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, and one-command synthetic reproduction work. Metric video/photos and raw Record3D await capture.**
+**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, and one-command synthetic reproduction work. Real Record3D archives now decode and validate; raw point-cloud plane extraction and metric video/photos remain.**
 
 See [`roadmap.md`](roadmap.md).
 
@@ -81,7 +81,7 @@ The synthetic RoomPlan job now emits dimensioned geometry:
 python -m cozmo_floorplan run data/fixtures/roomplan_two_room --out out/roomplan_two_room
 ```
 
-For multi-room jobs, the normal run plane-anchors shared openings and also writes `floorplan.ablation-off.json` with reconstructed poses preserved. Use `--no-drift-correction` to generate only that poses-as-is path. Explicit, successful deterministic-agent mode preserves healthy status; automatic missing-key or provider-failure fallback remains `partial`. Geometry correction status is recorded separately under `stitch.drift_correction`. The SVG shows room polygons, measured wall intervals, openings, a metric scale bar, and provenance summary. See `docs/formats/roomplan-json.md` for accepted input and current Record3D/USDZ boundaries.
+For multi-room jobs, the normal run plane-anchors shared openings and also writes `floorplan.ablation-off.json` with reconstructed poses preserved. Use `--no-drift-correction` to generate only that poses-as-is path. Explicit, successful deterministic-agent mode preserves healthy status; automatic missing-key or provider-failure fallback remains `partial`. Geometry correction status is recorded separately under `stitch.drift_correction`. The SVG shows room polygons, measured wall intervals, openings, a metric scale bar, and provenance summary. See `docs/formats/roomplan-json.md` and `docs/formats/record3d.md` for accepted inputs and current boundaries.
 
 The optional `damage_observations.json` contract supplies surface-mapped metric extents to the claims stage. The LLM can select damage classes, concealed-rule ids, and allowed actions, but tools copy all quantities. See `docs/formats/damage-observations.md`.
 

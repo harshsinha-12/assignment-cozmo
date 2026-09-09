@@ -23,7 +23,13 @@ WWDC 2022 session 10127; WWDC 2023 session 10192.
 
 Apple documents RoomPlan walls as `CapturedRoom.Surface` values; surfaces expose metric dimensions and a 4×4 transform. T6 therefore normalizes those fields into the explicit portable contract in `docs/formats/roomplan-json.md` rather than depending on an undocumented JSONEncoder layout. Sources: [CapturedRoom walls](https://developer.apple.com/documentation/roomplan/capturedroom/walls), [surface/object positioning fields](https://developer.apple.com/documentation/roomplan/capturedroom/object/dimensions).
 
-Record3D's official streaming API exposes a float depth frame, confidence frame, camera intrinsics `(fx, fy, tx, ty)`, and pose `(qx, qy, qz, qw, tx, ty, tz)`. The project owner also confirms that `.r3d` metadata contains poses and uses a right-handed OpenGL coordinate system. Sources: [official Python demo](https://github.com/marek-simonik/record3d/blob/master/demo-main.py), [official structs](https://github.com/marek-simonik/record3d/blob/master/include/record3d/Record3DStructs.h), [format clarification](https://github.com/marek-simonik/record3d/issues/59). T6 detects these exports but does not decode/fuse raw depth without a real fixture.
+Record3D's official streaming API exposes a float depth frame, confidence frame, camera intrinsics `(fx, fy, tx, ty)`, and pose `(qx, qy, qz, qw, tx, ty, tz)`. The project owner also confirms that `.r3d` metadata contains poses and uses a right-handed OpenGL coordinate system. Sources: [official Python demo](https://github.com/marek-simonik/record3d/blob/master/demo-main.py), [official structs](https://github.com/marek-simonik/record3d/blob/master/include/record3d/Record3DStructs.h), [format clarification](https://github.com/marek-simonik/record3d/issues/59).
+
+Three September 9 captures established the on-disk contract: `.r3d` is a ZIP
+with JSON `metadata`, matched `rgbd/<index>.jpg/.depth/.conf`, float32-metre
+depth compressed with LZFSE, uint8 confidence compressed with LZFSE, and one
+pose/intrinsic/timestamp row per frame. T6a decodes and validates this; T6b must
+still fuse the points and fit planes.
 
 ## Libraries (Python, Cloud-Agent friendly first)
 
