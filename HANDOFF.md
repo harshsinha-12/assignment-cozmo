@@ -12,34 +12,28 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Completed **T20c**, the final multi-tier benchmark/readiness runner.
-- Added safe manifest/config/readiness/report/runner modules, CLI and Make
-  entrypoints, a public template, tests, code map, README, and capture preflight.
-- Ran the real partial private root: all three primary jobs executed and four
-  required evidence classes remain pending. No commit was made.
-- Completed **T7g**, conservative calibrated-video room fitting and FloorPlan
-  conversion.
-- Added separate room, measurement, output, and test modules. The pipeline now
-  returns successful video adapter output instead of discarding it.
-- Sidecar v1.2 identifies its ARKit/ARCore scale source and shared tracking
-  frame. Incomplete surfaces and unrelated frames are refused. No commit was
-  made.
-- Completed **T7f**, calibrated sparse metric video triangulation and diagnostic
-  surface candidates.
-- Added a backward-compatible pose-sidecar v1.1 contract with display-oriented
-  intrinsics and explicit OpenCV camera axes. Only accepted aligned segments
-  with exact pose matches may triangulate.
-- Added separate triangulation, sparse-surface, point-cloud utility, and test
-  modules; documented each in the code map and locked the remaining pre-upload
-  stages in `TASKS.md`. No commit was made.
-- Completed **T8b**, deterministic photo overlap and evidence-graph qualification against the real upload.
-- Added separate photo feature/matching utilities, overlap configuration, and graph algorithm modules.
-- Within-room edges build connected components; stricter cross-room matches produce connector candidates only, never asserted adjacency.
-- Added connected/unrelated/featureless synthetic tests; updated the adapter, code map, photo docs, compliance row, ADR, roadmap, README, and task queue. No commit was made.
+- Completed **T21a**, the optional Route 1 single-room iOS RoomPlan exporter
+  foundation after Xcode 26.6 became available.
+- Added a native iOS 17 SwiftUI app with separate configuration, portable data
+  models, RoomPlan adapter, atomic exporter, capture state/store, UIKit bridge,
+  view, project, shared scheme, and contract test files.
+- The app captures a processed `CapturedRoom`, preserves metric surface
+  dimensions and column-major transforms, and shares `roomplan.json` in the
+  exact contract already accepted by the Python LiDAR adapter.
+- Added unsupported-device handling, repeat-scan behavior, build/install/export
+  instructions, device-matrix status, README status, and a complete code map.
+- No commit was made.
 
 ### What is true now
 
 - Product: local CLI. Folder in → JSON + SVG out. No Redis, no our servers.
+- Route 2 remains the default/scored capture route. T21 Route 1 is parallel and
+  must not replace it until a signed device install completes in under 10
+  minutes.
+- The T21a app and XCTest target compile for the iOS Simulator SDK; the app also
+  builds for generic arm64 iPhoneOS without signing. No simulator runtime is
+  installed, so the compiled XCTest has not been executed. RoomPlan sensing and
+  sharing have not yet been exercised on the iPhone.
 - Plane-anchored stitch + regenerable `floorplan.ablation-off.json` work on the two-room RoomPlan fixture. Drift gate passes when that ablation is supplied.
 - Video jobs ingest every MP4/MOV in stable order, retain source-frame/time identity, qualify relative-VO evidence, recover disconnected unitless pose segments, and strictly validate/align optional metric camera poses. Calibrated v1.2 sidecars can now emit conservative partial rooms/walls after complete surface qualification.
 - Photo jobs validate one folder per room, 2–8 decodable images, stable identity, and all-pairs geometric overlap. Disconnected evidence now returns actionable `insufficient_overlap` before SfM.
@@ -74,33 +68,39 @@ The current agent overwrites the **Current handoff** section at the end of every
 - T6 calibration/repeatability/shared-opening hardening remains blocked on the human capture remainder.
 - T7 room/FloorPlan conversion is implemented synthetically; current captures lack calibrated v1.2 pose sidecars. Video openings, shared-room constraints, interval calibration, and the official ±3% evaluation remain media-dependent.
 - T8c metric SfM is blocked on a photo reshoot with overlapping intermediate views and doorway/connector evidence. Do not loosen the evidence thresholds to force the current capture through.
-- T21: full Xcode.app (this machine has Command Line Tools only).
+- T21b: multi-room capture/merge, Apple-team signing, device install, real
+  RoomPlan export round-trip through the Python CLI, and timed under-10-minute
+  installation remain.
 - Metric video VO and photo SfM/adjacency/interval calibration need the actual media.
 
 ### Next agent should
 
-1. Wait for/ingest the remaining **T3** capture and evidence, then run `make benchmark`.
-2. Start T8c only if every reshot photo room graph connects and connector candidates exist; otherwise report the measured reshoot defect.
-3. Use the first complete benchmark to choose the worst measured gate for the next code fix. Do not score accuracy without tape truth.
+1. Review T21a, then start T21b multi-room/session accumulation and signed
+   iPhone installation as its own stage.
+2. Wait for/ingest the remaining **T3** capture and evidence, then run
+   `make benchmark`.
+3. Start T8c only if every reshot photo room graph connects and connector
+   candidates exist; otherwise report the measured reshoot defect.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `src/cozmo_floorplan/benchmark/runner.py`
-3. `data/templates/benchmark.yaml`
-4. `out/benchmark/benchmark-summary.md`
-5. `docs/capture-protocol.md`
+2. `ios/CozmoCapture/README.md`
+3. `ios/CozmoCapture/CozmoCapture/Capture/RoomCaptureStore.swift`
+4. `ios/CozmoCapture/CozmoCapture/Export/RoomPlanAdapter.swift`
+5. `docs/formats/roomplan-json.md`
 
 ### Exact next command
 
-```text
-make benchmark
+```bash
+open ios/CozmoCapture/CozmoCapture.xcodeproj
 ```
 
 ---
 
 ## History
 
+- **2026-09-09** — T21a single-room iOS RoomPlan exporter foundation complete; device/multi-room T21b remains.
 - **2026-09-09** — T20c final benchmark runner complete; real partial audit reports exactly four missing evidence classes.
 - **2026-09-09** — T7g conservative calibrated-video room/FloorPlan path complete; current native MP4s remain sidecar-blocked.
 - **2026-09-09** — T7f calibrated sidecar-backed sparse metric triangulation and diagnostic floor/wall candidates complete; current Camera MP4s remain uncalibrated.

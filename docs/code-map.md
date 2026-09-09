@@ -13,6 +13,25 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/config.py` | Shared artifact filenames (including the drift-ablation filename), schema version, supported tiers, directory conventions, and exit-code constants. |
 | `src/cozmo_floorplan/errors.py` | Expected domain exception types. Keeps error classification out of command and I/O code. |
 
+## Optional iOS capture app (T21)
+
+| File | Responsibility |
+| --- | --- |
+| `ios/CozmoCapture/CozmoCapture.xcodeproj/project.pbxproj` | Buildable iOS 17 application and unit-test target definition. |
+| `ios/CozmoCapture/CozmoCapture.xcodeproj/xcshareddata/xcschemes/CozmoCapture.xcscheme` | Shared build/test/run scheme used by Xcode and command-line verification. |
+| `ios/CozmoCapture/CozmoCapture/App/CozmoCaptureApp.swift` | SwiftUI application entry point. |
+| `ios/CozmoCapture/CozmoCapture/Config/AppConfig.swift` | Portable format, export filename, directory, and default room-label constants. |
+| `ios/CozmoCapture/CozmoCapture/Models/PortableRoomPlan.swift` | Codable DTOs for the exact portable RoomPlan JSON v1 contract consumed by Python. |
+| `ios/CozmoCapture/CozmoCapture/Export/RoomPlanAdapter.swift` | Converts Apple `CapturedRoom` surfaces and column-major transforms into portable DTOs. |
+| `ios/CozmoCapture/CozmoCapture/Export/RoomPlanExporter.swift` | Deterministically encodes JSON and atomically writes it in the app Documents directory. |
+| `ios/CozmoCapture/CozmoCapture/Capture/CaptureState.swift` | Small capture-state model and operator-facing guidance text. |
+| `ios/CozmoCapture/CozmoCapture/Capture/RoomCaptureStore.swift` | Owns RoomPlan session commands, processed-room handling, export state, and errors. |
+| `ios/CozmoCapture/CozmoCapture/Capture/RoomCaptureContainer.swift` | Bridges `RoomCaptureView` and its delegate into SwiftUI. |
+| `ios/CozmoCapture/CozmoCapture/Views/CaptureView.swift` | Capture controls, progress/error status, repeat-scan action, and system share sheet. |
+| `ios/CozmoCapture/CozmoCapture/Info.plist` | Camera purpose string, display name, launch metadata, and portrait orientation. |
+| `ios/CozmoCapture/CozmoCaptureTests/PortableRoomPlanTests.swift` | Compiled unit contract test for format metadata, metric dimensions, and transform layout. |
+| `ios/CozmoCapture/README.md` | Build, phone-install, capture, export-placement, and current single-room boundary instructions. |
+
 ## Contract and I/O
 
 | File | Responsibility |

@@ -42,10 +42,11 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 | `docs/reproduction.md` | Clean-environment commands, timings, assertions, and remaining proof |
 | `docs/schemas/floorplan.schema.json` | Frozen v0.2 IR: interval measurements + claims objects |
 | `src/` | Modular CLI, RoomPlan reconstruction, eval, and SVG rendering package |
+| `ios/CozmoCapture/` | Optional T21 native RoomPlan capture/export app and install guide |
 
 ## Current status
 
-**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, multi-video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, and one-command synthetic reproduction work. Calibrated video sidecars can produce conservative partial room geometry; photos have deterministic within/cross-room overlap graphs; real Record3D emits partial metric geometry. Video openings/shared constraints, photo SfM, cross-scan registration, calibration, and scored accuracy remain.**
+**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, multi-video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, one-command synthetic reproduction, and the T21a iOS single-room RoomPlan exporter work. Calibrated video sidecars can produce conservative partial room geometry; photos have deterministic within/cross-room overlap graphs; real Record3D emits partial metric geometry. Video openings/shared constraints, photo SfM, cross-scan registration, calibration, scored accuracy, and the signed multi-room T21 install remain.**
 
 See [`roadmap.md`](roadmap.md).
 

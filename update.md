@@ -13,6 +13,23 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T21a iOS RoomPlan exporter foundation complete
+
+- Xcode 26.6 is now active at `/Applications/Xcode.app/Contents/Developer`.
+- Added a modular iOS 17 SwiftUI app for one-room native RoomPlan capture,
+  portable RoomPlan JSON v1 serialization, atomic local export, and system
+  sharing. The JSON preserves metres and column-major transforms for the
+  existing Python adapter.
+- Added a shared Xcode scheme, explicit camera usage text, unsupported-device
+  handling, repeat capture, compiled contract test, app README, device matrix,
+  root README status, and complete `docs/code-map.md` entries.
+- Verified Swift formatting; simulator app build, simulator test-target build,
+  and unsigned generic iPhoneOS build all succeed. The host has no installed
+  simulator runtime, so XCTest execution and real RoomPlan sensing wait on
+  T21b device work.
+- Next: review this stage, then T21b multi-room accumulation plus signed iPhone
+  install/export/CLI round-trip and the under-10-minute install rehearsal.
+
 ## 2026-09-09 — T20c final benchmark runner complete
 
 - Added a safe root-relative `benchmark.yaml` contract and separate config,

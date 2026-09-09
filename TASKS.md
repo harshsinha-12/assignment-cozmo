@@ -19,7 +19,7 @@ those eval inputs.
 
 | ID | Can finish now? | What to do without uploads |
 | --- | --- | --- |
-| **T21** | Yes, if Xcode.app | Thin iOS RoomPlan exporter. Blocked on full Xcode, **not** on captures. Command Line Tools only → skip. |
+| **T21** | **T21a done** | Thin iOS RoomPlan exporter. Xcode 26.6 is active; the single-room capture/export foundation builds. Device install and multi-room T21b remain. |
 | **T10** | **Draft done** | Architecture, tier design, drift, error budget, calibration, agent, fix loop, and known failures are drafted. Final real benchmark tables wait on T3. |
 | **T20** | **Pre-shoot code done** | T20a reproduction, T20b audit, and T20c one-command benchmark/readiness runner are verified; measured coverage remains T3-dependent. |
 | **T17** | **Protocol stage done** | Route 2 operator card, loader-checked per-tier templates, and honest runtime/device matrix ship; measured intervals remain T3-dependent. |
@@ -45,7 +45,7 @@ advance against the partial upload.
 | T9 | done | Stitch + drift correction + on/off ablation | T6 | no | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
 | T7 | doing | Video path | T6 | two of three room videos present | T7b–T7g calibrated room/FloorPlan path done; current videos lack sidecars, and openings/stitch/calibrated ±3% evidence remain |
 | T8 | doing | Photos path, 2–8 stills, folder stitch | — | 23 photos present but overlap fails | T8a ingest + T8b overlap graph done; current rooms have 4/6/6 components and zero connector candidates; reshoot blocks SfM |
-| T21 | todo | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | Xcode.app | no | Parallel. Scored route stays Route 2 until install works |
+| T21 | doing | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | no | T21a single-room portable JSON app builds; T21b multi-room + signed phone install remain. Scored route stays Route 2 until install works |
 | T17 | doing | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | T17a protocol/templates done; walk-in validation and measured rows wait on T3 |
 | T18 | todo | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | **yes** | Beat/tie ≥ 70% shared dims |
 | T10 | doing | Technical report ≤ 6 pages + benchmark tables | T19 | draft **no**; tables **yes** | 1,805-word engineering draft complete; real benchmark/repeat/incumbent/timing tables remain T3-dependent |
@@ -76,11 +76,11 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-**Pre-shoot code boundary reached.** No remaining task is both unblocked and
-independent of new capture evidence or full Xcode.app. Run `make benchmark`,
-complete T3, then use its reported failures to unlock T6/T7/T8 calibration and
-the remaining scored evidence. Do not loosen T8b thresholds to force the
-current photos to pass.
+**Pre-shoot Python boundary reached.** T21a is now complete because full Xcode
+became available. The next media-independent stage is T21b multi-room capture
+and a signed 10-minute phone-install rehearsal. Separately, complete T3 and run
+`make benchmark` to unlock T6/T7/T8 calibration and the remaining scored
+evidence. Do not loosen T8b thresholds to force the current photos to pass.
 
 ### Media-ready freeze sequence
 
@@ -110,6 +110,7 @@ scaffolding. Minor fixes after real captures remain normal and allowed.
 
 ## Done
 
+- **2026-09-09 T21a iOS RoomPlan exporter foundation** — Buildable iOS 17 SwiftUI app, native RoomPlan capture, explicit portable JSON v1 conversion, atomic local export/system share, unsupported-device guard, compiled contract test, operator README, and code map. Simulator app and test targets compile; on-phone sensing/install remains T21b.
 - **2026-09-09 T20c final benchmark runner** — Safe root-relative benchmark manifest, three-tier/repeat orchestration, per-tier JSON/SVG/eval output, readiness checks for truth/repeat/incumbent/damage, JSON and Markdown status artifacts, CLI/Make target, templates, and pending/complete tests. Current private audit runs all three tiers and reports exactly four missing evidence classes.
 - **2026-09-09 T7g conservative video FloorPlan** — Backward-compatible sidecar v1.2, rotated Manhattan yaw search, floor/ceiling and camera-bracketing wall qualification, shared-world-frame enforcement, candidate-stage intervals, schema-valid room/wall conversion, main-pipeline return/enrichment, and synthetic rejection/integration tests. Openings, adjacency, interval calibration, and real ±3% evidence remain media-dependent.
 - **2026-09-09 T7f calibrated video triangulation** — Sidecar v1.1 display intrinsics and camera-axis contract, accepted-segment/exact-pose guards, calibrated two-view metric triangulation, depth/reprojection/ray-angle filters, voxelization, sparse floor/wall support diagnostics, and synthetic metric regressions. Schema v1.0 and current native MP4s remain uncalibrated; no wall dimensions emitted.
