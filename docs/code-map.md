@@ -19,7 +19,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | --- | --- |
 | `src/cozmo_floorplan/io/job.py` | Reads `manifest.yaml`, checks the tier-specific job directory, and produces immutable normalized job metadata. |
 | `src/cozmo_floorplan/io/photos.py` | Discovers stable per-room image sets, decodes every supported image, and records immutable path/dimension metadata. |
-| `src/cozmo_floorplan/io/video.py` | Discovers MP4/MOV walkthroughs and samples RGB frames with OpenCV at a bounded rate. |
+| `src/cozmo_floorplan/io/video.py` | Discovers every MP4/MOV walkthrough, reads typed container/display metadata, disables backend auto-rotation, and returns bounded display-oriented RGB samples with stable video identity. |
 | `src/cozmo_floorplan/io/record3d.py` | Validates `.r3d` ZIP members and metadata, indexes matched modalities, and decodes typed RGB/depth/confidence frames. |
 | `src/cozmo_floorplan/io/output.py` | Reusable atomic UTF-8 text and JSON persistence, plus the compatibility `floorplan.json` writer. |
 | `src/cozmo_floorplan/io/artifacts.py` | Validates once, renders in memory, and persists the paired `floorplan.json` and `floorplan.svg` run artifacts. |
@@ -29,6 +29,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/utils/env.py` | Loads simple local `.env` values without overriding variables already exported by the caller. |
 | `src/cozmo_floorplan/utils/lzfse.py` | Decodes Record3D LZFSE blocks through python-lzfse or the macOS system Compression framework and enforces exact output sizes. |
 | `src/cozmo_floorplan/utils/sampling.py` | Produces deterministic, inclusive evenly spaced frame indices without capture-specific policy. |
+| `src/cozmo_floorplan/utils/images.py` | Applies explicit clockwise quarter-turn transformations to image arrays without capture-specific policy. |
 | `docs/schemas/floorplan.schema.json` | Canonical external data contract. This remains the single schema source of truth. |
 
 ## Geometry and LiDAR reconstruction
@@ -56,8 +57,8 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/recon/photos_config.py` | Official 2–8 photo count, accepted extensions, and minimum image-size settings. |
 | `src/cozmo_floorplan/recon/photos.py` | Photo-tier boundary: validates every room folder and refuses metric output until SfM, adjacency, and scale exist. |
 | `docs/formats/photo-job.md` | Public per-room photo job layout and current metric-reconstruction boundary. |
-| `src/cozmo_floorplan/recon/video_config.py` | Sample rate, frame caps, extensions, and pose-sidecar filenames. |
-| `src/cozmo_floorplan/recon/video.py` | Video-tier adapter: samples a walkthrough, detects pose sidecars, refuses uncalibrated centimetres. |
+| `src/cozmo_floorplan/recon/video_config.py` | Sample rate, per-video frame caps, display-rotation tolerance, extensions, and global/per-video pose-sidecar naming. |
+| `src/cozmo_floorplan/recon/video.py` | Video-tier adapter: samples every room walkthrough, associates unambiguous sidecars, reports orientation/duration diagnostics, and refuses uncalibrated centimetres. |
 | `docs/formats/video-job.md` | Public video job layout and metric boundary. |
 
 ## Stitching and drift correction
@@ -158,7 +159,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `tests/test_agent.py` | Tests fallback and mocked-live agents, metric ownership, rule validation, transactional rollback, and schema-valid claims output. |
 | `tests/test_agent_status_policy.py` | Unit-tests explicit versus automatic fallback status semantics and ensures fallback never upgrades an already-partial run. |
 | `tests/test_stitch.py` | Tests correction-on/off metadata, ablation artifacts, injected 20 cm opening-gap closure, and the drift eval gate. |
-| `tests/test_video.py` | Tests empty video jobs, generated-mp4 frame sampling, pose-sidecar mention, and honest metric refusal. |
+| `tests/test_video.py` | Tests empty/short jobs, multi-video identity, per-video versus ambiguous sidecars, explicit display rotation, generated-MP4 sampling, and honest metric refusal. |
 | `tests/test_capture_templates.py` | Loads every public handoff template through the production job loader and checks that tiers use separate job ids/directories. |
 | `tests/conftest.py` | Forces offline fallback during tests so local API keys are never used and tests never spend credits. |
 

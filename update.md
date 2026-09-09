@@ -13,6 +13,15 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T7b multi-video orientation-aware ingest complete
+
+- Refactored video ingest around immutable `VideoMetadata` and `SampledVideo` records. Every sorted room walkthrough is now sampled; the filename stem remains its stable identity instead of silently selecting only the first file.
+- Added a capture-independent quarter-turn image utility. OpenCV backend auto-rotation is disabled, container rotation is normalized within a configured tolerance and applied once, and native/display sizes are recorded. Unsupported metadata or failure to disable auto-rotation becomes a structured capture error.
+- Added stem-specific pose-sidecar names for multi-video jobs. The old global names remain valid for one video but are reported as ambiguous when several walkthroughs exist.
+- Real results at about 2 Hz: `my-room.mp4` → 138 upright 720×1280 RGB samples over 68.56 s; `pooja-room.mp4` → 148 over 73.91 s. OpenCV reports both as 90° clockwise. These are ingest diagnostics, not metric geometry.
+- Added three tests for multi-video identity/sidecars, explicit rotation application, and invalid non-quarter-turn rejection. All 83 tests, Ruff, touched-file formatting, compileall, synthetic reproduction, private two-video smoke, and `git diff --check` pass. No commit was made.
+- Next: T7c deterministic feature-track, match/inlier, parallax, and coverage diagnostics. Continue refusing centimetres until metric pose/scale evidence exists.
+
 ## 2026-09-09 — T6b3 Record3D partial FloorPlan complete
 
 - Added vectorized segment coordinates, separate opening-profile configuration/algorithm, Record3D-specific uncalibrated measurements, and a dedicated FloorPlan converter. The LiDAR adapter now orchestrates these modules instead of ending in `unsupported_tier`.

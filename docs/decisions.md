@@ -4,6 +4,22 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-09 — Apply video display rotation exactly once
+
+**Context:** Both uploaded iPhone MP4 files store 1280×720 encoded frames plus a
+display transform. OpenCV reports `90` degrees clockwise and, by default, may
+auto-rotate to 720×1280. Relying on backend defaults risks sideways frames on
+one machine or double rotation on another.
+
+**Decision:** Disable backend auto-rotation before decoding, normalize metadata
+to a supported quarter turn, apply that transform explicitly, and record native
+and display dimensions. Process every sorted video and bind pose sidecars by
+filename stem; a global sidecar is ambiguous when multiple videos exist.
+
+**Consequence:** The two real room videos deterministically produce upright
+720×1280 RGB samples with separate identities. The adapter still refuses metric
+geometry until tracking plus a validated scale/pose source exists.
+
 ## 2026-09-09 — Preserve separate Record3D world poses without claiming registration
 
 **Context:** The upload contains one `.r3d` archive per room. Each archive has

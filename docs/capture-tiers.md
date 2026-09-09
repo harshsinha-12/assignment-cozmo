@@ -36,6 +36,13 @@ Floor extraction: accumulate a point cloud or occupancy from tracked wall/floor 
 
 **Failure modes:** motion blur, rolling shutter, pure rotation, featureless paint, people walking through. Fallback: tell the user to re-walk slower; return partial rooms.
 
+**Current implementation:** T7b discovers every room video, keeps filename-stem
+identity, samples each at about 2 Hz, disables OpenCV auto-rotation, and applies
+the container quarter-turn exactly once. Per-video pose sidecars are associated
+by stem; global sidecars are accepted only for a single walkthrough. The current
+two iPhone files normalize to 720×1280 portrait frames. Feature tracking, metric
+scale, and FloorPlan output remain.
+
 ## Tier P — Photos
 
 Hardest. Needs overlap (rule of thumb: 60%+ , ring around the room, shots through doorways for stitch).
