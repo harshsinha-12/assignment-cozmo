@@ -81,23 +81,14 @@ def _capture_to_floorplan(job: Job, capture: RoomPlanCapture) -> FloorPlan:
         )
 
     stitch_edges = _build_stitch_edges(openings, room_centroids, evidence_file)
-    multi_room_without_drift_fix = len(rooms) > 1
-    if multi_room_without_drift_fix:
+    if len(rooms) > 1 and len(stitch_edges) < len(rooms) - 1:
         warnings.append(
             {
-                "code": "low_confidence",
-                "message": "Multi-room RoomPlan transforms are used as-is; T9 drift correction is not implemented.",
+                "code": "disconnected_rooms",
+                "message": "RoomPlan openings do not connect every reconstructed room.",
                 "refs": [evidence_file],
             }
         )
-        if len(stitch_edges) < len(rooms) - 1:
-            warnings.append(
-                {
-                    "code": "disconnected_rooms",
-                    "message": "RoomPlan openings do not connect every reconstructed room.",
-                    "refs": [evidence_file],
-                }
-            )
 
     document: FloorPlan = {
         "version": FLOORPLAN_SCHEMA_VERSION,
@@ -116,18 +107,18 @@ def _capture_to_floorplan(job: Job, capture: RoomPlanCapture) -> FloorPlan:
             "tier": "lidar",
             "scale_source": "lidar",
             "gravity_source": "device",
-            "pipeline": "cozmo-floorplan/roomplan-json-v1",
+            "pipeline": "cozmo-floorplan/roomplan-json-v1+plane-anchored-stitch",
             "inputs": list(job.input_refs),
-            "notes": "Metric RoomPlan surfaces projected from world x-z onto the floor plane.",
+            "notes": "Metric RoomPlan surfaces projected from world x-z; T9 snaps shared openings.",
         },
     }
-    if len(rooms) > 1:
+    if stitch_edges:
         document["stitch"] = {
             "edges": stitch_edges,
             "drift_correction": {
                 "enabled": False,
                 "method": "none",
-                "notes": "T6 preserves global RoomPlan transforms; T9 adds correction and ablation.",
+                "notes": "Placeholder overwritten by stitch.apply_drift_correction.",
             },
         }
     return document

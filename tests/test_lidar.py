@@ -34,7 +34,7 @@ def test_roomplan_two_room_reconstructs_metric_floorplan():
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
     jsonschema.validate(instance=document, schema=schema)
 
-    assert document["status"] == "partial"
+    assert document["status"] == "ok"
     assert document["provenance"]["tier"] == "lidar"
     assert document["provenance"]["scale_source"] == "lidar"
     assert len(document["rooms"]) == 2
@@ -48,11 +48,8 @@ def test_roomplan_two_room_reconstructs_metric_floorplan():
     assert len(document["damage"]) == 2
     assert len(document["concealed_flags"]) == 1
     assert len(document["scope"]) == 2
-    assert document["stitch"]["drift_correction"] == {
-        "enabled": False,
-        "method": "none",
-        "notes": "T6 preserves global RoomPlan transforms; T9 adds correction and ablation.",
-    }
+    assert document["stitch"]["drift_correction"]["enabled"] is True
+    assert document["stitch"]["drift_correction"]["method"] == "plane_anchored"
 
 
 def test_roomplan_geometry_passes_available_metric_gates():
@@ -95,14 +92,15 @@ def test_single_captured_room_root_is_supported_without_stitch_warning(tmp_path)
     assert "stitch" not in document
 
 
-def test_run_cli_writes_dimensioned_partial_lidar_output(tmp_path):
+def test_run_cli_writes_dimensioned_lidar_output(tmp_path):
     exit_code = main(["run", str(JOB_DIR), "--out", str(tmp_path)])
 
-    assert exit_code == 2
+    assert exit_code == 0
     document = json.loads((tmp_path / "floorplan.json").read_text(encoding="utf-8"))
-    assert document["status"] == "partial"
+    assert document["status"] == "ok"
     assert document["walls"][0]["length"]["unit"] == "cm"
     assert document["walls"][0]["length"]["interval"]["confidence"] == 0.95
+    assert (tmp_path / "floorplan.ablation-off.json").exists()
 
 
 def test_missing_roomplan_export_is_a_structured_failure(tmp_path):

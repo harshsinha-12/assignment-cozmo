@@ -9,6 +9,7 @@ AGENT_OBSERVATIONS_FILENAME = "damage_observations.json"
 OUTPUT_FILENAME = "floorplan.json"
 SVG_OUTPUT_FILENAME = "floorplan.svg"
 EVAL_OUTPUT_FILENAME = "eval.json"
+ABLATION_OFF_FILENAME = "floorplan.ablation-off.json"
 PIPELINE_NAME = "cozmo-floorplan/t13-cli-stub"
 SCHEMA_ENV_VAR = "COZMO_FLOORPLAN_SCHEMA"
 

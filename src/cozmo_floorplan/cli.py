@@ -5,13 +5,15 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from cozmo_floorplan.config import ExitCode
+from cozmo_floorplan.config import ABLATION_OFF_FILENAME, ExitCode
 from cozmo_floorplan.errors import CozmoFloorPlanError, JobLoadError
 from cozmo_floorplan.eval.evaluator import evaluate_floorplans
 from cozmo_floorplan.eval.io import load_floorplan, write_evaluation
 from cozmo_floorplan.floorplan import build_failed_floorplan
 from cozmo_floorplan.io.artifacts import ArtifactPaths, write_run_artifacts
-from cozmo_floorplan.pipeline import run_job
+from cozmo_floorplan.io.output import write_json_atomic
+from cozmo_floorplan.pipeline import run_job_with_ablation
+from cozmo_floorplan.schema import validate_floorplan
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -25,6 +27,11 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser = subparsers.add_parser("run", help="Process one job directory.")
     run_parser.add_argument("job", type=Path, help="Directory containing manifest.yaml and capture files.")
     run_parser.add_argument("--out", type=Path, required=True, help="Directory for floorplan.json and later artifacts.")
+    run_parser.add_argument(
+        "--no-drift-correction",
+        action="store_true",
+        help="Emit poses-as-is geometry (the regenerable drift ablation).",
+    )
     eval_parser = subparsers.add_parser("eval", help="Evaluate a FloorPlan against ground truth.")
     eval_parser.add_argument("--pred", type=Path, required=True, help="Predicted floorplan.json.")
     eval_parser.add_argument("--truth", type=Path, required=True, help="Ground-truth FloorPlan JSON.")
@@ -52,7 +59,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     args = build_parser().parse_args(argv)
     if args.command == "run":
-        return _run_command(args.job, args.out)
+        return _run_command(args.job, args.out, drift_correction=not args.no_drift_correction)
     if args.command == "eval":
         return _eval_command(
             args.pred,
@@ -98,9 +105,10 @@ def _eval_command(
     return int(ExitCode.OK if report.passed else ExitCode.EVALUATION_FAILED)
 
 
-def _run_command(job_dir: Path, out_dir: Path) -> int:
+def _run_command(job_dir: Path, out_dir: Path, *, drift_correction: bool) -> int:
+    ablation_off = None
     try:
-        document = run_job(job_dir)
+        document, ablation_off = run_job_with_ablation(job_dir, drift_correction=drift_correction)
     except JobLoadError as exc:
         document = build_failed_floorplan(
             job_id=job_dir.name or "unknown_job",
@@ -115,6 +123,9 @@ def _run_command(job_dir: Path, out_dir: Path) -> int:
 
     try:
         artifacts = write_run_artifacts(document, out_dir)
+        if ablation_off is not None:
+            validate_floorplan(ablation_off)
+            write_json_atomic(ablation_off, Path(out_dir) / ABLATION_OFF_FILENAME)
     except CozmoFloorPlanError as exc:
         return _write_last_resort_failure(job_dir, out_dir, str(exc))
     except Exception as exc:

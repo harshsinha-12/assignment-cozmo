@@ -26,7 +26,7 @@ def test_renderer_outputs_parseable_whole_property_svg():
     assert root.find("svg:g/svg:line[@id='opening-door_ab']", SVG_NAMESPACE) is not None
     assert "Room A" in svg
     assert "400 cm [399–401; 95%]" in svg
-    assert "PARTIAL" in svg
+    assert "OK" in svg
 
 
 def test_renderer_is_deterministic_and_escapes_labels():
