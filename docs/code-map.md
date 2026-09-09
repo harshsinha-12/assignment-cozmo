@@ -75,11 +75,13 @@ This is the maintained guide to what each implementation file owns. Update it wh
 
 | File | Responsibility |
 | --- | --- |
-| `src/cozmo_floorplan/fix_loop/config.py` | Required frozen-artifact names for the fix-loop bundle. |
-| `src/cozmo_floorplan/fix_loop/verify.py` | Verifies bundle paths, SHA-256 hashes, and consistency between the declared target and `before/eval.json`; also provides a local verification command. |
+| `src/cozmo_floorplan/fix_loop/config.py` | Required frozen before/after artifact names for the fix-loop bundle. |
+| `src/cozmo_floorplan/fix_loop/verify.py` | Verifies safe bundle paths, SHA-256 hashes, the predicted gate delta, unchanged non-target gates, and status-only FloorPlan change; also provides a local verification command. |
 | `src/cozmo_floorplan/fix_loop/__init__.py` | Declares the fix-loop verification package. |
 | `data/fix-loop/manifest.json` | Pins the case id, source commit, expected exit codes, target gate/prediction, artifact hashes, and pending after state. |
 | `data/fix-loop/before/` | Immutable baseline FloorPlan, SVG, drift-off ablation, and evaluation report. |
+| `data/fix-loop/after/` | Immutable shipped-result FloorPlan, SVG, drift-off ablation, and evaluation report. |
+| `data/fix-loop/diff.md` | Human-readable code-policy and measured before/predicted/after delta. |
 | `data/fix-loop/README.md` | Verification and isolated-worktree regeneration commands for the frozen baseline. |
 | `docs/fix-loop.md` | One-page declaration: worst gate, evidence-backed hypothesis, intended fix, prediction, and reproduction contract. |
 

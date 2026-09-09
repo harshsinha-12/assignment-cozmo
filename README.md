@@ -76,7 +76,7 @@ Video jobs: put one MP4/MOV in `video/` (`docs/formats/video-job.md`). The CLI s
 
 Photo jobs: put 2–8 decodable images per room under `photos/<room_id>/` (`docs/formats/photo-job.md`). Ingest is ready; metric SfM, adjacency, and scale remain capture-dependent.
 
-The fix-loop baseline is frozen under `data/fix-loop/` and verified with `PYTHONPATH=src python3 -m cozmo_floorplan.fix_loop.verify data/fix-loop`. Its declaration and predicted fix are in `docs/fix-loop.md`; the after stage remains intentionally unshipped.
+The completed fix-loop bundle is frozen under `data/fix-loop/` and verified with `PYTHONPATH=src python3 -m cozmo_floorplan.fix_loop.verify data/fix-loop`. Its declaration, exact fail→pass result, pinned before/after artifacts, and readable diff are in `docs/fix-loop.md` and `data/fix-loop/diff.md`.
 
 ## Design in one paragraph
 

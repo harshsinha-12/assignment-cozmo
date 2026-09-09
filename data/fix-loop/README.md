@@ -1,6 +1,6 @@
 # Fix-loop bundle
 
-`before/` is the immutable T19a baseline described in `docs/fix-loop.md`. `manifest.json` pins its source commit, expected non-zero command exits, target gate, prediction, and SHA-256 hashes.
+`before/` is the immutable T19a baseline and `after/` is the shipped T19b result described in `docs/fix-loop.md`. `manifest.json` pins their source commits, expected command exits, target gate, prediction, and SHA-256 hashes. `diff.md` is the readable fix and measurement delta.
 
 Verify the checked-in evidence:
 
@@ -20,3 +20,5 @@ PYTHONPATH=src .venv/bin/python -m cozmo_floorplan eval --pred /tmp/cozmo-floorp
 ```
 
 The run and eval commands intentionally exit 2 and 3 because this is failing evidence. Compare the regenerated files with `before/`. Remove the temporary worktree after leaving it with `git worktree remove /tmp/cozmo-floorplan-before`.
+
+Regenerate the after result from the pinned fix checkpoint by substituting commit `68acdf66c9d2f17870241d321e93243d50382538`, output directory `/tmp/cozmo-floorplan-after-output`, and expected run exit 0. The eval still exits 3 because non-target evidence is missing, but its `pipeline_yield` gate passes. Compare those files with `after/`.

@@ -9,3 +9,11 @@ REQUIRED_BEFORE_ARTIFACTS = frozenset(
         "before/floorplan.svg",
     }
 )
+REQUIRED_AFTER_ARTIFACTS = frozenset(
+    {
+        "after/eval.json",
+        "after/floorplan.ablation-off.json",
+        "after/floorplan.json",
+        "after/floorplan.svg",
+    }
+)

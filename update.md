@@ -13,10 +13,14 @@ Format:
 - Next
 ```
 
-## 2026-09-09 — T19b fallback-status fix in progress
+## 2026-09-09 — T19b fallback-status fix shipped
 
-- T19a was reviewed, verified, and committed as `3317339`.
-- In progress: preserve `status: ok` only for explicitly selected, successfully completed deterministic fallback; keep automatic/provider-failure fallbacks degraded, then generate and verify the frozen `after/` evidence and readable delta.
+- Reviewed and committed the checksum-locked T19a baseline as `3317339`; all 52 then-current tests and required checks passed.
+- Shipped the declared status policy as `68acdf6`: explicit, successfully completed deterministic fallback preserves `status: ok`, while automatic missing-key fallback, provider failure, invalid observations, and pre-existing partial runs remain degraded.
+- Generated the immutable after FloorPlan/SVG/ablation/eval artifacts from that code checkpoint. The CLI moved exit 2 → 0 and `pipeline_yield` moved fail/partial → pass/ok exactly as predicted.
+- Kept the audit warning, 7 tool calls, claims output, geometry, drift result, interval coverage, and every non-target eval gate unchanged. Added verifier enforcement and a readable delta in `data/fix-loop/diff.md`.
+- Verified the complete bundle, all 57 tests, `ruff check .`, compileall, and `git diff --check`.
+- Next: T10 technical-report draft without invented benchmark numbers; T3 capture remains the human blocker for metric photo/video/LiDAR evaluation.
 
 ## 2026-09-09 — T19a fix-loop before bundle frozen
 

@@ -33,5 +33,28 @@
       }
     ]
   },
-  "after": null
+  "after": {
+    "source_commit": "68acdf66c9d2f17870241d321e93243d50382538",
+    "agent_mode": "fallback",
+    "run_exit_code": 0,
+    "eval_exit_code": 3,
+    "artifacts": [
+      {
+        "path": "after/eval.json",
+        "sha256": "eb2caaf248ef261f8998864c660e9cd00995fd6188b30fdeb6e679a9c59150f4"
+      },
+      {
+        "path": "after/floorplan.ablation-off.json",
+        "sha256": "2c34bd388f50cddec0e71590b5c117bff48bffefe3e3efad69ff775b4552357f"
+      },
+      {
+        "path": "after/floorplan.json",
+        "sha256": "13c9bd5cdb0d67f8e48067f9c612fe9fdb2d8b63cf72bfdc40ddab9d7dbb7a0e"
+      },
+      {
+        "path": "after/floorplan.svg",
+        "sha256": "29076ed7724fb8f9daf8bc2e8fdcf727ff59364649ed8ce8120481ff03ff868a"
+      }
+    ]
+  }
 }

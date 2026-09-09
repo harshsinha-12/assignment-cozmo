@@ -14,9 +14,8 @@ Harsh’s photos / video / LiDAR are **not** required for the rows below. Use ge
 
 | ID | Can finish now? | What to do without uploads |
 | --- | --- | --- |
-| **T19** | **Yes — T19b next** | T19a checksum-locked `pipeline_yield` before bundle is frozen. Next ship the declared fallback-status fix, generate after, and produce the readable diff. No uploads required for this selected gate. |
 | **T21** | Yes, if Xcode.app | Thin iOS RoomPlan exporter. Blocked on full Xcode, **not** on captures. Command Line Tools only → skip. |
-| **T10** | Draft only | Architecture, tier design, drift write-up, error-budget narrative in `docs/writeup.md`. Leave numbered benchmark tables blank until T3 eval. |
+| **T10** | **Draft next** | Architecture, tier design, drift write-up, error-budget narrative in `docs/writeup.md`. Leave numbered benchmark tables blank until T3 eval. |
 | **T20** | Partial | Clean-machine README command, compliance-matrix file paths, synthetic reproduction. Do not fill measured device intervals. |
 | T8 remainder | Ingest only (done) | Folder discovery / 2–8 JPEG checks already ship. Metric SfM, scale, adjacency, ±8% walls need T3 photos. |
 | T7 remainder | Ingest only (done) | Frame sampling already ships. Metric VO / ±3% walls need T3 walkthrough. |
@@ -41,7 +40,6 @@ Harsh’s photos / video / LiDAR are **not** required for the rows below. Use ge
 | T21 | todo | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | Xcode.app | no | Parallel. Scored route stays Route 2 until install works |
 | T17 | todo | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | Protocol text can be edited now; numbers wait on eval |
 | T18 | todo | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | **yes** | Beat/tie ≥ 70% shared dims |
-| T19 | doing | Fix loop bundle | T14 | no for selected gate | T19a before frozen at commit `523ceea`; T19b fix + after + diff remain |
 | T10 | todo | Technical report ≤ 6 pages + benchmark tables | T19 | draft **no**; tables **yes** | `docs/writeup.md` |
 | T20 | todo | README 15 min + reproduction bundle + compliance matrix | T10 | partial **no**; measured rows **yes** | 100% contract coverage |
 | T11 | todo | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | Follow submitted capture route |
@@ -70,12 +68,13 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-See **Without media** above. Next fully unblocked: **T19b** (ship the declared fallback-status fix, then generate after + diff). **T21** if Xcode.app exists. Do not start T6 raw Record3D, T7 VO, T8 SfM, T17 numbers, T18, or T11 until files are in `data/private/`.
+See **Without media** above. Next fully unblocked: **T10 report draft**. **T21** if Xcode.app exists. Do not start T6 raw Record3D, T7 VO, T8 SfM, T17 numbers, T18, or T11 until files are in `data/private/`.
 
 ---
 
 ## Done
 
+- **2026-09-09 T19 fix loop** — Frozen checksum-locked before and after bundles around one declared status-semantics fix; `pipeline_yield` moved exactly as predicted from fail/partial to pass/ok, with unchanged non-target gates and a readable diff.
 - **2026-09-09 T19a before freeze** — Declared the failing `pipeline_yield` gate, hypothesis, fix, and numeric prediction; pinned commit `523ceea`; stored JSON/SVG/ablation/eval artifacts with SHA-256 verification and isolated-worktree reproduction commands.
 - **2026-09-09 T8a ingest** — Stable per-room photo discovery, official 2–8 count enforcement, real decode/size validation, generated-JPEG tests, and structured refusal until metric SfM/scale/adjacency exist.
 - **2026-09-08 T7 ingest** — Video job sampling (OpenCV, ~2 Hz) and pose-sidecar detection. Structured failure until metric VO; no guessed centimetres. Generated mp4 tests, no private capture required.

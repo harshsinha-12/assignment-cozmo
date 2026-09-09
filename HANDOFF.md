@@ -12,10 +12,10 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Completed **T19a**: froze the fix-loop before bundle without shipping the fix.
-- The target is `pipeline_yield=fail`: explicit deterministic fallback completes claims but downgrades the prediction to `partial`.
-- Added the one-page declaration, exact prediction, pinned source commit, baseline FloorPlan/SVG/ablation/eval, SHA-256 manifest, isolated-worktree reproduction instructions, verifier, and tamper tests.
-- Recorded every new file’s responsibility in `docs/code-map.md`.
+- Completed **T19** end to end: reviewed/committed the frozen before bundle, shipped the declared fallback-status fix, and generated the immutable after bundle plus readable diff.
+- `pipeline_yield` moved exactly as predicted from fail/`partial` to pass/`ok`; CLI exit moved 2 → 0.
+- Explicit successful deterministic fallback now keeps healthy status. Automatic no-key fallback, provider failure, invalid observations, and already-partial geometry remain degraded.
+- Extended verification to enforce artifact hashes, predicted target movement, unchanged non-target gates, and a status-only FloorPlan delta.
 
 ### What is true now
 
@@ -24,8 +24,9 @@ The current agent overwrites the **Current handoff** section at the end of every
 - Video jobs with a real/synthetic MP4 are ingested (frame count in the warning) but do **not** emit centimetres yet.
 - Photo jobs validate one folder per room, 2–8 decodable images per folder, and stable room/image metadata. They intentionally remain `unsupported_tier` until metric reconstruction exists.
 - Raw Record3D/USDZ still structured-fail.
-- T19a before is immutable evidence from commit `523ceea`; its run exits 2 and eval exits 3 by design. The fix is not yet implemented.
-- Bundle verification, all 52 tests, `ruff check .`, compileall, and diff checks pass. No commit was made.
+- T19 before is pinned to `523ceea`; the shipped code is pinned to `68acdf6`. The complete bundle is under `data/fix-loop/`.
+- The after run exits 0. Its eval still exits 3 because unrelated repeatability/incumbent evidence is missing, while the selected `pipeline_yield` gate passes.
+- Bundle verification, all 57 tests, `ruff check .`, compileall, and diff checks pass.
 
 ### Blockers
 
@@ -36,28 +37,29 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### Next agent should
 
-1. Execute **T19b**: implement only the declared fallback-status fix, then generate `after/` and a readable diff.
+1. Draft **T10** technical report without filling capture-dependent benchmark numbers.
 2. If T3 files are present: implement metric **T7 VO** and/or **T8 photo** reconstruction against them.
 3. Do not run T21 without Xcode.app.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `docs/fix-loop.md`
-3. `data/fix-loop/manifest.json`
-4. `src/cozmo_floorplan/agent/orchestrator.py`
+2. `docs/writeup.md`
+3. `docs/compliance-matrix.md`
+4. `docs/eval-and-accuracy.md`
 5. `docs/code-map.md`
 
 ### Exact next command
 
 ```text
-Execute exactly T19b: preserve data/fix-loop/before, implement the declared explicit-fallback status fix, generate data/fix-loop/after, update the manifest, and add a readable diff.
+Draft T10 in docs/writeup.md from the implemented architecture and frozen synthetic evidence. Leave real-capture benchmark, repeatability, and incumbent values explicitly pending.
 ```
 
 ---
 
 ## History
 
+- **2026-09-09** — T19 completed: predicted fallback-yield fail→pass fix shipped with pinned before/after artifacts and readable diff.
 - **2026-09-09** — T19a declaration and checksum-locked before bundle frozen at commit `523ceea`; fix deliberately pending.
 - **2026-09-09** — T8a per-room photo ingest and honest metric boundary complete.
 - **2026-09-08** — T9 shared-wall owner-pose fix (20 cm gap actually closes) + T7 video ingest; 45 tests pass.

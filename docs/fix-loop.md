@@ -1,6 +1,6 @@
 # Fix declaration — offline fallback yield
 
-Status: **before frozen; fix not shipped yet**. Case id: `agent-fallback-yield`. Frozen evidence: `data/fix-loop/`.
+Status: **fix shipped; predicted fail → pass reproduced**. Case id: `agent-fallback-yield`. Frozen evidence: `data/fix-loop/`.
 
 ## Worst observed gate
 
@@ -20,4 +20,8 @@ Prediction: `pipeline_yield` moves from **fail (`partial`) to pass (`ok`)**, or 
 
 ## Reproduction contract
 
-The before artifacts are pinned to commit `523ceea11ba1bb405e3bc1c922447d1f427a0333`, generated with `COZMO_AGENT_MODE=fallback`, and checksum-locked in `data/fix-loop/manifest.json`. `data/fix-loop/README.md` contains isolated-worktree reproduction commands. The later T19b stage must add `after/`, update the manifest, and provide a readable before/after diff; it must not replace these frozen files.
+The before artifacts are pinned to commit `523ceea11ba1bb405e3bc1c922447d1f427a0333`. The shipped status-policy code is pinned to `68acdf66c9d2f17870241d321e93243d50382538`. Both runs use `COZMO_AGENT_MODE=fallback` and are checksum-locked in `data/fix-loop/manifest.json`. `data/fix-loop/README.md` contains isolated-worktree reproduction commands, and `data/fix-loop/diff.md` explains the code and artifact delta.
+
+## Result
+
+The prediction was exact: the CLI moved from exit 2 / `status: partial` to exit 0 / `status: ok`, and `pipeline_yield` moved from fail to pass. The fallback warning, 7 claims tool calls, damage/scope output, geometry, drift gate, and 100% interval coverage were unchanged. Parsed before/after FloorPlans differ only in top-level `status`; every non-target eval gate is identical. The overall eval remains red only because unrelated repeatability and incumbent inputs are still missing.
