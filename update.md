@@ -13,6 +13,16 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T6b2 Record3D room-plane candidates complete
+
+- Added a dedicated Record3D plane-policy config and a pure geometry module with immutable horizontal-level, wall-plane, and room-candidate results.
+- The algorithm finds strong floor/ceiling y bands around the camera path, keeps only x-z columns spanning at least 1.5 m vertically, searches Manhattan yaw in 0.5-degree steps, and selects wall peaks that bracket the central camera trajectory. It never uses raw cloud extrema as room dimensions.
+- Added four public-safe synthetic tests covering a rotated 4 m × 3 m room, a second room scale, rejection of low furniture, missing-ceiling refusal, and non-finite input refusal.
+- Wired candidate extraction into the production Record3D branch. Real diagnostics: drawing-room 3.05 × 3.80 m with 2.95 m ceiling; my-room 3.25 × 3.70 m with 2.92 m ceiling; pooja-room 3.65 × 2.90 m with 2.93 m ceiling. These are not accuracy claims because tape/laser truth is still absent.
+- The CLI continues to emit a schema-valid structured failure after this stage; it explicitly says opening extraction and FloorPlan conversion remain.
+- All 76 tests, Ruff, touched-file formatting, compileall, one-command synthetic reproduction, private three-scan smoke, and `git diff --check` pass. No commit was made.
+- Next: T6b3 supported opening-gap extraction and interval-bearing FloorPlan conversion with per-scan provenance. Do not score centimetre gates before ground truth arrives.
+
 ## 2026-09-09 — T6b1 Record3D metric world clouds complete
 
 - Added separate deterministic sampling, quaternion rotation, point-cloud configuration, and Record3D back-projection modules. Depth is filtered to 0.10–8 m at medium/high confidence, projected with RGB intrinsics scaled to depth resolution, transformed through normalized XYZW camera-to-world poses, and averaged into 2.5 cm voxels.

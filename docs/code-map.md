@@ -42,10 +42,11 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/io/roomplan.py` | Parses the portable single- or multi-room RoomPlan JSON contract into typed immutable capture objects. |
 | `src/cozmo_floorplan/recon/lidar_config.py` | LiDAR confidence scores, uncertainty widths, and recognized RoomPlan filenames. |
 | `src/cozmo_floorplan/recon/measurements.py` | Builds interval-bearing LiDAR and derived diagnostic measurements without treating transforms as exact. |
-| `src/cozmo_floorplan/recon/lidar.py` | Converts RoomPlan surfaces into FloorPlan v0.2; dispatches real Record3D archives through integrity and metric-cloud stages, then stops before unfinished plane extraction. |
-| `src/cozmo_floorplan/recon/record3d_config.py` | Keeps Record3D validation and metric-cloud sampling, confidence, depth, and voxel policies out of I/O and algorithm code. |
+| `src/cozmo_floorplan/recon/lidar.py` | Converts RoomPlan surfaces into FloorPlan v0.2; dispatches real Record3D archives through integrity, metric-cloud, and conservative Manhattan-plane stages, then stops before openings/IR conversion. |
+| `src/cozmo_floorplan/recon/record3d_config.py` | Keeps Record3D validation, metric-cloud, horizontal-level, vertical-support, and Manhattan fitting policies out of I/O and algorithm code. |
 | `src/cozmo_floorplan/recon/record3d_validation.py` | Decodes bounded representative RGB-D frames and reports valid-depth coverage, range, and camera-trajectory extent without claiming walls. |
 | `src/cozmo_floorplan/recon/record3d_points.py` | Back-projects filtered depth along camera negative-Z, applies metric camera poses, and computes deterministic world-space voxel centroids with audit counts. |
+| `src/cozmo_floorplan/recon/record3d_planes.py` | Detects floor/ceiling bands, rejects short vertical clutter, searches a Manhattan yaw, and selects four wall candidates that bracket the camera path. |
 | `docs/formats/roomplan-json.md` | Public input contract for the tested RoomPlan JSON adapter. |
 | `docs/formats/record3d.md` | Documents the tested raw Record3D archive contract, decompression path, and current plane-extraction boundary. |
 | `src/cozmo_floorplan/recon/photos_config.py` | Official 2–8 photo count, accepted extensions, and minimum image-size settings. |
@@ -143,6 +144,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `tests/test_lidar.py` | Tests single/multi-room discovery, RoomPlan conversion, intervals, metric gates, CLI output, and honest unsupported fallbacks. |
 | `tests/test_record3d.py` | Tests Record3D metadata/index validation, typed RGB-D decoding, integrity summaries, and exact LZFSE output checks. |
 | `tests/test_record3d_points.py` | Tests deterministic frame sampling, quaternion rotation, metric back-projection, pose application, voxel bounds, and invalid configuration. |
+| `tests/test_record3d_planes.py` | Tests rotated-room floor/ceiling and wall fitting, low-furniture rejection, and malformed/incomplete geometry refusal. |
 | `tests/test_render.py` | Tests parseable whole-property SVG, dimensions, openings, deterministic output, XML escaping, and failed-run placeholders. |
 | `tests/test_photos.py` | Tests room discovery, the official 2–8 count, corrupt-image rejection, multi-room ordering, and honest metric refusal using generated JPEGs. |
 | `tests/test_fix_loop.py` | Validates the frozen failing gate and ensures checksum verification catches artifact tampering. |

@@ -12,10 +12,10 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Completed **T6b1**, deterministic metric world-cloud construction from real Record3D captures.
-- Added separate sampling utility, XYZW rotation geometry, point-cloud config, back-projection/fusion algorithm, and focused tests.
-- Wired the stage into the production LiDAR path and documented the coordinate, confidence, filtering, and voxel decisions.
-- Preserved Harsh's untracked `mytask.md` without editing it.
+- Completed **T6b2**, conservative floor/ceiling and Manhattan wall-plane candidate extraction from Record3D metric clouds.
+- Added separate plane configuration, immutable result models, geometric extraction algorithm, and four synthetic regression tests.
+- Wired real Record3D scans through the new stage while keeping the CLI structurally failed until openings and FloorPlan conversion exist.
+- Updated the code map, Record3D format boundary, ADR, roadmap, README, and task queue. No commit was made.
 
 ### What is true now
 
@@ -23,25 +23,25 @@ The current agent overwrites the **Current handoff** section at the end of every
 - Plane-anchored stitch + regenerable `floorplan.ablation-off.json` work on the two-room RoomPlan fixture. Drift gate passes when that ablation is supplied.
 - Video jobs with a real/synthetic MP4 are ingested (frame count in the warning) but do **not** emit centimetres yet.
 - Photo jobs validate one folder per room, 2–8 decodable images per folder, and stable room/image metadata. They intentionally remain `unsupported_tier` until metric reconstruction exists.
-- Raw Record3D `.r3d` ZIPs validate and now produce deterministic sampled metric world clouds. They still structured-fail before FloorPlan geometry until T6b2 plane extraction.
+- Raw Record3D `.r3d` ZIPs validate, produce deterministic sampled metric world clouds, detect floor/ceiling levels, reject short vertical clutter, and fit four camera-bracketing Manhattan wall candidates. They still structured-fail before FloorPlan output until openings and IR conversion exist.
 - T19 before is pinned to `523ceea`; the shipped code is pinned to `68acdf6`. The complete bundle is under `data/fix-loop/`.
 - The after run exits 0. Its eval still exits 3 because unrelated repeatability/incumbent evidence is missing, while the selected `pipeline_yield` gate passes.
 - The private upload contains three room LiDAR scans, 23 photos (drawing=7, my-room=8, pooja=8), and two 720p videos. The photos have no EXIF after WhatsApp transfer; both videos carry a -90° display transform. Their manifests now match the loader contract.
 - The three clouds use 61 frames each and contain 252,694 drawing-room, 224,435 my-room, and 260,653 pooja-room 2.5 cm voxel centroids. The complete private LiDAR command takes about 8 s locally.
-- Raw cloud bounds visibly include furniture/outliers and are explicitly not room measurements. Accuracy and walk-in usability remain unmeasured. No commit was made.
-- All 72 tests, Ruff, touched-file formatting, compileall, synthetic reproduction, private three-scan smoke, and diff checks pass. The private command intentionally exits 2 at the plane-extraction boundary.
+- Real candidates: drawing-room 3.05 × 3.80 m / 2.95 m ceiling; my-room 3.25 × 3.70 m / 2.92 m; pooja-room 3.65 × 2.90 m / 2.93 m. These are algorithm diagnostics, not tape-backed accuracy results.
+- All 76 tests, Ruff, touched-file formatting, compileall, synthetic reproduction, private three-scan smoke, and diff checks pass. The private command intentionally exits 2 at the openings/IR boundary.
 - T10 is structurally drafted but remains `doing` until real LiDAR/video/photo, repeatability, incumbent, calibration, and timing evidence replaces the pending cells.
 
 ### Blockers
 
 - Human T3 remainder: drawing-room video, connector/hallway in all tiers, repeat capture, tape/laser GT, two staged damage classes/evidence, and Polycam/magicplan output for two rooms.
-- T6b2 Record3D floor/ceiling and Manhattan wall/opening plane extraction.
+- T6b3 Record3D opening extraction and interval-bearing FloorPlan conversion.
 - T21: full Xcode.app (this machine has Command Line Tools only).
 - Metric video VO and photo SfM/adjacency/interval calibration need the actual media.
 
 ### Next agent should
 
-1. Implement **T6b2**: identify horizontal floor/ceiling levels, retain the between-plane wall slice, fit Manhattan wall planes for one room, and reject furniture/outlier bounds before FloorPlan conversion.
+1. Implement **T6b3**: detect supported doorway/opening gaps, convert accepted plane candidates into interval-bearing rooms/walls/openings, and preserve per-scan provenance.
 2. Then harden T7 for multiple videos and display rotation, or begin T8 SfM against the uploaded photos.
 3. Keep collecting the missing T3 evidence in parallel; do not score accuracy without tape truth.
 
@@ -49,7 +49,7 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 1. `TASKS.md`
 2. `docs/formats/record3d.md`
-3. `src/cozmo_floorplan/recon/record3d_points.py`
+3. `src/cozmo_floorplan/recon/record3d_planes.py`
 4. `src/cozmo_floorplan/recon/record3d_config.py`
 5. `docs/research.md`
 
@@ -63,6 +63,7 @@ PYTHONPATH=src COZMO_AGENT_MODE=fallback python3 -m cozmo_floorplan run data/pri
 
 ## History
 
+- **2026-09-09** — T6b2 Record3D horizontal and Manhattan wall candidates complete; T6b3 openings/IR conversion next.
 - **2026-09-09** — T6b1 real Record3D metric world clouds complete; T6b2 plane extraction next.
 - **2026-09-09** — T6a real Record3D archive/LZFSE decode and integrity validation complete; T6b plane extraction next.
 - **2026-09-09** — T20b compliance matrix structure locked; remaining evidence is capture-dependent.

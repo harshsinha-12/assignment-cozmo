@@ -26,3 +26,29 @@ class Record3DPointCloudConfig:
 
 
 DEFAULT_RECORD3D_POINT_CLOUD = Record3DPointCloudConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class Record3DPlaneConfig:
+    """Geometric thresholds for conservative Manhattan-room candidates."""
+
+    horizontal_bin_m: float = 0.025
+    horizontal_smoothing_bins: int = 5
+    camera_level_clearance_m: float = 0.50
+    level_refine_half_width_m: float = 0.05
+    wall_vertical_margin_m: float = 0.08
+    wall_column_bin_m: float = 0.05
+    minimum_column_points: int = 4
+    minimum_column_vertical_span_m: float = 1.50
+    yaw_step_degrees: float = 0.50
+    wall_histogram_bin_m: float = 0.05
+    yaw_peak_count: int = 4
+    camera_bracket_quantile: float = 0.10
+    camera_wall_margin_m: float = 0.05
+    minimum_room_span_m: float = 1.50
+    maximum_room_span_m: float = 12.0
+    minimum_ceiling_height_m: float = 2.0
+    maximum_ceiling_height_m: float = 4.5
+
+
+DEFAULT_RECORD3D_PLANES = Record3DPlaneConfig()

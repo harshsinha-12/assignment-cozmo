@@ -4,6 +4,23 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-09 — Wall candidates must bracket the camera path
+
+**Context:** Raw Record3D cloud bounds include furniture and isolated depth
+outliers. Selecting extreme x-z points would turn clutter into walls, while a
+dense short object can also create a strong vertical histogram peak.
+
+**Decision:** Detect floor and ceiling independently in the gravity-aligned
+y-axis, retain only x-z columns with at least 1.5 m of vertical support, search
+the Manhattan yaw in 0.5-degree steps, and select the strongest low/high wall
+peaks outside the central 80% of the camera trajectory. Keep this as a
+diagnostic candidate until openings and a schema-valid room are constructed.
+
+**Consequence:** All three private scans produce bounded four-wall candidates
+without using raw cloud extrema. Their candidate dimensions and ceiling
+separations are not accuracy claims; tape/laser truth is still required for
+scoring and interval calibration.
+
 ## 2026-09-09 — Build bounded metric clouds before fitting Record3D planes
 
 **Context:** The real scans contain roughly four thousand 60 fps frames each.
