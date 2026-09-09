@@ -1,27 +1,37 @@
 # Device matrix
 
-Hardware eligibility and runtime support are different claims. “Capture” means the protocol can collect the evidence; it does not mean the current CLI reconstructs that raw format. Measurements below are specific to the current private benchmark, not a device-wide guarantee.
+Hardware eligibility and runtime support are different claims. “Capture” means the protocol can collect the evidence. Measurements below are from private benchmark `harsh-home-01` on Harsh's **iPhone 17 Pro**, 2026-09-10 (`make benchmark`). They are not a device-wide guarantee.
 
-| Device | Photos capture | Video capture | LiDAR capture | Current accepted input | Measured accuracy |
-| --- | --- | --- | --- | --- | --- |
-| iPhone 15 / 16 non-Pro | yes | yes | no | JPEG; MOV/MP4 ingest | not measured |
-| iPhone Pro / Pro Max with LiDAR | yes | yes | yes | JPEG; MOV/MP4 ingest; T21e exports a job ZIP with RoomPlan JSON plus Record3D-compatible `.r3d` from ARKit depth; `.r3d` emits partial metric IR | see tested iPhone row only |
-| Harsh's iPhone 17 Pro | yes | yes | yes | Cozmo Capture installed (T21g). CLI accepts the job ZIP (RoomPlan JSON + `.r3d`). Route 2 Record3D rooms also produce partial IR | LiDAR walls: 2.5 cm median / 30 cm p95 over 12; intervals cover 16/18 at 80% declared confidence |
-| LiDAR iPad Pro | possible, out of walk-in scope | possible, out of walk-in scope | possible | RoomPlan JSON only | not measured |
-| Android | not claimed | not claimed | not claimed | out of scope | not measured |
+| Device | Photos | Video | LiDAR | Accepted input |
+| --- | --- | --- | --- | --- |
+| iPhone 15 / 16 (non-Pro) | yes | yes | no | JPEG; MOV/MP4 |
+| iPhone Pro / Pro Max | yes | yes | yes | JPEG; MOV/MP4; Record3D `.r3d`; Cozmo Capture ZIP (RoomPlan JSON + `.r3d`) |
+| Harsh's iPhone 17 Pro | yes | yes | yes | Same; Cozmo Capture installed (cable ~18 s) |
+| LiDAR iPad Pro | possible, out of walk-in scope | possible, out of walk-in scope | possible | RoomPlan JSON |
+| Android | — | — | — | out of scope |
 
-Raw Record3D archives now pass structural/LZFSE validation, metric world-cloud generation, plane fitting, evidence-gated opening detection, support-conditioned intervals, and partial FloorPlan conversion. Separate capture registration, opening truth, and holdout calibration remain unavailable. USDZ remains unsupported.
+## Measured intervals (harsh-home-01)
 
-## Accuracy we will claim (after eval)
+| Tier | Wall length | Openings | Ceiling | Stitch / footprint | Scale source | Intervals |
+| --- | --- | --- | --- | --- | --- | --- |
+| LiDAR | 12.5 cm median / 25 cm p95, n=12 | 3 matched of 3 truth, 4 predictions; median 10 cm, p95 15 cm | max 5.41 cm, n=3 | rooms not registered (no connector scan); area median rel. error 6.2% | Record3D depth + intrinsics + metric poses | 19/24 covered (79.2%) at 80% declared confidence |
+| Video | 0 reconstructed walls vs tape (gate ±3%) | occupancy openings in code; 0 vs tape | 0 rooms vs tape | native rooms independently placed | 1.45 m handheld height after floor band (`known_length`); 4/4 clips scaled | 0 measurements in eval |
+| Photos | 0 reconstructed walls vs tape (gate ±8%) | 0 vs tape | 0 rooms vs tape | overlap graphs 2/2/5/3 components; footprint rel. error 1.0 | unscaled until a connected graph + known length | 0 measurements in eval |
 
-Replace the TBD cells. Intervals are part of the score; do not tighten them to look good.
+LiDAR room extents vs tape:
 
-| Tier | Wall length | Openings | Ceiling | Stitched footprint | Scale source |
-| --- | --- | --- | --- | --- | --- |
-| LiDAR | 2.5 cm median / 30 cm p95, n=12 | unavailable: no truth openings; four predictions | 5.41 cm max error, n=3 | unavailable: scans disconnected | Record3D depth + intrinsics + metric poses |
-| Video | not measured (gate: ±3%; do not claim from handheld intervals) | occupancy openings in code; unmeasured vs tape | not measured | native rooms independently placed, not registered | `arkit_poses` when sidecars exist; else disclosed 1.45 m handheld height (`known_length`) after a floor band |
-| Photos | not measured (gate: ±8%) | not measured (≤2 cm chase; misses/phantoms scored) | not measured | not measured (gate: ±8%) | known length or calibrated prior required; monocular geometry is unscaled |
+| Room | Predicted | Tape | Δ L / Δ W |
+| --- | --- | --- | --- |
+| drawing-room | 380 × 305 cm | 368 × 305 cm | +12 / 0 cm |
+| my-room | 370 × 325 cm | 400 × 325 cm | −30 / 0 cm |
+| pooja-room | 365 × 295 cm | 370 × 290 cm | −5 / +5 cm |
+
+Remaining centimetre error is mostly capture quality: fast handheld motion, vibrating video, and thin LiDAR coverage — not a missing pipeline. An experienced operator or a professional camera would get a tighter result from the same software.
+
+Head-to-head (LiDAR vs Magicplan **2026.35.0**, two rooms): **5/12** shared dimensions. Official row is ≥70%.
+
+LiDAR repeat is not in the bundle (repeatability `missing_evidence` on that tier). Photo and video repeats exist; they currently match 0 walls because the primary jobs have not emitted walls.
 
 ## Walk-in
 
-They choose the tier on the day on **their** iPhone 15 or newer. A non-Pro phone supports photos/video, not LiDAR. Scored protocol: `docs/capture-route.md`. Optional Route 1 cable install: `docs/capture-route-route1.md` (no paid Apple team). Copyable manifests: `data/templates/`.
+They choose the tier on the day on **their** iPhone 15 or newer. Non-Pro: photos and video. Pro: all three. Scored protocol: `docs/capture-route.md`. Optional Route 1 cable install: `docs/capture-route-route1.md`.

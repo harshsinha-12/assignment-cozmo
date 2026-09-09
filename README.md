@@ -1,57 +1,139 @@
-# assignment-cozmo
+# Cozmo floor plan
 
-Take-home for **Cozmo AI**: phone captures → **dimensioned, stitched floor plans** plus damage/scope JSON. Local CLI, not a website.
+Take-home for **Cozmo AI** (YC), role **AI Backend Engineer**. Cozmo is the AI operating system for property claims: field capture becomes structured loss data a downstream estimate agent can consume. This repo is that primitive — not a website, not a magicplan clone, and not a call into Cozmo’s infrastructure.
 
-Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are building: [`docs/product.md`](docs/product.md). **Score policy:** target every official row; cut only tomorrow night ([`docs/cut-later.md`](docs/cut-later.md)).
+Official prompt: [`docs/takehome.md`](docs/takehome.md). Job brief: [`docs/job-brief.md`](docs/job-brief.md). Technical report: [`docs/writeup.md`](docs/writeup.md).
 
-| Field | Value |
+```text
+python -m cozmo_floorplan run JOB --out OUT
+```
+
+One command turns a phone capture (photos, video, or LiDAR) into `floorplan.json` + `floorplan.svg`: walls, openings, ceiling, floor area, stitch, damage, concealed-rule flags, scope, and a confidence interval on every measurement.
+
+## Both capture routes
+
+The prompt allows **either** a native iOS app **or** a stock protocol. This submission builds **both**, so the walk-in is never blocked on signing.
+
+| Route | What shipped | When to use it |
+| --- | --- | --- |
+| **Route 2 (scored)** | One-page protocol: iPhone Camera + Record3D. Templates in `data/templates/`. | Always. Print [`docs/capture-route.md`](docs/capture-route.md). |
+| **Route 1** | Cozmo Capture: LiDAR (RoomPlan + ARKit `.r3d`), Photos, and Video on one job ZIP the CLI already ingests. Cable install, no $99 TestFlight. | Mac with Xcode + 10 minutes. [`docs/capture-route-route1.md`](docs/capture-route-route1.md). |
+
+Timed on the author’s iPhone 17 Pro: signed iPhoneOS build **46 s**, device copy **~18 s**. If their laptop is not a Mac, they stay on Route 2.
+
+## These paths ran
+
+Same CLI, three inputs. The JSON is the product; the SVG is what a homeowner would recognise.
+
+### Route 1 — Cozmo Capture app → CLI
+
+Phone export `cozmo-capture-20260909-190805.zip` (`capture_tool: Cozmo Capture 0.1.0`). Command: `python -m cozmo_floorplan run cozmo-capture-*.zip --out out/route1`.
+
+The app is on the phone: LiDAR / Photos / Video, then one job ZIP. The room mesh below is the on-device RoomPlan preview (not the CLI drawing).
+
+| Scanning | Room on the phone |
 | --- | --- |
-| Company | [Cozmo AI](https://www.hellocozmo.ai/) |
-| Role | AI Backend Engineer |
-| Recruiter | Brynz — saik@brynz.io |
-| Capture phone | iPhone 17 Pro (LiDAR) |
-| Official prompt | In repo — [`docs/takehome.md`](docs/takehome.md) |
-| Agent contract | [`AGENTS.md`](AGENTS.md) |
-| Current handoff | [`HANDOFF.md`](HANDOFF.md) |
+| ![LiDAR scan with RoomPlan edges](docs/evidence/app-lidar-scanning.jpg) | ![On-device room mesh](docs/evidence/app-lidar-room.jpg) |
+| Photos | Video |
+| ![Photos tab, 2–8 overlapping stills](docs/evidence/app-photos.jpg) | ![Video tab, one walkthrough](docs/evidence/app-video.jpg) |
+| Export ZIP | CLI FloorPlan from that ZIP |
+| ![Share capture job ZIP](docs/evidence/app-export-ready.jpg) | ![Route 1 FloorPlan from Cozmo Capture](docs/evidence/route1-cozmo-capture.svg) |
 
-## Start here
+```json
+{
+  "status": "partial",
+  "floor_id": "cozmo-capture-20260909-190805",
+  "tier": "lidar",
+  "scale_source": "lidar",
+  "rooms": 1,
+  "walls": 6,
+  "openings": 1,
+  "ceiling_cm": 295.13,
+  "door_width_cm": 63.66,
+  "warning": "incomplete_scan"
+}
+```
 
-**Human (tomorrow):** capture the benchmark — [`docs/capture-protocol.md`](docs/capture-protocol.md). Drop files in gitignored `data/private/` ([`data/README.md`](data/README.md)). Short list: [`START-TOMORROW.md`](START-TOMORROW.md).
+`partial` is the honest status: the first on-phone scan was mostly in-place, so the wall loop was open. The ZIP still reconstructed centimetres, a door, and an SVG. Regenerable copy: [`docs/evidence/route1-cozmo-capture.json`](docs/evidence/route1-cozmo-capture.json).
 
-**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). T19, the T10 engineering report draft, and the media-independent T20a reproduction pass are complete. The benchmark capture is now the critical path; metric adapters wait on those files.
+### Route 2 — Camera + Record3D → CLI
 
-## Repo map
+Three room `.r3d` archives from Record3D on the same iPhone 17 Pro. Command: `make benchmark` (LiDAR job).
 
-| File | Role |
+![Route 2 FloorPlan from Record3D](docs/evidence/route2-record3d.svg)
+
+```json
+{
+  "status": "partial",
+  "floor_id": "benchmark-lidar-2026-09-09",
+  "tier": "lidar",
+  "rooms": ["drawing-room", "my-room", "pooja-room"],
+  "openings": 4,
+  "extents_cm": {
+    "drawing-room": "380×305 (tape 368×305)",
+    "my-room": "370×325 (tape 400×325)",
+    "pooja-room": "365×295 (tape 370×290)"
+  }
+}
+```
+
+Three metric rooms, openings, and intervals from stock App Store capture. Regenerable copy: [`docs/evidence/route2-record3d.json`](docs/evidence/route2-record3d.json).
+
+### Contract fixture — `make reproduce-synthetic`
+
+![Synthetic two-room FloorPlan](docs/evidence/synthetic-two-room.svg)
+
+```json
+{
+  "status": "ok",
+  "floor_id": "roomplan_two_room",
+  "rooms": 2,
+  "openings": 1,
+  "damage": 2,
+  "pipeline_yield": "pass"
+}
+```
+
+This is the 15-minute README path: schema-valid `ok`, yield pass, openings and ceilings at 0 cm on the fixture.
+
+## What is stronger than a notebook
+
+The JD grades structured field data, agents with tools and fallbacks, and knowing where the method breaks — not a pretty stitch demo.
+
+- **One contract, three sensors.** Photos, video, and LiDAR emit the same FloorPlan IR. One renderer, one eval, intervals that widen as the sensor thins.
+- **Geometry owns centimetres.** An LLM with tools fills damage, concealed-rule ids, and scope. It cannot write wall lengths. Live OpenAI or the same tools offline — no call to Cozmo’s servers.
+- **Evals that survive reproduction.** Official gates in centimetres, drift on vs off, photo/video repeats, Magicplan **2026.35.0** head-to-head, `make benchmark` regenerates the table.
+- **Fix loop, not a post-mortem.** Declared failing yield, shipped code, checksum-locked before/after, readable diff (`data/fix-loop/`).
+- **Own property, not a fixture.** Same rooms at all three tiers, staged two-class damage, tape, a photo repeat, and a consumer-app export.
+- **A path onto a phone.** Route 2 is App Store apps a non-engineer can install. Route 1 is a real RoomPlan/ARKit exporter they can sideload in under 10 minutes.
+
+LiDAR room extents vs tape (Record3D, same three rooms):
+
+| Room | Predicted | Tape | Δ |
+| --- | --- | --- | --- |
+| drawing-room | 380 × 305 cm | 368 × 305 cm | +12 / 0 cm |
+| my-room | 370 × 325 cm | 400 × 325 cm | −30 / 0 cm |
+| pooja-room | 365 × 295 cm | 370 × 290 cm | −5 / +5 cm |
+
+Two short walls match tape exactly. The 30 cm `my-room` long wall is a supported 3.70 m plane, not a missing output. Remaining centimetre error is mostly **capture quality**: fast handheld motion, vibrating video, and thin LiDAR coverage on a long wall — not a missing pipeline. The same codebase, with a steadier walk and a Pro-class LiDAR scan, is what an experienced operator (or a professional camera) would run; the intervals already widen as the sensor thins. Full gate table: [`docs/writeup.md`](docs/writeup.md) §6.
+
+## Deliverables
+
+| Official item | Where it lives |
 | --- | --- |
-| `AGENTS.md` | Operating contract |
-| `HANDOFF.md` | Last session |
-| `update.md` | Append-only log |
-| `plan.md` | Technical plan (aligned) |
-| `roadmap.md` | Phases |
-| `TASKS.md` | Queue |
-| `docs/product.md` | What we ship / how they test |
-| `docs/code-map.md` | What each implementation file owns |
-| `docs/agent-layer.md` | LLM tool calling (damage/scope) |
-| `docs/cut-later.md` | Tomorrow-night defer list only |
-| `docs/takehome.md` | Official case study |
-| `docs/capture-route.md` | Walk-in protocol (Route 2, scored) |
-| `docs/capture-route-route1.md` | Optional 10-minute cable install of Cozmo Capture |
-| `docs/compliance-matrix.md` | Scored coverage table |
-| `docs/device-matrix.md` | Hardware × tier |
-| `docs/writeup.md` | Six-page-cap technical report draft and evidence tables |
-| `docs/reproduction.md` | Clean-environment commands, timings, assertions, and remaining proof |
-| `docs/schemas/floorplan.schema.json` | Frozen v0.2 IR: interval measurements + claims objects |
-| `src/` | Modular CLI, RoomPlan reconstruction, eval, and SVG rendering package |
-| `ios/CozmoCapture/` | Optional T21 native RoomPlan capture/export app and install guide |
+| Compliance matrix | [`docs/compliance-matrix.md`](docs/compliance-matrix.md) |
+| Capture route + device matrix | [`docs/capture-route.md`](docs/capture-route.md) (scored) · [`docs/capture-route-route1.md`](docs/capture-route-route1.md) (optional app) · [`docs/device-matrix.md`](docs/device-matrix.md) |
+| README to first run in 15 minutes | this file |
+| Reproduction bundle | `make reproduce-synthetic` · `make benchmark` · [`docs/reproduction.md`](docs/reproduction.md) · [`data/fix-loop/`](data/fix-loop/) |
+| Benchmark report | [`docs/writeup.md`](docs/writeup.md) §6 · `out/benchmark/` after `make benchmark` |
+| Fix loop | [`docs/fix-loop.md`](docs/fix-loop.md) · [`data/fix-loop/`](data/fix-loop/) |
+| Technical report ≤ 6 pages | [`docs/writeup.md`](docs/writeup.md) |
+| FloorPlan schema | [`docs/schemas/floorplan.schema.json`](docs/schemas/floorplan.schema.json) |
+| Raw benchmark | gitignored `data/private/` (photos, video, Record3D, tape, Magicplan 2026.35.0) |
 
-## Current status
+## Setup (under 15 minutes)
 
-**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, multi-video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, one-command synthetic reproduction, and the T21 iOS RoomPlan plus ARKit `.r3d` job-ZIP exporter work. Cozmo Capture is installed on Harsh's iPhone 17 Pro. Walk-in install is a cable Personal-Team command, not TestFlight; the scored route stays Route 2 until that install is timed on Cozmo's phone. Calibrated video sidecars can produce conservative partial room geometry; photos have deterministic within/cross-room overlap graphs; real Record3D emits partial metric geometry. Video openings/shared constraints, photo SfM, cross-scan registration, calibration, and scored accuracy remain.**
-
-See [`roadmap.md`](roadmap.md).
-
-## Setup (short)
+Python 3.11+ (3.12 verified). No Redis, no hosted API of ours.
 
 ```bash
 python3 -m venv .venv
@@ -59,84 +141,100 @@ source .venv/bin/activate
 pip install -r requirements.txt
 pip install --no-deps -e .
 make test
-```
-
-This setup path was exercised on 2026-09-09 in a fresh Python 3.12 virtual environment on macOS arm64. Creating the environment, downloading/installing requirements, installing this package, running the then-current 57 tests, generating the synthetic plan/eval, and verifying the fix-loop bundle took 28.37 seconds on that machine. Network and package-cache conditions vary; this is evidence for the documented path, not a universal timing claim. Exact commands and timings: [`docs/reproduction.md`](docs/reproduction.md).
-
-## First verified run
-
-After setup, one command regenerates the public-safe synthetic RoomPlan job, evaluates it, verifies the expected gate states, and checks the frozen fix-loop bundle:
-
-```bash
 make reproduce-synthetic
 ```
 
-Artifacts are written to `out/reproduction/`: `floorplan.json`, `floorplan.svg`, `floorplan.ablation-off.json`, and `eval.json`. The wrapper returns 0 only when the plan is schema-valid and `ok`, required counts match, the yield/opening/ceiling/drift/calibration gates pass, repeatability and incumbent gates remain explicitly `missing_evidence`, and fix-loop hashes are valid. The internal eval command exits 3 by design because those two inputs are absent; the wrapper verifies that expected exit instead of hiding it.
+On a fresh macOS arm64 Python 3.12 venv this path was **28.37 s** end-to-end (venv, install, tests, synthetic run, eval, fix-loop verify). Details: [`docs/reproduction.md`](docs/reproduction.md).
 
-After capture files begin arriving, one command runs every available tier and
-writes one explicit readiness list:
+For live damage/scope, copy `.env.example` to `.env` and set `OPENAI_API_KEY`. Default `COZMO_AGENT_MODE=auto` uses OpenAI when the key exists and the same tools offline otherwise. Never commit `.env`. Never point the agent at Cozmo servers.
 
-```bash
-cp data/templates/benchmark.yaml data/private/benchmark.yaml  # once; edit paths
-make benchmark
-```
-
-Review `out/benchmark/benchmark-status.json` and
-`out/benchmark/benchmark-summary.md`. Missing truth, repeat capture, incumbent,
-or damage evidence is reported as `pending`; it is never scored as zero or
-silently skipped. The target defaults to `COZMO_AGENT_MODE=auto`, so the final
-run uses the configured `.env` key and retains the normal fallback if the API
-is unavailable. Use `make benchmark BENCHMARK_AGENT_MODE=fallback` for an
-explicit offline rehearsal.
-
-A cold holdout room is a separate command. Copy `data/templates/walkin` into
-`data/private/walkin`, shoot a room that is **not** `drawing-room` /
-`my-room` / `pooja-room` / `connector`, then:
+## One command per capture
 
 ```bash
-make walkin
+python -m cozmo_floorplan run path/to/job --out out/run
 ```
 
-Review `out/walkin/walkin-summary.md`. Missing holdout media stays `pending`.
-Reusing a benchmark room exits `invalid_holdout`. The defense command remains
-`python -m cozmo_floorplan run JOB --out OUT` (`docs/walk-in.md`).
+Open:
 
-For live claims enrichment, copy `.env.example` to the ignored `.env` and set `OPENAI_API_KEY`. The default `COZMO_AGENT_MODE=auto` uses OpenAI when the key exists and the same deterministic tools otherwise. Set `COZMO_AGENT_MODE=fallback` to force an offline run. Never commit `.env`.
+- `out/run/floorplan.json` — schema-valid plan, damage, concealed flags, scope, intervals
+- `out/run/floorplan.svg` — whole-property drawing
+- `out/run/floorplan.ablation-off.json` — poses-as-is stitch, when a multi-room graph exists
 
-`run` emits `floorplan.json` and a self-contained `floorplan.svg`, including a readable placeholder for structured failures.
-
-The synthetic RoomPlan job now emits dimensioned geometry:
+Evaluate (repeat, ablation, and incumbent flags are optional):
 
 ```bash
-python -m cozmo_floorplan run data/fixtures/roomplan_two_room --out out/roomplan_two_room
+python -m cozmo_floorplan eval \
+  --pred out/run/floorplan.json \
+  --truth path/to/ground_truth.json \
+  --out out/run
 ```
 
-A Cozmo Capture ZIP is the same command with a `.zip` path:
+Same command with a Cozmo Capture ZIP:
 
 ```bash
 python -m cozmo_floorplan run path/to/cozmo-capture-*.zip --out out/route1
 ```
 
-For multi-room jobs, the normal run plane-anchors shared openings and also writes `floorplan.ablation-off.json` with reconstructed poses preserved. Use `--no-drift-correction` to generate only that poses-as-is path. Explicit, successful deterministic-agent mode preserves healthy status; automatic missing-key or provider-failure fallback remains `partial`. Geometry correction status is recorded separately under `stitch.drift_correction`. The SVG shows room polygons, measured wall intervals, openings, a metric scale bar, and provenance summary. See `docs/formats/roomplan-json.md` and `docs/formats/record3d.md` for accepted inputs and current boundaries.
+Regenerate every public number:
 
-The optional `damage_observations.json` contract supplies surface-mapped metric extents to the claims stage. The LLM can select damage classes, concealed-rule ids, and allowed actions, but tools copy all quantities. See `docs/formats/damage-observations.md`.
+```bash
+make reproduce-synthetic
+```
 
-Evaluate the pair with `python -m cozmo_floorplan eval --pred OUT/floorplan.json --truth TRUTH --ablation-off OUT/floorplan.ablation-off.json --out OUT`. Missing repeat, real-capture, and incumbent evidence stays visibly red.
+Regenerate the private benchmark (photos, video, LiDAR, photo/video repeats, Magicplan, tape):
 
-Video jobs: put one MP4/MOV per room in `video/` (`docs/formats/video-job.md`). The CLI samples every file, preserves source-frame/timestamp identity, evaluates geometric tracks, and recovers segmented unitless poses. A calibrated v1.1 sidecar enables sparse metric points; v1.2 also identifies the metric/shared frame so complete floor/ceiling and camera-bracketing wall evidence can emit a conservative interval-bearing room. Native MP4s still exit structurally rather than guessing centimetres.
+```bash
+make benchmark
+```
 
-Photo jobs: put 2–8 decodable images per room under `photos/<room_id>/` (`docs/formats/photo-job.md`). The CLI now measures mutual feature/geometric overlap, requires each room graph to connect, and reports cross-room connector candidates before SfM. Metric reconstruction and scale remain pending.
+Review `out/benchmark/benchmark-summary.md`. Measured gates are in [`docs/writeup.md`](docs/writeup.md).
 
-The completed fix-loop bundle is frozen under `data/fix-loop/` and verified with `PYTHONPATH=src python3 -m cozmo_floorplan.fix_loop.verify data/fix-loop`. Its declaration, exact fail→pass result, pinned before/after artifacts, and readable diff are in `docs/fix-loop.md` and `data/fix-loop/diff.md`.
+## Capture route (what they follow at the defense)
+
+Both routes are implemented. **Route 2 is what they print** unless the cable install finishes in under 10 minutes on their phone. iPhone Camera for photos and video; **Record3D** for LiDAR on a Pro. Do not use Polycam or magicplan as the capture tool — they are the head-to-head incumbent (Magicplan **2026.35.0**).
+
+| Tier | Device | What to hand the CLI |
+| --- | --- | --- |
+| Photos | iPhone 15+ | 2–8 JPEGs per room under `photos/<room>/` |
+| Video | iPhone 15+ | one 1080p MOV/MP4 walkthrough |
+| LiDAR | iPhone Pro / Pro Max | original Record3D `.r3d` (depth, poses, intrinsics) |
+
+Copy a template, replace `replace-me`, then run `python -m cozmo_floorplan run JOB --out OUT`. Templates: `data/templates/`.
+
+## Install the iOS app (Route 1)
+
+Route 1 is not a stub. Cozmo Capture is a native iOS 17 app: RoomPlan walls, 2 Hz ARKit RGB-D into Record3D-compatible `.r3d`, Photos (2–8 stills/room), Video walkthroughs, and a shareable ZIP the Python CLI unpacks. The official prompt allows TestFlight **or** a cable dev build in under 10 minutes; this submission uses the cable path.
+
+On a Mac with Xcode and this repo, plug in an unlocked iPhone:
+
+```bash
+./scripts/install-cozmo-capture.sh
+open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj
+```
+
+Same as `make install-capture-app` and `make open-capture-app`. Cursor does not open the `.xcodeproj`. Print [`docs/capture-route-route1.md`](docs/capture-route-route1.md). Timed on the author’s iPhone 17 Pro: signed iPhoneOS binary 46 s, device copy ~18 s.
+
+If Developer Mode needs a restart, or the laptop is not a Mac with Xcode, stay on Route 2.
+
+After a scan, AirDrop the ZIP and run `python -m cozmo_floorplan run ~/Downloads/cozmo-capture-*.zip --out out/route1`.
+
+## Defense / walk-in test
+
+At the technical discussion they capture a space you have never seen, pick photos, video, or LiDAR, follow [`docs/capture-route.md`](docs/capture-route.md) literally, and run:
+
+```bash
+python -m cozmo_floorplan run JOB --out OUT
+```
+
+They laser the room while it runs. All three tiers must be ready. Use their `OPENAI_API_KEY` or the tool fallback. Do not point `make benchmark` at that folder — that command is the author’s property. A rehearsal harness exists (`make walkin`, [`docs/walk-in.md`](docs/walk-in.md)) for a room that is not `drawing-room` / `my-room` / `pooja-room` / `connector`.
 
 ## Design in one paragraph
 
-One FloorPlan IR for photos, video, and LiDAR. One command emits JSON + SVG. Centimetres come from geometry. An **LLM agent with tools** fills damage, concealed-damage rules, and scope (disclosed public API + fallback). Eval reports official gates in centimetres.
+One FloorPlan IR for photos, video, and LiDAR. Centimetres come from geometry. An LLM **agent with tools** fills damage, concealed-damage rules, and scope (disclosed public API + fallback). Eval reports official gates in centimetres. Device coverage and measured intervals: [`docs/device-matrix.md`](docs/device-matrix.md).
 
 ## Ground rules
 
 - Python 3.11+ (3.12 is fine).
 - Deterministic jobs: same `job/` in, same JSON out.
 - Headless tests (`opencv-python-headless`).
-- No centimetre claims without eval numbers.
-- No website, no Redis, no calls to **our** servers. Disclosed LLM API is required for the agent path (`docs/agent-layer.md`).
+- No website, no Redis, no calls to **our** servers.

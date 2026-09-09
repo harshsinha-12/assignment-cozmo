@@ -1,0 +1,24 @@
+{
+  "status": "partial",
+  "floor_id": "cozmo-capture-20260909-190805",
+  "tier": "lidar",
+  "scale_source": "lidar",
+  "pipeline": "cozmo-floorplan/roomplan-json-v1+plane-anchored-stitch",
+  "n_rooms": 1,
+  "n_openings": 1,
+  "n_damage": 0,
+  "rooms": [
+    {
+      "id": "EE1F3F22-A5ED-44F2-8332-6D8BFC9A5B56",
+      "label": "Room 1",
+      "area_cm2": 132465.867802,
+      "ceiling_cm": 295.13025,
+      "walls_cm": []
+    }
+  ],
+  "warning_codes": [
+    "incomplete_scan"
+  ],
+  "capture_tool": "Cozmo Capture 0.1.0",
+  "job": "cozmo-capture-20260909-190805.zip"
+}

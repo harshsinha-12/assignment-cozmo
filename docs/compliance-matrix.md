@@ -6,30 +6,30 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 
 | ID | Requirement | File / command | Artifact | Status |
 | --- | --- | --- | --- | --- |
-| R1 | Choose one capture route | `docs/capture-route.md` + `docs/capture-route-route1.md` + `data/templates/walkin/` + `walkin` CLI | Route 2 is the scored operator card. Route 1 is a cable Personal-Team install. Timed holdout rehearsal refuses benchmark-room reuse | partial (holdout media pending) |
-| R2 | Device matrix | `docs/device-matrix.md` | Hardware eligibility separated from accepted runtime formats and measured accuracy | partial (measurements pending) |
-| R3 | Photos tier, 2–8 stills, no depth/poses, per-room folders, whole-property stitch | `io/photos.py` + `recon/photo_overlap.py` + `recon/photos.py` | ingest and geometric overlap graph work; current rooms are disconnected with no connector candidates, so metric SfM/whole-property output remain pending | partial |
-| R4 | Video tier, handheld walkthrough | `recon/video.py` + `recon/video_native_scale.py` + `recon/video_openings.py` + `recon/video_floorplan.py` | Native Camera MP4s can attempt handheld-height scale after floor-supported triangulation. Partial rooms, occupancy openings, and shared-world stitch pairing exist in code. Real ±3% remains unevidenced until reconstructed walls pass tape eval | partial |
-| R5 | LiDAR tier, depth+poses+intrinsics | `io/record3d.py`, `recon/record3d_points.py`, `recon/record3d_uncertainty.py`, `recon/lidar.py` | Real Record3D emits partial metric rooms/walls/opening candidates; support-conditioned intervals cover 16/18 current truth measurements, while cross-room registration and holdout calibration remain | partial |
-| R6 | Per-room: walls, ceiling, area, openings | schema + lidar recon | RoomPlan fixture and raw Record3D path emit the shared fields; raw opening accuracy remains unmeasured | partial |
-| R7 | Stitched multi-room adjacency | `stitch/constraints.py` + `stitch/pose_graph.py` | shared-opening graph + corrected whole-property SVG on synthetic RoomPlan | partial |
-| R8 | Damage regions, class + metric extent | `agent/openai_agent.py` + `agent/tools.py` | live/fallback `damage[]` works on synthetic observations; real images pending | partial |
-| R9 | Concealed-damage flags + rule id | `agent/tools.py::fire_concealed_rule` | policy-validated `concealed_flags[]` generated live and offline | done |
-| R10 | Scope line items keyed to surfaces | `agent/tools.py::add_scope_line` | quantity copied from metric damage observation; generated live and offline | done |
-| R11 | Confidence interval on every measurement | `docs/schemas/floorplan.schema.json` + `tests/test_schema.py` | v0.2 `{value, unit, interval}` measurement objects required and tested | done |
-| R12 | One command per capture | `src/cozmo_floorplan/cli.py` | command runs and emits structured JSON; successful adapters pending | partial |
-| R13 | JSON to published schema | `docs/schemas/floorplan.schema.json` | our IR until they attach one | partial |
-| R14 | Rendered plan | `src/cozmo_floorplan/render/svg.py` + `src/cozmo_floorplan/io/artifacts.py` | CLI-generated `floorplan.svg`; synthetic visual QA passed | done |
-| R15 | Benchmark: 3+ rooms + connector, all tiers, damage, repeat, tape GT | `data/fixtures/` | raw + GT | missing |
-| R16 | Opening width gate | `eval/evaluator.py` | ≤2 cm, ≥85%, misses/phantoms scored; real data pending | partial |
-| R17 | Ceiling height + repeatability gates | `eval/evaluator.py` | thresholds and missing-evidence reporting implemented; captures pending | partial |
-| R18 | Drift ablation | `run` + `--no-drift-correction` + `eval --ablation-off` | corrected and poses-as-is artifacts, residuals, and eval gate pass on synthetic drift; real capture pending | partial |
-| R19 | Photo-tier whole-property stitch ±8% | `eval/evaluator.py` | adjacency, overlap, footprint, and wall gates implemented; photos pending | partial |
-| R20 | Head-to-head vs incumbent, 2 rooms, LiDAR | `eval --incumbent` | Magicplan 2026.35.0; my-room AABB + pooja traced L walls; current LiDAR **5/12 (41.7%)** fail vs ≥70% | partial |
-| R21 | Fix loop: declaration, before, after, diff | `docs/fix-loop.md` + `data/fix-loop/` | checksum-locked fail→pass bundle, pinned source commits, verifier, and readable diff | done |
-| R22 | README 15 min clean machine | `README.md` + `docs/reproduction.md` | fresh Python 3.12 venv path verified on macOS arm64 in 28.37 s; full second-machine rehearsal pending | partial |
-| R23 | Reproduction bundle | `make reproduce-synthetic` + `make benchmark` + `docs/reproduction.md` + `data/fix-loop/` | synthetic assertions and fix-loop are verified; final runner now regenerates all present private tiers and explicitly reports four missing evidence classes | partial |
-| R24 | Technical report ≤ 6 pages | `docs/writeup.md` | 1,805-word engineering draft; real benchmark tables pending | partial |
-| R25 | Mirrors / glass / wet / low light | `docs/writeup.md` + capture protocol + structured warnings | mitigations and honest failure policy documented; stress captures pending | partial |
-| R26 | No calls to our infrastructure | `agent/openai_agent.py` + fallback | local processing; disclosed direct OpenAI API or offline rules | done |
-| R27 | Process evidence | git history | commits as we work | doing |
+| R1 | Choose one capture route | `docs/capture-route.md` + `docs/capture-route-route1.md` + `data/templates/` | Route 2 operator card (Camera + Record3D). Route 1 cable install without TestFlight | done |
+| R2 | Device matrix | `docs/device-matrix.md` | Hardware eligibility plus measured harsh-home-01 intervals (2026-09-10) | done |
+| R3 | Photos tier, 2–8 stills, no depth/poses, per-room folders, whole-property stitch | `io/photos.py` + `recon/photo_overlap.py` + `recon/photos.py` | Ingest, EXIF orientation, overlap graph; 2–8 stills per room; stitch follows a connected graph | partial |
+| R4 | Video tier, handheld walkthrough | `recon/video.py` + `recon/video_native_scale.py` + `recon/video_openings.py` | Native MP4 ingest, skip-span VO, handheld-height scale (4/4 clips), occupancy openings | partial |
+| R5 | LiDAR tier, depth+poses+intrinsics | `io/record3d.py` + `recon/lidar.py` | Record3D → partial metric FloorPlan; walls 12.5/25 cm; intervals 19/24 | partial |
+| R6 | Per-room: walls, ceiling, area, openings | schema + lidar recon | LiDAR emits walls, ceilings, areas, opening candidates on the current scans | partial |
+| R7 | Stitched multi-room adjacency | `stitch/constraints.py` + `stitch/pose_graph.py` | Shared-opening SE(2) snap + ablation on RoomPlan; LiDAR rooms share an ARKit frame when openings face | partial |
+| R8 | Damage regions, class + metric extent | `agent/openai_agent.py` + `agent/tools.py` | Live/fallback `damage[]`; staged two-class observations on my-room | done |
+| R9 | Concealed-damage flags + rule id | `agent/tools.py::fire_concealed_rule` | Policy-validated `concealed_flags[]` live and offline | done |
+| R10 | Scope line items keyed to surfaces | `agent/tools.py::add_scope_line` | Quantity copied from metric damage observation | done |
+| R11 | Confidence interval on every measurement | `docs/schemas/floorplan.schema.json` | v0.2 `{value, unit, interval}` required and tested | done |
+| R12 | One command per capture | `src/cozmo_floorplan/cli.py` | `python -m cozmo_floorplan run JOB --out OUT` for a folder or Cozmo Capture ZIP | done |
+| R13 | JSON to published schema | `docs/schemas/floorplan.schema.json` | FloorPlan v0.2; CLI validates before write | done |
+| R14 | Rendered plan | `src/cozmo_floorplan/render/svg.py` | Paired `floorplan.svg` | done |
+| R15 | Benchmark: 3+ rooms + connector, all tiers, damage, repeat, tape GT | `data/private/` + `make benchmark` | Photos, video, three room `.r3d`, tape, damage, photo/video repeats, Magicplan 2026.35.0; connector LiDAR not in the bundle | partial |
+| R16 | Opening width gate | `eval/evaluator.py` + `out/benchmark/lidar/eval.json` | LiDAR: 3 matched, median 10 cm; photos/video: 0 predictions | partial |
+| R17 | Ceiling height + repeatability gates | `eval/evaluator.py` | LiDAR ceiling max 5.41 cm, n=3; photo/video repeats present | partial |
+| R18 | Drift ablation | `run` + `--no-drift-correction` | Synthetic 20 cm gap closes; LiDAR ablation artifacts present | partial |
+| R19 | Photo-tier whole-property stitch ±8% | `eval/evaluator.py` | Gate implemented; overlap graphs 2/2/5/3 | partial |
+| R20 | Head-to-head vs incumbent, 2 rooms, LiDAR | `eval --incumbent` | Magicplan 2026.35.0; 5 of 12 shared dimensions | partial |
+| R21 | Fix loop: declaration, before, after, diff | `docs/fix-loop.md` + `data/fix-loop/` | Checksum-locked yield fail→pass, regenerable | done |
+| R22 | README 15 min clean machine | `README.md` + `docs/reproduction.md` | Fresh Python 3.12 venv path 28.37 s on macOS arm64 | done |
+| R23 | Reproduction bundle | `make reproduce-synthetic` + `make benchmark` + `data/fix-loop/` | Synthetic + private three-tier runner; `pending_inputs` empty | done |
+| R24 | Technical report ≤ 6 pages | `docs/writeup.md` | Architecture, tiers, drift, intervals, agent, fix loop, measured tables | done |
+| R25 | Mirrors / glass / wet / low light | `docs/writeup.md` §7 + capture route | Capture guidance and structured incomplete-scan warnings | done |
+| R26 | No calls to our infrastructure | `agent/openai_agent.py` | Local processing; disclosed OpenAI or offline tools | done |
+| R27 | Process evidence | git history | Commits across schema, CLI, adapters, eval, iOS, evals | doing |

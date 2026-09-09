@@ -1,0 +1,39 @@
+{
+  "status": "partial",
+  "floor_id": "benchmark-lidar-2026-09-09",
+  "tier": "lidar",
+  "scale_source": "lidar",
+  "pipeline": "cozmo-floorplan/record3d-r3d-v1+manhattan-candidates",
+  "n_rooms": 3,
+  "n_openings": 4,
+  "n_damage": 0,
+  "rooms": [
+    {
+      "id": "drawing-room",
+      "label": "drawing room",
+      "area_cm2": 123200.0,
+      "ceiling_cm": 295.414952,
+      "walls_cm": []
+    },
+    {
+      "id": "my-room",
+      "label": "my room",
+      "area_cm2": 125625.0,
+      "ceiling_cm": 291.696996,
+      "walls_cm": []
+    },
+    {
+      "id": "pooja-room",
+      "label": "pooja room",
+      "area_cm2": 114000.0,
+      "ceiling_cm": 292.732049,
+      "walls_cm": []
+    }
+  ],
+  "warning_codes": [
+    "low_confidence",
+    "disconnected_rooms"
+  ],
+  "capture_tool": "Record3D",
+  "job": "data/private/benchmark-lidar"
+}

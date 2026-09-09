@@ -51,6 +51,8 @@ follow `docs/capture-route.md` instead.
 Rehearsal on 2026-09-10: signed iPhoneOS build **46 s**; Harsh's phone copy
 **~18 s** (`docs/t21h-install-rehearsal.md`). Cozmo's phone is still untimed.
 
+What the app looks like after a scan: [`docs/evidence/`](evidence/) (`app-lidar-room.jpg` is the on-device room mesh).
+
 ## Capture (after the app is open)
 
 Lights on. Rear camera. No zoom, Portrait, or cinematic mode.

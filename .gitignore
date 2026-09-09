@@ -19,4 +19,8 @@ build/
 htmlcov/
 out/
 
+# Phone originals are full-res. README uses the downsampled app-*.jpg copies.
+docs/evidence/IMG_*.PNG
+docs/evidence/lidar/*.r3d
+
 # Keep orchestration docs / markdown local-only (not pushed)

@@ -31,6 +31,7 @@ Read `AGENTS.md` first, not this folder.
 | `schemas/floorplan.schema.json` | IR |
 | `formats/roomplan-json.md` | Tested portable RoomPlan surface JSON accepted by T6 |
 | `formats/cozmo-capture-job.md` | Route 1 Cozmo Capture ZIP that unpacks into a lidar job folder |
+| `evidence/` | App screenshots + Route 1 / Route 2 / synthetic FloorPlan SVG + JSON |
 | `briefs/ai-backend-engineer.pdf` | Original JD |
 
 When implementation starts, `writeup.md` is the ≤6 page report (Phase 11).

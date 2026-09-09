@@ -44,6 +44,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `ios/CozmoCapture/README.md` | Build, first-flight iPhone install, and pointer to the T21h cable-install card. |
 | `docs/capture-route-route1.md` | Optional Route 1 walk-in card: 10-minute Personal-Team cable install, no TestFlight. |
 | `docs/t21h-install-rehearsal.md` | Timed signed iPhoneOS build (46 s) and Harsh's device copy (~18 s). Cozmo phone still untimed. |
+| `docs/evidence/` | App screenshots plus regenerable Route 1 / Route 2 / synthetic FloorPlan SVG + compact JSON. |
 | `scripts/install-cozmo-capture.sh` | One-command signed iPhoneOS build + `devicectl` install; `--dry-run` / `--build-only`. |
 
 ## Contract and I/O
@@ -79,12 +80,12 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/io/roomplan.py` | Parses the portable single- or multi-room RoomPlan JSON contract into typed immutable capture objects. |
 | `src/cozmo_floorplan/recon/lidar_config.py` | LiDAR confidence scores, uncertainty widths, and recognized RoomPlan filenames. |
 | `src/cozmo_floorplan/recon/measurements.py` | Builds interval-bearing LiDAR and derived diagnostic measurements without treating transforms as exact. |
-| `src/cozmo_floorplan/recon/lidar.py` | Converts RoomPlan surfaces into FloorPlan v0.2 and orchestrates raw Record3D validation, metric clouds, plane fitting, supported openings, and partial IR conversion. |
+| `src/cozmo_floorplan/recon/lidar.py` | Converts RoomPlan surfaces into FloorPlan v0.2 and orchestrates raw Record3D validation, metric clouds, plane fitting, occupancy openings, shared-world opening pairing, and partial IR conversion. |
 | `src/cozmo_floorplan/recon/record3d_config.py` | Keeps Record3D validation, metric-cloud, plane, raw-support uncertainty, opening-profile, and output-interval policies out of I/O and algorithm code. |
 | `src/cozmo_floorplan/recon/record3d_validation.py` | Decodes bounded representative RGB-D frames and reports valid-depth coverage, range, and camera-trajectory extent without claiming walls. |
 | `src/cozmo_floorplan/recon/record3d_points.py` | Back-projects filtered depth along camera negative-Z, applies metric camera poses, and computes deterministic world-space voxel centroids with audit counts. |
 | `src/cozmo_floorplan/recon/record3d_planes.py` | Detects floor/ceiling bands, rejects short vertical clutter, searches a Manhattan yaw, and brackets walls. Optional clutter-band stepping (off by default) prefers a supported outer plane within 32 cm of the densest peak. |
-| `src/cozmo_floorplan/recon/record3d_openings.py` | Detects door, cased-opening, and window gaps from occupancy; keeps the strongest door and cased opening per room. |
+| `src/cozmo_floorplan/recon/record3d_openings.py` | Detects door, cased-opening, and window gaps from occupancy; extends corner openings through the wall-end margin; keeps the emptiest door and cased opening per room. |
 | `src/cozmo_floorplan/recon/record3d_register.py` | Pairs openings across rooms that already share Record3D/ARKit world coordinates; does not invent a new pose frame. |
 | `src/cozmo_floorplan/recon/record3d_measurements.py` | Builds Record3D measurement objects with disclosed, deliberately uncalibrated candidate-stage intervals. |
 | `src/cozmo_floorplan/recon/record3d_uncertainty.py` | Converts conservative p95 raw plane residuals into per-room wall-span, ceiling, and propagated area half-widths without reading benchmark truth. |
@@ -133,7 +134,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | --- | --- |
 | `src/cozmo_floorplan/eval/config.py` | Official numerical thresholds plus the explicitly labeled internal interval-calibration tolerance. |
 | `src/cozmo_floorplan/eval/models.py` | Deterministic `GateResult` and `EvaluationReport` objects serialized into `eval.json`. |
-| `src/cozmo_floorplan/eval/matching.py` | Generic ID-first entity matching with Hungarian geometry fallbacks for entities whose identifiers or shared coordinate frame are meaningful. |
+| `src/cozmo_floorplan/eval/matching.py` | Generic ID-first entity matching with Hungarian geometry fallbacks. Opening cost ignores supporting-wall identity when truth `wall_id` is unlocated. |
 | `src/cozmo_floorplan/eval/wall_matching.py` | Matches single-room wall cycles across independent translated, rotated, or reflected scan frames; generated wall numbers cannot override room topology and side-length evidence. |
 | `src/cozmo_floorplan/eval/measurements.py` | Reads v0.2 measurement values and computes confidence-interval coverage. |
 | `src/cozmo_floorplan/eval/metrics.py` | Reusable absolute, relative, median, and p95 error calculations. |

@@ -58,15 +58,22 @@ classes remain `pending_inputs`; the audit command itself does not fail merely
 because shooting is unfinished. It defaults to agent mode `auto`; pass
 `BENCHMARK_AGENT_MODE=fallback` for deterministic offline rehearsal.
 
-The 2026-09-09 partial private run found all three primary job folders and ran
-them. LiDAR returned `partial`; photos and video returned structured `failed`.
-Exactly four required input classes remain absent: tape/laser truth, repeat
-LiDAR, normalized incumbent output, and staged damage observations.
+## Private benchmark command
+
+```bash
+make benchmark
+```
+
+This runs every available photos/video/LiDAR job plus configured repeat jobs,
+writes each tier's JSON/SVG and eval, and produces
+`out/benchmark/benchmark-status.json` plus a Markdown checklist.
+
+The 2026-09-10 run reports `status=complete` and `pending_inputs=[]`. Pipeline:
+LiDAR `partial`; photos and video `failed`. Gate numbers are in
+`docs/writeup.md` §6 and `docs/device-matrix.md`.
 
 ## Remaining reproduction work
 
 - Repeat the README from a fresh clone on a second clean machine.
-- Add raw benchmark captures, tape truth, repeat runs, and incumbent exports.
-- Re-run `make benchmark` to regenerate real evals after those inputs exist.
-- Time the cold walk-in command without a warmed environment (`make walkin`
-  after holdout media exists; the harness is shipped, the room is not).
+- Time the cold walk-in command on a holdout room (`make walkin` after media
+  exists; the harness is shipped).

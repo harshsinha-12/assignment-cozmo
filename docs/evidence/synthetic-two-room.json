@@ -1,0 +1,29 @@
+{
+  "status": "ok",
+  "floor_id": "roomplan_two_room",
+  "tier": "lidar",
+  "scale_source": "lidar",
+  "pipeline": "cozmo-floorplan/roomplan-json-v1+plane-anchored-stitch",
+  "n_rooms": 2,
+  "n_openings": 1,
+  "n_damage": 2,
+  "rooms": [
+    {
+      "id": "room_a",
+      "label": "Room A",
+      "area_cm2": 120000.0,
+      "ceiling_cm": 250.0,
+      "walls_cm": []
+    },
+    {
+      "id": "room_b",
+      "label": "Room B",
+      "area_cm2": 98000.0,
+      "ceiling_cm": 250.0,
+      "walls_cm": []
+    }
+  ],
+  "warning_codes": [
+    "agent_fallback"
+  ]
+}

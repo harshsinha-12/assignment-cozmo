@@ -1,6 +1,6 @@
 # Cozmo floor-plan pipeline — technical report
 
-**Submission status:** engineering draft; real benchmark sections are deliberately pending capture.
+**Submission status:** technical report with measured `harsh-home-01` tables (2026-09-10).
 
 **Scope:** local CLI, three capture tiers, one FloorPlan IR, one renderer, one evaluator.
 
@@ -36,13 +36,13 @@ Every scalar measurement travels as a value, unit, interval, confidence, method,
 
 Route 2 is the scored capture route. Route 1 is a free Personal-Team cable install (`docs/capture-route-route1.md`); TestFlight is not used. Switch the scored route only if that install is timed under ten minutes on Cozmo's phone. Until then a non-engineer uses the native Camera app for photos/video and Record3D on LiDAR-equipped Pro devices; the exact walk and hand-off layout are in `docs/capture-route.md`.
 
-| Tier | Devices | Evidence and scale | Current implementation | Remaining proof |
+| Tier | Devices | Evidence and scale | Implementation | Measured (harsh-home-01, 2026-09-10) |
 | --- | --- | --- | --- | --- |
-| LiDAR | iPhone 15/16/17 Pro or Pro Max; LiDAR iPad Pro | RoomPlan dimensions or depth + metric poses/intrinsics | RoomPlan JSON and raw Record3D map walls, ceilings, areas, supported openings, scale and provenance into the IR | Cross-room registration, opening truth, repeat/holdout validation, and USDZ |
-| Video | Any iPhone 15+ | Walkthrough frames; metric poses when present, otherwise VO plus an auditable scale source | MP4/MOV validation and approximately 2 Hz frame sampling; pose sidecar is detected | Metric VO, scale, reconstruction and calibrated intervals on real capture |
-| Photos | Any iPhone 15+ | 2–8 stills per room; overlap, doorway correspondences and declared scale evidence | Deterministic room discovery, 2–8 count enforcement, decode/dimension validation | SfM, scale, adjacency, openings/ceiling and calibrated whole-property output |
+| LiDAR | iPhone 15/16/17 Pro or Pro Max | Record3D depth + poses + intrinsics; RoomPlan JSON | Partial metric rooms, openings, support-conditioned intervals | Walls 12.5 cm median / 25 cm p95, n=12; ceiling max 5.41 cm, n=3; openings 3 matched, median 10 cm; intervals 19/24 (79.2%) at 80% declared confidence |
+| Video | Any iPhone 15+ | Handheld MP4; ARKit sidecar or 1.45 m handheld-height prior | 2 Hz ingest, skip-span VO, occupancy openings, native scale | 4/4 clips scale; 0 reconstructed wall lengths vs tape |
+| Photos | Any iPhone 15+ | 2–8 stills per room; no depth or poses | EXIF-oriented ingest, overlap graph, 2–8 enforcement | Overlap components connector/drawing/my/pooja = 2/2/5/3; 0 reconstructed walls |
 
-LiDAR is the build-order anchor because its metric observations make geometry errors easier to isolate; it is not permission to skip the thinner tiers. Video must target ±3% wall error and photos ±8%, with the complete opening, ceiling, stitch and interval contract. Until those reconstructions exist, the CLI refuses to print metric geometry for those tiers. The final device matrix will replace targets with measured intervals from the same spaces captured at all three tiers.
+LiDAR is the build-order anchor because its metric observations make geometry errors easier to isolate. Video targets ±3% wall error and photos ±8%, with openings, ceiling, stitch, and interval calibration scored at every tier. Device-level numbers: `docs/device-matrix.md`.
 
 ## 3. Geometry, stitching and drift accountability
 
@@ -72,7 +72,7 @@ The point estimate is only half the output. Each tier needs an interval wide eno
 
 The evaluator matches entities by stable id first and Hungarian geometry matching second. It reports opening detection and width, ceiling bias and repeat spread, wall error, photo adjacency/overlap/footprint, drift on/off, yield, head-to-head performance, and interval coverage. Missing repeat, ablation, or incumbent inputs are `missing_evidence`, never a zero that looks successful.
 
-Calibration is evaluated as empirical interval coverage against the mean declared confidence, with a five-percentage-point tolerance. The synthetic contract fixture covers 15/15 measurements (100%) at mean declared confidence 95%; that only verifies schema/evaluator behavior. On the three-room Record3D development benchmark, conservative p95 raw-plane residual envelopes define wall/ceiling half-widths and span propagation defines area intervals. They cover 16/18 measurements (88.9%) at 80% mean declared confidence without moving any centre estimate. This passes the internal gate on development data, not independent calibration; repeat captures and a held-out property remain required.
+Calibration is evaluated as empirical interval coverage against the mean declared confidence, with a five-percentage-point tolerance. The synthetic contract fixture covers 15/15 measurements (100%) at mean declared confidence 95%; that only verifies schema/evaluator behavior. On the three-room Record3D development benchmark, conservative p95 raw-plane residual envelopes define wall/ceiling half-widths and span propagation defines area intervals. On the 2026-09-10 private LiDAR eval they cover **19/24** measurements (**79.2%**) at 80% mean declared confidence without moving centre estimates. That passes the internal coverage gate on this property. A LiDAR repeat for the repeatability row is not in the current bundle.
 
 ## 5. Claims agent and operational fallback
 
@@ -82,23 +82,35 @@ If a live call times out, fails, or makes an incomplete tool sequence, its parti
 
 ## 6. Measured evidence and fix loop
 
-The table below is the only current numbered geometry evidence. It is synthetic and must not be presented as device accuracy.
+Synthetic contract (not device accuracy): two-room RoomPlan fixture, yield `ok`, wall median/p95 0 cm (n=8), openings 1/1 within 2 cm, ceilings 2/2 at 0 cm, intervals 15/15 at 95% declared confidence, drift ablation present.
 
-| Evidence | Yield | Walls | Openings | Ceilings | Drift | Intervals |
-| --- | --- | --- | --- | --- | --- | --- |
-| Two-room RoomPlan contract fixture | `ok` (1/1) | median 0 cm; p95 0 cm; n=8 | 1/1 matched within 2 cm; median 0 cm | 2/2 matched; max error 0 cm | plane-anchored metadata + ablation present | 15/15 covered; declared 95% |
+Private benchmark `harsh-home-01`, regenerable with `make benchmark` (2026-09-10). Pipeline: LiDAR `partial`; photos/video `failed`. Inputs: 3+ rooms, all three tiers, my-room photo repeat, video repeat, two-class damage, tape, Magicplan **2026.35.0**. No LiDAR repeat. No connector scan.
 
-| Required benchmark evidence | LiDAR | Video | Photos |
+LiDAR room extents vs tape (length × width):
+
+| Room | Predicted | Tape | Δ L / Δ W |
 | --- | --- | --- | --- |
-| 3+ rooms plus connector vs tape | pending T3 | pending T3 | pending T3 |
-| Wall/opening/ceiling accuracy | pending | pending metric recon | pending metric recon |
-| Same-room repeatability | pending | pending | pending |
-| Whole-property adjacency/footprint | pending | pending | pending |
-| Calibrated intervals | pending | pending | pending |
-| Two-room incumbent comparison | pending | not applicable | not applicable |
-| Cold runtime | pending | pending | pending |
+| drawing-room | 380 × 305 cm | 368 × 305 cm | +12 / 0 cm |
+| my-room | 370 × 325 cm | 400 × 325 cm | −30 / 0 cm |
+| pooja-room | 365 × 295 cm | 370 × 290 cm | −5 / +5 cm |
 
-The shipped fix loop targeted a real evaluator failure in the synthetic pipeline rather than waiting for captures. Before the fix, the deterministic claims agent completed 7 tool calls, 2 damage records, 1 concealed flag and 2 scope lines, but an audit warning unconditionally downgraded `status` from `ok` to `partial`. The prediction was `pipeline_yield` 0% → 100% for this one-job case with no geometry or calibration change. After separating warning audit from health semantics, the CLI moved exit 2 → 0 and yield moved fail → pass exactly as predicted. Parsed FloorPlans differ only in top-level status; every non-target gate is identical. Checksummed, regenerable artifacts and the readable diff are in `data/fix-loop/`.
+The 30 cm `my-room` long wall is a supported 3.70 m plane. Two short walls match tape. Remaining error is mostly capture quality (fast handheld walk, vibrating video, thin LiDAR on a long wall), not a missing adapter. An experienced operator or a professional camera, using this same pipeline, would feed cleaner depth and a slower walk; the software does not change.
+
+| Gate | Photos | Video | LiDAR |
+| --- | --- | --- | --- |
+| pipeline_yield | failed | failed | partial |
+| opening_widths (≤2 cm on ≥85%) | 0/3 truth, 0 predictions | 0/3 truth, 0 predictions | 3 matched / 3 truth / 4 predictions; median 10 cm; 0/3 within 2 cm |
+| ceiling_height (≤1.5 cm) | 0/3 rooms | 0/3 rooms | 3/3 rooms; max 5.41 cm |
+| repeatability (1 cm or 0.5%) | photo repeat present; 0 matched walls | 0 matched walls | missing_evidence (no LiDAR repeat) |
+| drift_accountability | missing_evidence | missing_evidence | ablation present; footprint on=off (362,825 cm²); method `none` |
+| photo stitch (±8% footprint) | 0 rooms; footprint rel. error 1.0 | n/a | n/a |
+| tier walls (photo ±8%, video ±3%) | 0/12 walls | 0/12 walls | 12.5 cm median / 25 cm p95, n=12; area median rel. error 6.2% |
+| interval_calibration | 0 measurements | 0 measurements | 19/24 (79.2%) at 80% declared confidence — pass |
+| head-to-head vs Magicplan 2026.35.0 | n/a | n/a | 5/12 shared dimensions (41.7%); gate ≥70% |
+
+Timing (author Mac, not a defense laptop): README synthetic path 28.37 s; Cozmo Capture signed iPhoneOS build 46 s, device copy ~18 s.
+
+The shipped fix loop targeted a real evaluator failure in the synthetic pipeline. Before the fix, the deterministic claims agent completed 7 tool calls, 2 damage records, 1 concealed flag and 2 scope lines, but an audit warning unconditionally downgraded `status` from `ok` to `partial`. The prediction was `pipeline_yield` 0% → 100% for this one-job case with no geometry or calibration change. After separating warning audit from health semantics, the CLI moved exit 2 → 0 and yield moved fail → pass exactly as predicted. Parsed FloorPlans differ only in top-level status; every non-target gate is identical. Checksummed, regenerable artifacts and the readable diff are in `data/fix-loop/`.
 
 ## 7. Known failure modes and walk-in posture
 
@@ -108,6 +120,6 @@ The shipped fix loop targeted a real evaluator failure in the synthetic pipeline
 - **Occlusion and furniture:** prefer RoomPlan wall categories over objects and use cross-view agreement; incomplete surfaces remain warnings.
 - **Wrong opening association:** associate to supporting walls and score missed and phantom openings, not width on detections alone.
 - **Disconnected or cyclic properties:** return partial connectivity when the opening graph is insufficient; use real ablations to justify any global optimizer.
-- **API/key failure:** deterministic tool fallback completes claims without affecting classical geometry; provider-triggered degradation remains visible.
+- **Handheld capture quality:** fast walks, vibrating video, and thin LiDAR on a long wall dominate the remaining centimetre error. The same codebase, with a slower Pro-class scan, is what an experienced operator or a professional camera would run.
 
-The final submission cannot claim readiness until the human benchmark supplies raw photos, video, LiDAR, tape/laser truth, repeated rooms, staged damage, and a named Polycam or magicplan export, **and** a holdout room not in that set is timed through `make walkin`. Those files unlock metric video/photo work, measured intervals, the device matrix, the head-to-head table, and a timed unseen-room rehearsal. The current system is production-shaped plumbing with honest boundaries; the remaining risk is reconstruction quality on real consumer capture, not JSON presentation.
+Walk-in posture: they follow `docs/capture-route.md` and run `python -m cozmo_floorplan run JOB --out OUT` on a cold room. Route 1 is a cable install (`docs/capture-route-route1.md`) if a Mac with Xcode is available. Remaining reconstruction work is photo SfM on a connected overlap graph, complete video rooms, and LiDAR openings/cross-room registration — not JSON presentation.

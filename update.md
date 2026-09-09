@@ -13,6 +13,63 @@ Format:
 - Next
 ```
 
+## 2026-09-10 — App screenshots in README evidence
+
+- Context: Harsh dropped Cozmo Capture PNGs into `docs/evidence/`, including
+  IMG_0151 which shows the on-device room mesh.
+- Done: Downsampled JPEGs in README Route 1 gallery (scan, room mesh, photos,
+  video, export ZIP next to the CLI SVG). Full-res `IMG_*.PNG` and the 34 MB
+  `.r3d` are gitignored. `lidar/roomplan.json` stays as the on-device export.
+- Learned: IMG_0151 is Ready + RoomPlan mesh for Room 1. IMG_0148/0150 are
+  post-scan (68 frames) + Share ZIP.
+- Next: No more screenshots needed unless Harsh wants a Photos/Video export
+  confirmation screen.
+
+## 2026-09-10 — README shows Route 1 / Route 2 / fixture outputs
+
+- Context: User asked to put app images and the actual JSON/SVG from each
+  route in the README so reviewers can see it ran.
+- Done: Copied regenerable FloorPlan SVG + compact JSON into `docs/evidence/`
+  (Cozmo Capture ZIP, Record3D three-room job, synthetic two-room). README
+  section **These paths ran** embeds the drawings and status snippets.
+- Learned: Route 1 first flight is `status=partial` (`incomplete_scan`, 6 walls,
+  63.66 cm door). Route 2 LiDAR is `partial` with three rooms. Fixture is `ok`.
+- Next: If Harsh AirDrops Cozmo Capture UI screenshots, drop them in
+  `docs/evidence/` and link them under Route 1.
+
+## 2026-09-10 — README both routes + LiDAR room extents vs tape
+
+- Context: User asked the README to state that both capture routes shipped, and
+  to include predicted vs tape room sizes.
+- Done: README now leads with Route 1 + Route 2, JD-shaped strengths, and the
+  LiDAR L×W table (drawing 380×305 vs 368×305, my-room 370×325 vs 400×325,
+  pooja 365×295 vs 370×290). Same table in `docs/writeup.md` and the device matrix.
+- Learned: Two short walls match tape. The 30 cm my-room long wall is a
+  supported 3.70 m plane.
+- Next: T8c only if a photo graph connects.
+
+## 2026-09-10 — T6e wall/ceiling bias, openings, cross-room LiDAR registration
+
+- Context: User asked to work T6 (wall/ceiling bias, openings, cross-room LiDAR registration) against the three private `.r3d` scans.
+- Done: Left default walls on the densest peak (clutter-band outer step stays off). Added exclusive door/cased split at 1.40 m, corner-door margin extension, and emptiest-gap ranking. Shared-world opening pairing (≤1.25 m, compatible kinds) with `connects_room_ids`. Tape openings in private GT as `wall_id: unlocated`; eval matches those by kind+width. Re-measured the three archives from cached voxels.
+- Learned: Wall spans are still 380×305, 370×325, 365×295 cm vs tape 368×305, 400×325, 370×290; the 30 cm `my-room` residual is a real supported 3.70 m plane. Opening width errors vs tape are **5 / 10 / 15 cm** (195/70/95 vs 200/80/80). Ceiling max **5.4 cm**. Opening centers are **5.08 / 6.68 / 9.56 m** apart, so pairing correctly returns empty. Do not snap bedroom doors across the missing connector. Lintel-heaviest ranking picked a furniture-dense 170 cm drawing-room span; occupancy density ranking keeps the 195 cm entrance.
+- Next: Do not claim official opening ≤2 cm or ceiling ≤1.5 cm. Re-run `make benchmark` before quoting a new wall median. No commit this session. Connector LiDAR is not being shot.
+
+## 2026-09-10 — T10/T17/T20 measured docs + submission README
+
+- Context: User asked to fill the report tables, device matrix, and README from
+  existing numbers, without fail-branding in README/compliance. README should
+  match the JD and official deliverables: how to run, install the app, and
+  how they test at the defense.
+- Done: Wrote submission `README.md`. Filled `docs/writeup.md` §6 from
+  `make benchmark` 2026-09-10. Filled `docs/device-matrix.md`. Updated
+  `docs/compliance-matrix.md` with measured artifacts. T10/T17/T20 marked done.
+  3 tests pass. No commit.
+- Learned: Latest LiDAR eval is 12.5 cm median / 25 cm p95, ceiling 5.41 cm,
+  openings median 10 cm, intervals 19/24, head-to-head 5/12. Photos/video emit
+  0 walls. Harsh is not shooting T11 or connector LiDAR.
+- Next: T8c only if a photo graph connects. Do not loosen overlap gates.
+
 ## 2026-09-10 — T18 remainder: pooja walls, Magicplan 2026.35.0, benchmark
 
 - Context: T18 still lacked pooja-room walls and an exact app version; the last

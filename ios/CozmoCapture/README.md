@@ -6,6 +6,8 @@ shares one CLI-ready job ZIP (`docs/formats/cozmo-capture-job.md`).
 
 This is an **iPhone app**, not a Mac app. The Simulator can compile and show
 the UI, but RoomPlan/LiDAR and a real camera need the iPhone 17 Pro.
+Phone screenshots and the CLI drawing from a real ZIP are in
+[`docs/evidence/`](../../docs/evidence/).
 
 Walk-in install (T21h): [`docs/capture-route-route1.md`](../../docs/capture-route-route1.md)
 and `./scripts/install-cozmo-capture.sh`. A free Personal Team is enough. Do

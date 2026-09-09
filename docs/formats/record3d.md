@@ -45,17 +45,19 @@ outliers from becoming room bounds. All thresholds live in
 `recon/record3d_config.py` and the geometry lives in
 `recon/record3d_planes.py`.
 
-The three current private scans all yield four-wall candidates and plausible
-horizontal separation. These are diagnostics, not accuracy results: no official
-gate is scored until tape/laser truth exists.
+The three current private scans all yield four-wall candidates. Frame-invariant
+tape eval reports 2.5 cm wall median and 30 cm p95; see **Current boundary**.
 
 ## Openings and FloorPlan output
 
 T6b3 profiles points near each accepted wall. A floor-reaching sparse band is a
 door candidate only when the wall has surviving lintel support; a middle sparse
 band is a window candidate only when both sill and lintel support survive.
-Floor-reaching gaps 1.40–2.40 m are `cased_opening` (wide entrance), not doors.
-Each room keeps the strongest door and the strongest cased opening. Configured
+Floor-reaching gaps 1.40–2.40 m are `cased_opening` (wide entrance), not doors
+(the 1.40 m bound is exclusive for doors so a gap cannot be both). Sparse runs
+that touch the interior wall-end margin extend through empty end bins so a
+corner door is not cropped by 15 cm. Each room keeps the emptiest door and the
+emptiest cased opening (gap occupancy per metre, then lintel). Configured
 width ranges, wall-end margins, short-gap bridging, and height-change evidence
 reject unconstrained empty space. Solid-wall synthetic tests must yield zero
 openings.
@@ -72,8 +74,8 @@ holdout calibration.
 
 ## Current boundary
 
-Three separate archives currently produce three rooms, twelve walls, and
-supported opening candidates. Frame-invariant evaluation reports **2.5 cm wall
+Three separate archives currently produce three rooms, twelve walls, and one
+supported opening per room. Frame-invariant evaluation reports **2.5 cm wall
 median and 30 cm p95** across the twelve walls; the large residual is real. The
 visible raw planes strongly support the 3.70 m `my-room` span, so the default
 pipeline does not add an unobserved 30 cm correction. An optional clutter-band
@@ -81,15 +83,21 @@ outer-peak step exists for tall inward furniture (tested) but is **off by
 default**: enabling it on this capture expanded drawing-room and pooja-room
 through doorways into the next space.
 
+Opening widths versus tape: drawing-room cased opening **195 vs 200 cm**,
+my-room door **70 vs 80 cm**, pooja-room door **95 vs 80 cm**. Official ≤2 cm
+on ≥85% is not claimed. Heights are 215/195/205 cm versus taped 240/200/210 cm.
+
 The three `.r3d` files already share an ARKit world frame (camera paths occupy
-different regions of one coordinate system). Openings are associated only when
-centers are within 1.25 m and widths/heights agree; on the current scans no
-pair meets that test, so rooms stay unregistered rather than snapping 80 cm
+different regions of one coordinate system). Openings pair only when centers
+are within 1.25 m and widths/heights agree. Current pairwise center distances
+are **5.08 / 6.68 / 9.56 m**, so rooms stay unregistered rather than snapping
 bedroom doors together across a missing connector.
 
-Tape now includes entrance widths/heights in `data/private/ground_truth.json`
-with `wall_id: unlocated` (supporting walls/offsets were not measured). Eval
-matches those by kind and width. Connector LiDAR is still missing.
+Tape includes entrance widths/heights in `data/private/ground_truth.json` with
+`wall_id: unlocated` (supporting walls/offsets were not measured). Eval matches
+those by kind and width. Connector LiDAR is still missing.
 
-Ceiling densest-peak heights are about 292–295 cm against 290 cm tape (max
-~5.4 cm). That remains above the 1.5 cm official ceiling gate.
+Ceiling densest-peak heights are 291.7–295.4 cm against 290 cm tape (max
+**5.4 cm** on drawing-room). Adjacent lower histogram bins do not bring every
+room inside the 1.5 cm official ceiling gate; the default stays the densest
+peak plus local median refine.
