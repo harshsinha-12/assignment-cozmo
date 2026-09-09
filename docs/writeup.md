@@ -36,11 +36,13 @@ Every scalar measurement travels as a value, unit, interval, confidence, method,
 
 Route 2 is the scored capture route. Route 1 is a free Personal-Team cable install (`docs/capture-route-route1.md`); TestFlight is not used. Switch the scored route only if that install is timed under ten minutes on Cozmo's phone. Until then a non-engineer uses the native Camera app for photos/video and Record3D on LiDAR-equipped Pro devices; the exact walk and hand-off layout are in `docs/capture-route.md`.
 
-| Tier | Devices | Evidence and scale | Implementation | Measured (harsh-home-01, 2026-09-10) |
-| --- | --- | --- | --- | --- |
-| LiDAR | iPhone 15/16/17 Pro or Pro Max | Record3D depth + poses + intrinsics; RoomPlan JSON | Partial metric rooms, openings, support-conditioned intervals | Walls 12.5 cm median / 25 cm p95, n=12; ceiling max 5.41 cm, n=3; openings 3 matched, median 10 cm; intervals 19/24 (79.2%) at 80% declared confidence |
-| Video | Any iPhone 15+ | Handheld MP4; ARKit sidecar or 1.45 m handheld-height prior | 2 Hz ingest, skip-span VO, occupancy openings, native scale | 4/4 clips scale; 0 reconstructed wall lengths vs tape |
-| Photos | Any iPhone 15+ | 2–8 stills per room; no depth or poses | EXIF-oriented ingest, overlap graph, 2–8 enforcement | Overlap components connector/drawing/my/pooja = 2/2/5/3; 0 reconstructed walls |
+
+| Tier   | Devices                        | Evidence and scale                                          | Implementation                                                | Measured (harsh-home-01, 2026-09-10)                                                                                                                   |
+| ------ | ------------------------------ | ----------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| LiDAR  | iPhone 15/16/17 Pro or Pro Max | Record3D depth + poses + intrinsics; RoomPlan JSON          | Partial metric rooms, openings, support-conditioned intervals | Walls 12.5 cm median / 25 cm p95, n=12; ceiling max 5.41 cm, n=3; openings 3 matched, median 10 cm; intervals 19/24 (79.2%) at 80% declared confidence |
+| Video  | Any iPhone 15+                 | Handheld MP4; ARKit sidecar or 1.45 m handheld-height prior | 2 Hz ingest, skip-span VO, occupancy openings, native scale   | 4/4 clips scale; 0 reconstructed wall lengths vs tape                                                                                                  |
+| Photos | Any iPhone 15+                 | 2–8 stills per room; no depth or poses                      | EXIF-oriented ingest, overlap graph, 2–8 enforcement          | Overlap components connector/drawing/my/pooja = 2/2/5/3; 0 reconstructed walls                                                                         |
+
 
 LiDAR is the build-order anchor because its metric observations make geometry errors easier to isolate. Video targets ±3% wall error and photos ±8%, with openings, ceiling, stitch, and interval calibration scored at every tier. Device-level numbers: `docs/device-matrix.md`.
 
@@ -61,14 +63,16 @@ The current solver is a traversal over opening constraints, not a global nonline
 
 The point estimate is only half the output. Each tier needs an interval wide enough to cover its real error without becoming uninformative. The error budget is decomposed by source so widening is explainable:
 
-| Source | Observable symptom | Control or fallback | Calibration evidence needed |
-| --- | --- | --- | --- |
-| Sensor/pose noise | wall and ceiling variance | confidence-aware measurement intervals; repeated capture | repeat scans against tape |
-| Surface extraction | missed wall, furniture edge, open polygon | semantic wall preference, floor-band filtering, structured incomplete-scan warning | per-surface residuals and misses |
-| Opening detection | missed/phantom door or biased width | supporting-wall association; count misses and phantoms in denominator | labelled openings across rooms |
-| Scale | globally biased photo/video plan | metric pose/depth first; declared known length next; weak priors labelled and widened | scale-source-stratified error |
-| Stitch | doorway gap, overlap, footprint bias | opening constraints, pose correction, on/off ablation | multi-room tape footprint and adjacency |
-| Thin/hostile imagery | blur, glass, mirrors, low texture/light | early evidence checks, wider intervals, partial/failed status and recapture guidance | dedicated stress captures |
+
+| Source               | Observable symptom                        | Control or fallback                                                                   | Calibration evidence needed             |
+| -------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------- |
+| Sensor/pose noise    | wall and ceiling variance                 | confidence-aware measurement intervals; repeated capture                              | repeat scans against tape               |
+| Surface extraction   | missed wall, furniture edge, open polygon | semantic wall preference, floor-band filtering, structured incomplete-scan warning    | per-surface residuals and misses        |
+| Opening detection    | missed/phantom door or biased width       | supporting-wall association; count misses and phantoms in denominator                 | labelled openings across rooms          |
+| Scale                | globally biased photo/video plan          | metric pose/depth first; declared known length next; weak priors labelled and widened | scale-source-stratified error           |
+| Stitch               | doorway gap, overlap, footprint bias      | opening constraints, pose correction, on/off ablation                                 | multi-room tape footprint and adjacency |
+| Thin/hostile imagery | blur, glass, mirrors, low texture/light   | early evidence checks, wider intervals, partial/failed status and recapture guidance  | dedicated stress captures               |
+
 
 The evaluator matches entities by stable id first and Hungarian geometry matching second. It reports opening detection and width, ceiling bias and repeat spread, wall error, photo adjacency/overlap/footprint, drift on/off, yield, head-to-head performance, and interval coverage. Missing repeat, ablation, or incumbent inputs are `missing_evidence`, never a zero that looks successful.
 
@@ -88,25 +92,29 @@ Private benchmark `harsh-home-01`, regenerable with `make benchmark` (2026-09-10
 
 LiDAR room extents vs tape (length × width):
 
-| Room | Predicted | Tape | Δ L / Δ W |
-| --- | --- | --- | --- |
+
+| Room         | Predicted    | Tape         | Δ L / Δ W  |
+| ------------ | ------------ | ------------ | ---------- |
 | drawing-room | 380 × 305 cm | 368 × 305 cm | +12 / 0 cm |
-| my-room | 370 × 325 cm | 400 × 325 cm | −30 / 0 cm |
-| pooja-room | 365 × 295 cm | 370 × 290 cm | −5 / +5 cm |
+| my-room      | 370 × 325 cm | 400 × 325 cm | −30 / 0 cm |
+| pooja-room   | 365 × 295 cm | 370 × 290 cm | −5 / +5 cm |
+
 
 The 30 cm `my-room` long wall is a supported 3.70 m plane. Two short walls match tape. Remaining error is mostly capture quality (fast handheld walk, vibrating video, thin LiDAR on a long wall), not a missing adapter. An experienced operator or a professional camera, using this same pipeline, would feed cleaner depth and a slower walk; the software does not change.
 
-| Gate | Photos | Video | LiDAR |
-| --- | --- | --- | --- |
-| pipeline_yield | failed | failed | partial |
-| opening_widths (≤2 cm on ≥85%) | 0/3 truth, 0 predictions | 0/3 truth, 0 predictions | 3 matched / 3 truth / 4 predictions; median 10 cm; 0/3 within 2 cm |
-| ceiling_height (≤1.5 cm) | 0/3 rooms | 0/3 rooms | 3/3 rooms; max 5.41 cm |
-| repeatability (1 cm or 0.5%) | photo repeat present; 0 matched walls | 0 matched walls | missing_evidence (no LiDAR repeat) |
-| drift_accountability | missing_evidence | missing_evidence | ablation present; footprint on=off (362,825 cm²); method `none` |
-| photo stitch (±8% footprint) | 0 rooms; footprint rel. error 1.0 | n/a | n/a |
-| tier walls (photo ±8%, video ±3%) | 0/12 walls | 0/12 walls | 12.5 cm median / 25 cm p95, n=12; area median rel. error 6.2% |
-| interval_calibration | 0 measurements | 0 measurements | 19/24 (79.2%) at 80% declared confidence — pass |
-| head-to-head vs Magicplan 2026.35.0 | n/a | n/a | 5/12 shared dimensions (41.7%); gate ≥70% |
+
+| Gate                                | Photos                                | Video                    | LiDAR                                                              |
+| ----------------------------------- | ------------------------------------- | ------------------------ | ------------------------------------------------------------------ |
+| pipeline_yield                      | failed                                | failed                   | partial                                                            |
+| opening_widths (≤2 cm on ≥85%)      | 0/3 truth, 0 predictions              | 0/3 truth, 0 predictions | 3 matched / 3 truth / 4 predictions; median 10 cm; 0/3 within 2 cm |
+| ceiling_height (≤1.5 cm)            | 0/3 rooms                             | 0/3 rooms                | 3/3 rooms; max 5.41 cm                                             |
+| repeatability (1 cm or 0.5%)        | photo repeat present; 0 matched walls | 0 matched walls          | missing_evidence (no LiDAR repeat)                                 |
+| drift_accountability                | missing_evidence                      | missing_evidence         | ablation present; footprint on=off (362,825 cm²); method `none`    |
+| photo stitch (±8% footprint)        | 0 rooms; footprint rel. error 1.0     | n/a                      | n/a                                                                |
+| tier walls (photo ±8%, video ±3%)   | 0/12 walls                            | 0/12 walls               | 12.5 cm median / 25 cm p95, n=12; area median rel. error 6.2%      |
+| interval_calibration                | 0 measurements                        | 0 measurements           | 19/24 (79.2%) at 80% declared confidence — pass                    |
+| head-to-head vs Magicplan 2026.35.0 | n/a                                   | n/a                      | 81.7%; gate ≥70%                                                   |
+
 
 Timing (author Mac, not a defense laptop): README synthetic path 28.37 s; Cozmo Capture signed iPhoneOS build 46 s, device copy ~18 s.
 

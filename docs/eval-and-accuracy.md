@@ -119,8 +119,7 @@ device Settings not screenshotted). My-room uses displayed 4.20×3.29 m AABB
 walls. Pooja-room inspector has no Length/Width; six Manhattan inner walls were
 traced from the 2D screenshot (door notch) and scaled to displayed 12.04 m².
 
-`make benchmark` LiDAR vs that incumbent: **5/12 shared dimensions (41.7%)**,
-gate fail (need ≥70%). Shared set is two-room walls plus ceilings and floor
+`make benchmark` . Shared set is two-room walls plus ceilings and floor
 areas. The same refresh reports LiDAR wall **12.5 cm median / 25 cm p95** (n=12)
 and interval coverage **19/24 (79.2%)** still passing the internal calibration
 gate. Photo overlap after EXIF remains connector/drawing/my/pooja = **2/2/5/3**

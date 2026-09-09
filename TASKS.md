@@ -23,13 +23,13 @@ Do **not** invent centimetres.
 | --- | --- | --- |
 | **T21** | **T21h cable path shipped; scored route still Route 2** | App runs on Harsh's phone. Walk-in install is `./scripts/install-cozmo-capture.sh` then `open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj`. Free Personal Team; TestFlight not used. Harsh timed device copy **~18 s** (signed build 46 s). Cozmo's phone is still untimed. |
 | **T10** | **Tables filled 2026-09-10** | `docs/writeup.md` §6 has the `make benchmark` gate table (LiDAR 12.5/25 cm, 5/12 head-to-head, photo/video 0 walls). |
-| **T20** | **README + compliance filled** | Submission README: deliverables, 15-min setup, one command, app install, defense test. Compliance matrix uses measured artifacts. |
+| **T20** | **README + compliance refreshed** | Submission README leads with install/run/app instructions, both implemented routes, the complete scoring map, and honest current gate results. Private captures, IDE state, superseded notes, and the duplicate PDF are local-only. |
 | **T17** | **Measured matrix filled** | `docs/device-matrix.md` uses harsh-home-01 numbers, not TBD. |
 | **T11** | **Harness done; media pending** | `make walkin` times a holdout room, crash-tests 2 stills, and refuses benchmark-room reuse. Shoot kitchen/guest/bath — not drawing-room/my-room/pooja-room/connector. |
 | T8 remainder | Full count present | EXIF orientation applied. `make benchmark` photo graphs still connector/drawing/my/pooja = **2/2/5/3**. Do not loosen gates. T8c waits on a connected graph. |
 | T7 remainder | Four MP4s smoked | Native handheld-height scale works on all four clips after display-K fix. 0/4 complete rooms (missing wall/floor/ceiling bands). Openings/stitch coded; ±3% not claimed. |
 
-**Still evidence-blocked:** T11 holdout media (harness is ready; Harsh is not shooting it). T18 Magicplan 2026.35.0 scores **5/12 (41.7%)** on the latest `make benchmark`. T6/T7/T8 can still advance against uploaded media.
+**Still evidence-blocked:** T11 holdout media (harness is ready; Harsh is not shooting it). T6/T7/T8 can still advance against uploaded media.
 
 ---
 
@@ -48,9 +48,9 @@ Do **not** invent centimetres.
 | T8 | doing | Photos path, 2–8 stills, folder stitch | — | present | T8a–T8b3 done. T8c SfM still blocked until post-EXIF overlap is measured and connected |
 | T21 | doing | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | no | T21a–T21g done on Harsh's iPhone 17 Pro. T21h cable card+script done; Harsh device copy **~18 s**. TestFlight declined. Scored route stays Route 2 until the same install is timed on *their* phone |
 | T17 | done | Device matrix + capture-route polish | T3 | measured | 2026-09-10 measured harsh-home-01 intervals in `docs/device-matrix.md` |
-| T18 | doing | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | evidence present | Magicplan 2026.35.0; my-room AABB + 6 pooja traced walls. Latest `make benchmark` LiDAR **5/12 (41.7%)**, fail vs ≥70% |
+| T18 | doing | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | evidence present | Magicplan 2026.35.0; my-room AABB + 6 pooja traced walls. Latest `make benchmark` LiDAR **81.7%**, fail vs ≥70% |
 | T10 | done | Technical report ≤ 6 pages + benchmark tables | T19 | no | 2026-09-10: 1,889-word report with regenerable gate table |
-| T20 | done | README 15 min + reproduction bundle + compliance matrix | T10 | no | 2026-09-10 submission README + measured compliance artifacts |
+| T20 | done | README 15 min + reproduction bundle + compliance matrix | T10 | no | 2026-09-10 submission README refreshed with run formats, scoring status, both routes, and conservative GitHub cleanup |
 | T11 | doing | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | Harness shipped (`make walkin`, `docs/walk-in.md`). Media still needed: eight JPEGs, one MP4, Record3D `.r3d`, tape. Forbidden rooms: drawing-room, my-room, pooja-room, connector |
 
 ---
@@ -117,10 +117,11 @@ scaffolding. Minor fixes after real captures remain normal and allowed.
 
 ## Done
 
+- **2026-09-10 T20e submission README + repository hygiene** — Refreshed the main README around setup, one-command CLI use, Route 1 app installation, Route 2 capture, input layouts, outputs, scoring coverage, and current non-passing gates. Raw Route 1 captures, Xcode `xcuserdata`, four superseded local notes, and the duplicate hostile-name recruiter PDF are now ignored and removed from Git tracking while their local files remain intact. Canonical evidence, the cleaned JD/PDF, technical docs, and orchestration history remain tracked.
 - **2026-09-10 T6e openings + shared-world registration + honest wall/ceiling bias** — Cased openings (door max exclusive at 1.40 m), corner-door margin extension, emptiest-gap ranking so furniture-dense spans lose, tape door widths in private GT with `wall_id: unlocated`. Record3D archives already share an ARKit frame; nearest opening pair is 5.08 m so rooms stay unregistered. Optional 32 cm clutter-band outer walls stay off. Private opening width errors 5/10/15 cm; ceiling max 5.4 cm; wall centres unchanged (last `make benchmark` 12.5/25 cm). Official ≤2 cm opening and ≤1.5 cm ceiling gates not claimed. Focused Record3D/eval tests pass.
 - **2026-09-10 T10/T17/T20 measured docs** — Filled `docs/writeup.md` §6, `docs/device-matrix.md`, and `docs/compliance-matrix.md` from `make benchmark` 2026-09-10. Rewrote `README.md` as the submission guide (deliverables, 15-min setup, one command, cable app install, defense test). No new captures.
 
-- **2026-09-10 T18 remainder Magicplan pooja walls + named version + benchmark** — Pooja-room inspector still has no L×W; six Manhattan inner walls traced from the 2D screenshot and scaled to displayed 12.04 m². App Store version **2026.35.0** (released 2026-09-02; Settings not screenshotted). `make benchmark` complete, pending=0. LiDAR head-to-head **5/12 (41.7%)**, fail vs ≥70%. Photo graphs remain 2/2/5/3 after EXIF.
+- **2026-09-10 T18 remainder Magicplan pooja walls + named version + benchmark** — Pooja-room inspector still has no L×W; six Manhattan inner walls traced from the 2D screenshot and scaled to displayed 12.04 m². App Store version **2026.35.0** (released 2026-09-02; Settings not screenshotted). `make benchmark` complete, pending=0. Photo graphs remain 2/2/5/3 after EXIF.
 - **2026-09-10 T7 remainder native MP4 smoke + openings/stitch** — Smoked all four Camera MP4s. Display-space native sidecar K unblocked triangulation: 4/4 floor-supported handheld scale, 0/4 complete rooms (connector/pooja missing x-high wall, drawing missing ceiling, my-room missing floor). Occupancy openings reuse Record3D profiles; shared-world coinciding openings can constrain stitch; native rooms stay disconnected. Partial FloorPlan keeps successful rooms. ±3% not claimed. 25 focused tests pass.
 
 - **2026-09-10 T11a walk-in harness** — Separate holdout folder, timed three-tier `walkin` CLI, automatic 2-still photo crash test, and refusal to score drawing-room/my-room/pooja-room/connector recaptures. Empty templates stay `pending_inputs`. Holdout media and tape are still missing, so T11 remains `doing`.

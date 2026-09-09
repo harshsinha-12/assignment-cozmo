@@ -23,4 +23,14 @@ out/
 docs/evidence/IMG_*.PNG
 docs/evidence/lidar/*.r3d
 
-# Keep orchestration docs / markdown local-only (not pushed)
+# Local-only artifacts (not pushed).
+# Raw capture output and per-user Xcode state stay on this machine.
+/cozmo-capture/
+**/xcuserdata/
+
+# Superseded local notes and duplicate recruiter PDF.
+/AI Backend Engineer*
+/START-TOMORROW.md
+/discussion.md
+/mytask.md
+/url.md
