@@ -13,10 +13,11 @@ Product: local CLI + **disclosed LLM tool-calling agent**. Score policy: max eve
 The active private benchmark now has 8/8/8/5 decodable primary photos, four
 primary videos, three room-level Record3D scans, an 8-photo `my-room` repeat, a
 repeat video, normalized tape measurements, and two-class damage evidence.
-Magicplan evidence covers `my-room` and `pooja-room`. My-room now has AABB
-walls from displayed 4.20×3.29 m; pooja-room still has no individual walls. Exact
-app version remains unrecorded. Connector LiDAR and measured whole-property
-placement/opening offsets remain unavailable. Do **not** invent centimetres.
+Magicplan evidence covers `my-room` and `pooja-room`. My-room has AABB walls
+from displayed 4.20×3.29 m. Pooja-room has six screenshot-traced Manhattan
+walls scaled to 12.04 m². App version is App Store **2026.35.0**. Connector
+LiDAR and measured whole-property placement/opening offsets remain unavailable.
+Do **not** invent centimetres.
 
 | ID | Can finish now? | What to do without uploads |
 | --- | --- | --- |
@@ -25,13 +26,13 @@ placement/opening offsets remain unavailable. Do **not** invent centimetres.
 | **T20** | **Pre-shoot code done** | T20a reproduction, T20b audit, and T20c one-command benchmark/readiness runner are verified; measured coverage remains T3-dependent. |
 | **T17** | **Protocol stage done** | Route 2 operator card, loader-checked per-tier templates, and honest runtime/device matrix ship; measured intervals remain T3-dependent. |
 | **T11** | **Harness done; media pending** | `make walkin` times a holdout room, crash-tests 2 stills, and refuses benchmark-room reuse. Shoot kitchen/guest/bath — not drawing-room/my-room/pooja-room/connector. |
-| T8 remainder | Full count present | EXIF orientation is now applied. Last measured graphs (pre-EXIF) were connector/drawing/my/pooja = 2/2/5/3. Remeasure before T8c. Do not loosen gates. |
-| T7 remainder | Four MP4s present | T7b–T7g sidecar path remains. T7h skip-span + handheld-height prior is coded (`imu_vo`) but not proven on the private Camera MP4s. |
+| T8 remainder | Full count present | EXIF orientation applied. `make benchmark` photo graphs still connector/drawing/my/pooja = **2/2/5/3**. Do not loosen gates. T8c waits on a connected graph. |
+| T7 remainder | Four MP4s smoked | Native handheld-height scale works on all four clips after display-K fix. 0/4 complete rooms (missing wall/floor/ceiling bands). Openings/stitch coded; ±3% not claimed. |
 
 **Still evidence-blocked:** measured T17 intervals, numeric photo repeatability,
-and T11 holdout media (harness is ready). T18 now has my-room AABB walls plus areas in the gate, but
-pooja walls and app version are still missing; re-run eval before quoting wins.
-T6/T7/T8 can still advance against uploaded media.
+and T11 holdout media (harness is ready). T18 Magicplan 2026.35.0 with my-room
+AABB + pooja traced walls scores **5/12 (41.7%)** on the latest `make benchmark`
+(fail vs ≥70%). T6/T7/T8 can still advance against uploaded media.
 
 ---
 
@@ -44,13 +45,13 @@ T6/T7/T8 can still advance against uploaded media.
 | T2 | done | Synthetic two-room fixture | — | no | 2026-09-07 |
 | T4 | done | Reconcile plan with official prompt | T1 | no | 2026-09-08 ingest |
 | T3 | doing | Human benchmark capture | human + Pro phone | **yes — active** | Primary/repeat photos and videos, three room `.r3d`, measurements, damage, and two-room Magicplan summaries are active. Connector LiDAR and measured property placement remain unavailable |
-| T6 | doing | LiDAR export → FloorPlan | — | **present** | T6a–T6d raw `.r3d`, frame-invariant eval, and support-conditioned intervals work. Wall median/p95 = 2.5/30 cm; calibration covers 16/18 (88.9%) and passes internally. Point accuracy, openings, cross-room registration, and holdout proof remain |
+| T6 | doing | LiDAR export → FloorPlan | — | **present** | T6a–T6e. Latest `make benchmark`: wall **12.5 cm median / 25 cm p95** (n=12); interval coverage 19/24 (79.2%) still passes internally. Ceiling max ~5.4 cm. Shared-world registration coded; no facing pair (connector missing) |
 | T9 | done | Stitch + drift correction + on/off ablation | T6 | no | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
-| T7 | doing | Video path | T6 | four MP4s present | T7b–T7h done as code. Native MP4s still have no ARKit sidecars; handheld-height path needs a real-video smoke |
+| T7 | doing | Video path | T6 | four MP4s present | T7b–T7h + openings/stitch code. Native scale 4/4; complete rooms 0/4. ±3% not claimed |
 | T8 | doing | Photos path, 2–8 stills, folder stitch | — | present | T8a–T8b3 done. T8c SfM still blocked until post-EXIF overlap is measured and connected |
 | T21 | doing | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | no | T21a–T21g done on Harsh's iPhone 17 Pro. T21h cable card+script done; Harsh device copy **~18 s**. TestFlight declined. Scored route stays Route 2 until the same install is timed on *their* phone |
 | T17 | doing | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | T17a protocol/templates done; walk-in validation and measured rows wait on T3 |
-| T18 | doing | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | evidence present | My-room AABB walls (420/329 cm) plus floor area are now in the incumbent IR/eval. Pooja walls and app version still missing. Last quoted 2/2 ceiling win is stale until `make benchmark` |
+| T18 | doing | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | evidence present | Magicplan 2026.35.0; my-room AABB + 6 pooja traced walls. Latest `make benchmark` LiDAR **5/12 (41.7%)**, fail vs ≥70% |
 | T10 | doing | Technical report ≤ 6 pages + benchmark tables | T19 | draft **no**; tables **yes** | 1,805-word engineering draft complete; real benchmark/repeat/incumbent/timing tables remain T3-dependent |
 | T20 | doing | README 15 min + reproduction bundle + compliance matrix | T10 | partial **no**; measured rows **yes** | T20a–T20c code/docs done; final real bundle and coverage remain T3-dependent |
 | T11 | doing | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | Harness shipped (`make walkin`, `docs/walk-in.md`). Media still needed: eight JPEGs, one MP4, Record3D `.r3d`, tape. Forbidden rooms: drawing-room, my-room, pooja-room, connector |
@@ -83,10 +84,10 @@ Harsh: shoot a **new** room (kitchen/guest/bath — not drawing-room/my-room/
 pooja-room/connector) into `data/private/walkin/` following
 `docs/capture-route.md`, tape it, then `make walkin`. The harness is ready.
 
-Engineering: verify the T7h/T8b3/T18 landings on real media: `make test`,
-remeasure photo overlap after EXIF, smoke native video, then `make benchmark`.
-Do not loosen T8b gates. Do not invent pooja-room Magicplan walls. T8c waits
-on a connected graph. T21h cable install is the Route 1 walk-in path; Route 2
+Engineering: T18 incumbent is denser (pooja traced walls + named 2026.35.0).
+Latest `make benchmark` is **5/12 head-to-head**. Do not loosen T8b or video
+wall gates. Photo graphs after EXIF are still 2/2/5/3. T8c waits on a
+connected graph. T21h cable install is the Route 1 walk-in path; Route 2
 stays scored until their phone is timed.
 
 ### Media-ready freeze sequence
@@ -105,7 +106,9 @@ ground truth.
 4. **T8b3 (done)** — EXIF display orientation on photo ingest/features. 53
    focused tests pass. Remeasure private overlap before claiming connectivity.
 5. **T7h (done)** — Skip-span VO edges and handheld-height metric fallback
-   for native Camera video. 53 focused tests pass. Smoke private MP4s next.
+   for native Camera video. Display-space sidecar K. Real smoke: 4/4 scaled,
+   0/4 complete rooms. Occupancy openings + shared-world stitch pairing
+   exist; ±3% not claimed.
 6. **T8c (blocked on connected evidence)** — Incremental per-room photo SfM
    after every overlap graph connects.
 7. **T8d (blocked on T8c + scale evidence)** — Photo Manhattan layout, metric
@@ -122,6 +125,10 @@ scaffolding. Minor fixes after real captures remain normal and allowed.
 ---
 
 ## Done
+
+- **2026-09-10 T18 remainder Magicplan pooja walls + named version + benchmark** — Pooja-room inspector still has no L×W; six Manhattan inner walls traced from the 2D screenshot and scaled to displayed 12.04 m². App Store version **2026.35.0** (released 2026-09-02; Settings not screenshotted). `make benchmark` complete, pending=0. LiDAR head-to-head **5/12 (41.7%)**, fail vs ≥70%. Photo graphs remain 2/2/5/3 after EXIF.
+- **2026-09-10 T6e openings + shared-world registration + honest wall bias** — Cased openings (1.40–2.40 m), one strongest door/cased opening per room, tape door widths in private GT with `wall_id: unlocated`, eval width matching without supporting walls. Record3D archives already share an ARKit frame; openings pair only if centers are ≤1.25 m. Current three scans have no facing pair (connector missing). Optional 32 cm clutter-band outer walls are tested but off by default (they expanded rooms through doorways). Wall median/p95 stays ~2.5/30 cm; ceiling max ~5.4 cm. 35 focused tests pass.
+- **2026-09-10 T7 remainder native MP4 smoke + openings/stitch** — Smoked all four Camera MP4s. Display-space native sidecar K unblocked triangulation: 4/4 floor-supported handheld scale, 0/4 complete rooms (connector/pooja missing x-high wall, drawing missing ceiling, my-room missing floor). Occupancy openings reuse Record3D profiles; shared-world coinciding openings can constrain stitch; native rooms stay disconnected. Partial FloorPlan keeps successful rooms. ±3% not claimed. 25 focused tests pass.
 
 - **2026-09-10 T11a walk-in harness** — Separate holdout folder, timed three-tier `walkin` CLI, automatic 2-still photo crash test, and refusal to score drawing-room/my-room/pooja-room/connector recaptures. Empty templates stay `pending_inputs`. Holdout media and tape are still missing, so T11 remains `doing`.
 

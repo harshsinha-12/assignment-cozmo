@@ -195,13 +195,27 @@ tape eval on reconstructed rooms.
 
 T7h builds an in-memory y-up unit sidecar from the longest VO segment
 (`maximum_edge_span=2` may skip one failed adjacent pair with a real i→i+2
-pose). Sparse triangulation stays unitless until a floor band supports the
-disclosed 1.45 m handheld-height prior (`scale_source=known_length`). Missing
-floor support stays `native_scale=no-floor` and is not dimensioned.
+pose). Sidecar intrinsics are **display-size** (`0.9 × max(width, height)`);
+triangulation then scales them to the 640 px feature image. Using the
+feature-space 576 px focal inside a 1080p sidecar was a 3× K error and
+produced `native_scale=no-floor` on drawing-room and pooja-room.
 
-Current private set: four 1080p/30 Camera clips
-(`drawing-room`, `my-room`, `pooja-room`, `connector-my-room-to-pooja-room`).
-A 2026-09-10 smoke reached room-fitting on connector and my-room, then failed
-the x-high wall gate; drawing-room and pooja-room did not retain a 3-pose
-native sidecar in that run. Re-smoke after median bracketing and partial
-emission before quoting rooms or ±3%.
+Sparse triangulation stays unitless until a floor band supports the disclosed
+1.45 m handheld-height prior (`scale_source=known_length`). Missing floor
+support stays `native_scale=no-floor` and is not dimensioned.
+
+2026-09-10 smoke of the four private Camera MP4s (after the display-K fix):
+
+| Clip | Samples | Tracks | VO edges / segs | Voxels / pairs | Scale m/unit | Room gate |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| connector-my-room-to-pooja-room | 12 / 5.73 s | 8/11 | 9/12, 2 segs | 596 / 8/8 | 0.690 | missing x-high wall |
+| drawing-room | 138 / 68.63 s | 10/60 | 17/152, 12 segs | 175 / 3/3 | 1.052 | missing ceiling |
+| my-room | 138 / 68.60 s | 8/60 | 11/162, 7 segs | 493 / 4/4 | 1.648 | missing floor |
+| pooja-room | 138 / 68.80 s | 13/60 | 19/152, 13 segs | 278 / 2/3 | 0.508 | missing x-high wall |
+
+All four reached floor-supported handheld scale. **Zero** complete rooms, so
+the job stays `low_confidence` rather than a dimensioned FloorPlan. Openings
+and stitch are implemented but did not fire. The official ±3% wall gate is
+**not** claimed. Handheld intervals stay wide (`HANDHELD_VIDEO_OUTPUT`). Only
+the longest VO segment is converted to a native sidecar, so most segments
+report `insufficient_exact_frame_time_matches`.

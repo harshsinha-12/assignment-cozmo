@@ -12,62 +12,69 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- **T21h timing + Xcode open:** Harsh timed the cable install copy onto his
-  iPhone at **~18 s**. The walk-in card and installer now also document
-  `open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj` (repo-relative;
-  Cursor will not open it). `--open-xcode` / `make open-capture-app` open
-  the project only. Route 2 stays scored until Cozmo's phone is timed.
-- T11a walk-in harness from earlier today is unchanged: templates exist,
-  holdout media is still missing.
+- **T18 remainder:** Pooja-room Magicplan inspector still has no Length/Width.
+  Encoded **six Manhattan inner walls** from the 2D screenshot (door-notch L)
+  scaled to displayed **12.04 m²**: 299.2, 370.2, 142.3, 61.4, 156.9, 431.6 cm.
+  Did not invent a rectangle from perimeter+area (negative discriminant).
+- Named Magicplan **2026.35.0** from iTunes lookup id 427424432 on 2026-09-10
+  (`currentVersionReleaseDate` 2026-09-02). Device Settings were not
+  screenshotted. Cloud share links do not expose per-wall labels.
+- Ran **`make benchmark`**: `status=complete pending=0`. LiDAR head-to-head
+  **5/12 (41.7%)**, fail vs ≥70%. Same refresh: LiDAR walls **12.5 cm median /
+  25 cm p95**; interval coverage **19/24 (79.2%)** still passes internally.
+  Photo graphs after EXIF remain connector/drawing/my/pooja = **2/2/5/3**.
+- Incumbent tests: 2 passed. No commit.
 
 ### What is true now
 
 - Product: local CLI. Folder **or Cozmo Capture ZIP** in → JSON + SVG out.
 - Route 2 remains the **scored** walk-in. Route 1 cable install is optional
-  (`docs/capture-route-route1.md`) until timed on Cozmo's phone.
-- Harsh's T21h numbers: signed iPhoneOS build 46 s, device copy ~18 s.
-  Developer Mode was already on.
-- T11 is **not done**. The rehearsal folder exists; there is no holdout capture
-  yet. Do not drop benchmark rooms into `data/private/walkin/`.
-- First Route 1 job is still one room (`Room 1`). Do not mix it with Route 2
-  Record3D or the walk-in folder.
+  until timed on Cozmo's phone. Harsh's copy was ~18 s; that is not their phone.
+- T18 evidence is denser but the gate **fails**. Quote **5/12**, not the old
+  2/2 ceiling-only win and not a pre-rebuild 8/12 against a stale LiDAR JSON.
+- Native video: all four clips track and scale; none produce a four-wall room.
+  Handheld intervals stay ~22% relative; do not claim ±3%.
+- T11 is **not done**. Holdout media is still missing.
+- Photo overlap **2/2/5/3 is post-EXIF** from this benchmark run.
 
 ### Blockers
 
-- Human T3 remainder, if available: exact Magicplan version, connector LiDAR,
-  and measured property placement/opening supporting walls and offsets.
-- T21h remaining: time `./scripts/install-cozmo-capture.sh` on **Cozmo's**
-  phone. Harsh's ~18 s is not that switch.
-- T11 remaining: shoot a new room into `data/private/walkin/`, then
-  `make walkin`.
-- T8c metric SfM remains blocked until the **post-EXIF** overlap graph is
-  measured. Do not loosen overlap gates.
+- Human T3 remainder: connector LiDAR, measured property placement/opening
+  offsets. Magicplan version is recorded as App Store 2026.35.0.
+- T21h remaining: time the cable install on **Cozmo's** phone.
+- T11 remaining: shoot a new room into `data/private/walkin/`.
+- T8c waits on a connected photo graph (still 2/2/5/3).
+- T18 ≥70% needs either a better LiDAR prediction or a Magicplan inspector
+  export with true per-wall lengths — do not tune incumbent walls to tape.
 
 ### Next agent should
 
 1. Keep Route 2 scored. Do not treat Harsh's 18 s as Cozmo's walk-in install.
-2. If holdout media arrives: `make walkin` and record elapsed_s.
-3. Run tests with `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1`. Then remasure photo
-   overlap / native video and `make benchmark` for T18.
+2. Do not loosen T8b gates; T8c still blocked on 2/2/5/3.
+3. Do not claim video ±3% until reconstructed walls exist and tape eval passes.
+4. T18 is measured and red: 5/12. Next T18 leverage is LiDAR accuracy / a
+   Magicplan room-inspector screenshot with L×W for pooja, not invented walls.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `docs/capture-route-route1.md`
-3. `docs/t21h-install-rehearsal.md`
-4. `docs/capture-route.md`
-5. `docs/walk-in.md`
+2. `data/private/benchmark-incumbent/raw/magicplan-version-here/notes.txt`
+3. `out/benchmark/lidar/eval.json`
+4. `out/benchmark/benchmark-summary.md`
+5. `docs/eval-and-accuracy.md`
 
 ### Exact next command
 
 ```bash
-./scripts/install-cozmo-capture.sh --dry-run
+open out/benchmark/lidar/eval.json
 ```
 
 ---
 
 ## History
 
+- **2026-09-10** — T18 remainder: pooja traced Manhattan walls + Magicplan 2026.35.0; `make benchmark` LiDAR head-to-head 5/12 (41.7%).
+- **2026-09-10** — T7 remainder: native MP4 smoke 4/4 scaled 0/4 rooms; display-K fix; openings/stitch coded; ±3% not claimed.
 - **2026-09-10** — T21h: Harsh device copy ~18 s; added `open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj`.
 - **2026-09-10** — T11a: walk-in harness (`make walkin`) for a holdout room; refuses benchmark-room reuse; 2-still crash test; media still pending.
 - **2026-09-10** — T21h: cable Personal-Team install card + script; signed iPhoneOS build 46 s; TestFlight declined; Route 2 still scored.

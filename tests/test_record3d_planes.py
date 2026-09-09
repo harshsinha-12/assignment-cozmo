@@ -1,8 +1,13 @@
+from dataclasses import replace
+
 import numpy as np
 import pytest
 
 from cozmo_floorplan.errors import ReconstructionError
+from cozmo_floorplan.recon.record3d_config import DEFAULT_RECORD3D_PLANES
 from cozmo_floorplan.recon.record3d_planes import extract_manhattan_room_candidate
+
+CLUTTER_BAND = replace(DEFAULT_RECORD3D_PLANES, outer_wall_support_ratio=0.55)
 
 
 def _rotate_local_xz(local_xz: np.ndarray, yaw_degrees: float) -> np.ndarray:
@@ -127,7 +132,7 @@ def test_tall_inward_wardrobe_does_not_replace_outer_wall():
         )
     )
     candidate = extract_manhattan_room_candidate(
-        np.concatenate([points, wardrobe]), cameras
+        np.concatenate([points, wardrobe]), cameras, config=CLUTTER_BAND
     )
 
     assert sorted((candidate.width_m, candidate.depth_m)) == pytest.approx(
@@ -147,7 +152,7 @@ def test_far_adjacent_room_wall_does_not_expand_the_envelope():
         )
     )
     candidate = extract_manhattan_room_candidate(
-        np.concatenate([points, next_room]), cameras
+        np.concatenate([points, next_room]), cameras, config=CLUTTER_BAND
     )
 
     assert sorted((candidate.width_m, candidate.depth_m)) == pytest.approx(

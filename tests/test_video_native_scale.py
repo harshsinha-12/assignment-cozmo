@@ -78,7 +78,7 @@ def test_native_unit_sidecar_uses_y_up_and_exact_frame_times(tmp_path):
         accepted_edges=2,
         segment_breaks=0,
         segment_restarts=0,
-        assumed_focal_length_px=72.0,
+        assumed_focal_length_px=576.0,
         intrinsics_source="test",
         segments=(
             TrajectorySegment(

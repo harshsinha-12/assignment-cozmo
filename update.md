@@ -13,6 +13,45 @@ Format:
 - Next
 ```
 
+## 2026-09-10 — T18 remainder: pooja walls, Magicplan 2026.35.0, benchmark
+
+- Context: T18 still lacked pooja-room walls and an exact app version; the last
+  quoted 2/2 ceiling win was stale.
+- Done: Traced pooja-room.png inner floor, reconstructed the door-notch as a
+  Manhattan L (not a convex-hull diagonal), scaled the polygon to displayed
+  12.04 m², and wrote six incumbent walls. Recorded Magicplan **2026.35.0**
+  from iTunes lookup 427424432 (released 2026-09-02). Ran `make benchmark`
+  (`status=complete pending=0`). Incumbent tests: 2 passed.
+- Learned: Pooja inspector has no L×W because the room is not a rectangle;
+  perimeter+area has a negative discriminant. Cloud share pages do not expose
+  dimensions. Head-to-head on the refreshed LiDAR prediction is **5/12
+  (41.7%)**, fail vs ≥70%. Same run: walls 12.5 cm median / 25 cm p95;
+  calibration 19/24 (79.2%) still passes; photo graphs stay 2/2/5/3 after EXIF.
+  App Store version is not a Settings screenshot.
+- Next: Do not retune incumbent walls to tape. T18 leverage is LiDAR accuracy
+  or a Magicplan room-inspector export. T8c still blocked on 2/2/5/3.
+
+## 2026-09-10 — T7 remainder: native MP4 smoke, openings/stitch, no ±3%
+
+- Context: User asked to smoke the four native MP4s, add openings/stitch, and
+  claim ±3% only if geometry holds.
+- Done: Ran all four Camera clips. Fixed native sidecar intrinsics to display
+  space so triangulation K matches `_scaled_intrinsics`. After that, 4/4
+  clips get a floor-supported handheld-height scale; 0/4 pass complete
+  floor/ceiling/wall room conversion. Added occupancy openings (Record3D
+  profile, no phantoms), shared-world opening pairing for stitch, partial
+  FloorPlan emission, and median-path wall bracketing. 25 focused tests pass.
+  ±3% not claimed; handheld intervals stay ~22% relative.
+- Learned: Feature-space 576 px focal inside a 1080p sidecar was a ~3× K
+  error (`native_scale=no-floor` on drawing-room and pooja-room). Only the
+  longest VO segment becomes a native sidecar, so most segments are
+  `insufficient_exact_frame_time_matches`. Connector 596 vx / drawing 175 /
+  my-room 493 / pooja 278. Failures: x-high wall, ceiling, floor, x-high
+  wall. Do not loosen those gates. `scale_source` is `known_length` (schema),
+  not `imu_vo`.
+- Next: Remeasure post-EXIF photo overlap, then `make benchmark` for T18.
+  Video rooms need denser segments or a recapture, not invented walls.
+
 ## 2026-09-10 — T21h device copy ~18 s + open Xcode
 
 - Context: Harsh timed the cable install on his already-working iPhone and

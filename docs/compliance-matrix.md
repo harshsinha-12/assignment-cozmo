@@ -25,7 +25,7 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R17 | Ceiling height + repeatability gates | `eval/evaluator.py` | thresholds and missing-evidence reporting implemented; captures pending | partial |
 | R18 | Drift ablation | `run` + `--no-drift-correction` + `eval --ablation-off` | corrected and poses-as-is artifacts, residuals, and eval gate pass on synthetic drift; real capture pending | partial |
 | R19 | Photo-tier whole-property stitch ±8% | `eval/evaluator.py` | adjacency, overlap, footprint, and wall gates implemented; photos pending | partial |
-| R20 | Head-to-head vs incumbent, 2 rooms, LiDAR | `eval --incumbent` | shared-dimension win-rate implemented; two-room exports pending | partial |
+| R20 | Head-to-head vs incumbent, 2 rooms, LiDAR | `eval --incumbent` | Magicplan 2026.35.0; my-room AABB + pooja traced L walls; current LiDAR **5/12 (41.7%)** fail vs ≥70% | partial |
 | R21 | Fix loop: declaration, before, after, diff | `docs/fix-loop.md` + `data/fix-loop/` | checksum-locked fail→pass bundle, pinned source commits, verifier, and readable diff | done |
 | R22 | README 15 min clean machine | `README.md` + `docs/reproduction.md` | fresh Python 3.12 venv path verified on macOS arm64 in 28.37 s; full second-machine rehearsal pending | partial |
 | R23 | Reproduction bundle | `make reproduce-synthetic` + `make benchmark` + `docs/reproduction.md` + `data/fix-loop/` | synthetic assertions and fix-loop are verified; final runner now regenerates all present private tiers and explicitly reports four missing evidence classes | partial |

@@ -25,6 +25,7 @@ class Record3DOpeningCandidate:
     height_m: float
     sparse_profile_bins: int
     lintel_support_points: int
+    gap_occupancy_points: int = 0
 
 
 def detect_record3d_openings(
@@ -78,7 +79,7 @@ def detect_occupancy_openings(
                 config,
             )
         )
-    return tuple(openings)
+    return _limit_doors(tuple(openings))
 
 
 def _wall_openings(
@@ -122,23 +123,29 @@ def _wall_openings(
         config.lintel_band_low_m,
         ceiling_height_m - config.ceiling_margin_m,
     )
-    door_mask = (
+    door_sparse = _sparse_mask(door_counts, interior, config)
+    lintel_ok = _supported_mask(lintel_counts, interior, config)
+    door_extend = door_sparse & lintel_ok
+    door_core = interior & door_extend
+    window_core = (
         interior
-        & _sparse_mask(door_counts, interior, config)
-        & _supported_mask(lintel_counts, interior, config)
-    )
-    window_mask = (
-        interior
-        & ~door_mask
+        & ~door_extend
         & _sparse_mask(window_counts, interior, config)
         & _supported_mask(sill_counts, interior, config)
-        & _supported_mask(lintel_counts, interior, config)
+        & lintel_ok
+    )
+    window_extend = (
+        _sparse_mask(window_counts, interior, config)
+        & _supported_mask(sill_counts, interior, config)
+        & lintel_ok
+        & ~door_extend
     )
 
     openings = _opening_runs(
         wall_index,
         "door",
-        door_mask,
+        door_core,
+        door_extend,
         edges,
         along_m,
         relative_y_m,
@@ -147,12 +154,14 @@ def _wall_openings(
         config.maximum_door_width_m,
         ceiling_height_m,
         config,
+        inclusive_max=False,
     )
     openings.extend(
         _opening_runs(
             wall_index,
             "cased_opening",
-            door_mask,
+            door_core,
+            door_extend,
             edges,
             along_m,
             relative_y_m,
@@ -161,13 +170,15 @@ def _wall_openings(
             config.maximum_cased_opening_width_m,
             ceiling_height_m,
             config,
+            inclusive_max=True,
         )
     )
     openings.extend(
         _opening_runs(
             wall_index,
             "window",
-            window_mask,
+            window_core,
+            window_extend,
             edges,
             along_m,
             relative_y_m,
@@ -176,6 +187,7 @@ def _wall_openings(
             config.maximum_window_width_m,
             ceiling_height_m,
             config,
+            inclusive_max=True,
         )
     )
     return openings
@@ -230,7 +242,8 @@ def _profile_baseline(counts: np.ndarray, interior: np.ndarray) -> float:
 def _opening_runs(
     wall_index: int,
     kind: str,
-    mask: np.ndarray,
+    core_mask: np.ndarray,
+    extend_mask: np.ndarray,
     edges: np.ndarray,
     along_m: np.ndarray,
     relative_y_m: np.ndarray,
@@ -239,14 +252,18 @@ def _opening_runs(
     maximum_width_m: float,
     ceiling_height_m: float,
     config: Record3DOpeningConfig,
+    *,
+    inclusive_max: bool,
 ) -> list[Record3DOpeningCandidate]:
-    repaired = _bridge_short_interruptions(mask, config.maximum_interruption_bins)
+    repaired = _bridge_short_interruptions(extend_mask, config.maximum_interruption_bins)
     openings: list[Record3DOpeningCandidate] = []
     for start_index, end_index in _true_runs(repaired):
+        if not np.any(core_mask[start_index:end_index]):
+            continue
         start_m = float(edges[start_index])
         end_m = float(edges[end_index])
         width_m = end_m - start_m
-        if not minimum_width_m <= width_m <= maximum_width_m:
+        if not _width_accepted(width_m, minimum_width_m, maximum_width_m, inclusive_max):
             continue
         in_span = (along_m >= start_m) & (along_m <= end_m)
         span_y = relative_y_m[in_span]
@@ -257,6 +274,14 @@ def _opening_runs(
         height_m = top_m - bottom_m
         if height_m <= 0:
             continue
+        if kind == "window":
+            occupancy_band = (relative_y_m >= config.window_band_low_m) & (
+                relative_y_m <= config.window_band_high_m
+            )
+        else:
+            occupancy_band = (relative_y_m >= config.door_band_low_m) & (
+                relative_y_m <= config.door_band_high_m
+            )
         openings.append(
             Record3DOpeningCandidate(
                 wall_index=wall_index,
@@ -266,9 +291,23 @@ def _opening_runs(
                 height_m=height_m,
                 sparse_profile_bins=end_index - start_index,
                 lintel_support_points=int(lintel_counts[start_index:end_index].sum()),
+                gap_occupancy_points=int(np.count_nonzero(in_span & occupancy_band)),
             )
         )
     return openings
+
+
+def _width_accepted(
+    width_m: float,
+    minimum_width_m: float,
+    maximum_width_m: float,
+    inclusive_max: bool,
+) -> bool:
+    if width_m < minimum_width_m:
+        return False
+    if inclusive_max:
+        return width_m <= maximum_width_m
+    return width_m < maximum_width_m
 
 
 def _opening_top(
@@ -334,6 +373,34 @@ def _false_runs(mask: np.ndarray) -> list[tuple[int, int]]:
     return _true_runs(~mask)
 
 
+def _limit_doors(
+    openings: tuple[Record3DOpeningCandidate, ...],
+) -> tuple[Record3DOpeningCandidate, ...]:
+    """Keep the emptiest supported door and cased opening; extra gaps are usually furniture."""
+
+    limited = _limit_kind(openings, "door")
+    return _limit_kind(limited, "cased_opening")
+
+
+def _limit_kind(
+    openings: tuple[Record3DOpeningCandidate, ...],
+    kind: str,
+) -> tuple[Record3DOpeningCandidate, ...]:
+    selected = [opening for opening in openings if opening.kind == kind]
+    others = [opening for opening in openings if opening.kind != kind]
+    if len(selected) <= 1:
+        return openings
+    best = min(
+        selected,
+        key=lambda opening: (
+            opening.gap_occupancy_points / max(opening.width_m, 1e-9),
+            -opening.lintel_support_points,
+            -opening.width_m,
+        ),
+    )
+    return tuple([*others, best])
+
+
 def _validate_config(config: Record3DOpeningConfig) -> None:
     positive = (
         config.wall_normal_tolerance_m,
@@ -347,9 +414,11 @@ def _validate_config(config: Record3DOpeningConfig) -> None:
     )
     if any(value <= 0 for value in positive):
         raise ValueError("Record3D opening thresholds must be positive")
-    if config.minimum_door_width_m > config.maximum_door_width_m:
+    if config.minimum_door_width_m >= config.maximum_door_width_m:
         raise ValueError("Record3D door width bounds must be increasing")
     if config.minimum_cased_opening_width_m > config.maximum_cased_opening_width_m:
         raise ValueError("Record3D cased-opening width bounds must be increasing")
+    if config.maximum_door_width_m != config.minimum_cased_opening_width_m:
+        raise ValueError("Record3D door and cased-opening ranges must meet without overlap")
     if config.minimum_window_width_m > config.maximum_window_width_m:
         raise ValueError("Record3D window width bounds must be increasing")

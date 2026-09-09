@@ -45,8 +45,8 @@ class Record3DPlaneConfig:
     yaw_peak_count: int = 4
     camera_bracket_quantile: float = 0.10
     camera_wall_margin_m: float = 0.05
-    outer_wall_support_ratio: float = 0.35
-    max_clutter_offset_m: float = 0.45
+    outer_wall_support_ratio: float = 1.0
+    max_clutter_offset_m: float = 0.32
     minimum_room_span_m: float = 1.50
     maximum_room_span_m: float = 12.0
     minimum_ceiling_height_m: float = 2.0
@@ -86,7 +86,7 @@ class Record3DOpeningConfig:
     supported_ratio: float = 0.30
     minimum_band_points: int = 3
     maximum_interruption_bins: int = 1
-    minimum_door_width_m: float = 0.55
+    minimum_door_width_m: float = 0.65
     maximum_door_width_m: float = 1.40
     minimum_cased_opening_width_m: float = 1.40
     maximum_cased_opening_width_m: float = 2.40

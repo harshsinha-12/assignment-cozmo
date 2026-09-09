@@ -83,8 +83,9 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/recon/record3d_config.py` | Keeps Record3D validation, metric-cloud, plane, raw-support uncertainty, opening-profile, and output-interval policies out of I/O and algorithm code. |
 | `src/cozmo_floorplan/recon/record3d_validation.py` | Decodes bounded representative RGB-D frames and reports valid-depth coverage, range, and camera-trajectory extent without claiming walls. |
 | `src/cozmo_floorplan/recon/record3d_points.py` | Back-projects filtered depth along camera negative-Z, applies metric camera poses, and computes deterministic world-space voxel centroids with audit counts. |
-| `src/cozmo_floorplan/recon/record3d_planes.py` | Detects floor/ceiling bands, rejects short vertical clutter, searches a Manhattan yaw, and selects four wall candidates that bracket the camera path. |
-| `src/cozmo_floorplan/recon/record3d_openings.py` | Detects door/window candidates from sparse lower/middle wall occupancy only when sill or lintel support survives. |
+| `src/cozmo_floorplan/recon/record3d_planes.py` | Detects floor/ceiling bands, rejects short vertical clutter, searches a Manhattan yaw, and brackets walls. Optional clutter-band stepping (off by default) prefers a supported outer plane within 32 cm of the densest peak. |
+| `src/cozmo_floorplan/recon/record3d_openings.py` | Detects door, cased-opening, and window gaps from occupancy; keeps the strongest door and cased opening per room. |
+| `src/cozmo_floorplan/recon/record3d_register.py` | Pairs openings across rooms that already share Record3D/ARKit world coordinates; does not invent a new pose frame. |
 | `src/cozmo_floorplan/recon/record3d_measurements.py` | Builds Record3D measurement objects with disclosed, deliberately uncalibrated candidate-stage intervals. |
 | `src/cozmo_floorplan/recon/record3d_uncertainty.py` | Converts conservative p95 raw plane residuals into per-room wall-span, ceiling, and propagated area half-widths without reading benchmark truth. |
 | `src/cozmo_floorplan/recon/record3d_floorplan.py` | Converts per-archive room/opening candidates into shared FloorPlan rooms, walls, openings, provenance, and honest partial-state warnings. |
@@ -234,9 +235,10 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `tests/test_lidar.py` | Tests single/multi-room discovery, RoomPlan conversion, intervals, metric gates, CLI output, and honest unsupported fallbacks. |
 | `tests/test_record3d.py` | Tests Record3D metadata/index validation, typed RGB-D decoding, integrity summaries, and exact LZFSE output checks. |
 | `tests/test_record3d_points.py` | Tests deterministic frame sampling, quaternion rotation, metric back-projection, pose application, voxel bounds, and invalid configuration. |
-| `tests/test_record3d_planes.py` | Tests rotated-room floor/ceiling and wall fitting, low-furniture rejection, and malformed/incomplete geometry refusal. |
-| `tests/test_record3d_openings.py` | Tests supported door/window gap detection and ensures solid walls do not create phantom openings. |
-| `tests/test_record3d_floorplan.py` | Tests schema-valid interval-bearing Record3D conversion and explicit multi-archive registration warnings. |
+| `tests/test_record3d_planes.py` | Tests rotated-room fitting, low furniture, optional clutter-band outer walls, and refusal of a far next-room plane. |
+| `tests/test_record3d_openings.py` | Tests door/window/cased-opening detection and solid-wall phantom refusal. |
+| `tests/test_record3d_register.py` | Tests shared-world facing-door pairing and rejection of distant or width-mismatched openings. |
+| `tests/test_record3d_floorplan.py` | Tests schema-valid conversion, unregistered multi-archive warnings, and associated `connects_room_ids`. |
 | `tests/test_record3d_uncertainty.py` | Tests raw-support interval expansion, configured minimum bounds, and polygon-edge interval ordering. |
 | `tests/test_render.py` | Tests parseable whole-property SVG, dimensions, openings, deterministic output, XML escaping, and failed-run placeholders. |
 | `tests/test_photos.py` | Tests room discovery, the official 2–8 count, corrupt-image rejection, multi-room ordering, and honest metric refusal using generated JPEGs. |
@@ -245,12 +247,13 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `tests/test_agent.py` | Tests fallback and mocked-live agents, metric ownership, rule validation, transactional rollback, and schema-valid claims output. |
 | `tests/test_agent_status_policy.py` | Unit-tests explicit versus automatic fallback status semantics and ensures fallback never upgrades an already-partial run. |
 | `tests/test_stitch.py` | Tests correction-on/off metadata, ablation artifacts, injected 20 cm opening-gap closure, and the drift eval gate. |
-| `tests/test_video.py` | Tests empty/short jobs, multi-video identity, per-video versus ambiguous sidecars, display rotation, generated-MP4 sampling, honest refusal, and the mocked calibrated adapter success path. |
+| `tests/test_video.py` | Tests empty/short jobs, multi-video identity, display rotation, honest refusal, mocked calibrated success, and partial emission when one room fails. |
 | `tests/test_video_tracks.py` | Tests accepted multi-depth motion, homography-dominant/pure-rotation rejection, and featureless-frame rejection without crashes. |
 | `tests/test_video_trajectory.py` | Tests two-view rotation/translation-direction recovery, explicit graph breaks and local segment restarts, unitless chaining, and the too-short boundary. |
 | `tests/test_video_pose_alignment.py` | Tests strict metric-sidecar parsing, units/frame/quaternion rejection, exact frame/time matching, similarity scale recovery, metric positions, and timestamp-mismatch refusal. |
 | `tests/test_video_triangulation.py` | Tests calibrated world-point recovery, reprojection rejection, v1 calibration and accepted-segment guards, and sparse floor/wall candidate support. |
-| `tests/test_video_rooms.py` | Tests rotated Manhattan room recovery and refusal when complete plane support is absent. |
+| `tests/test_video_native_scale.py` | Tests handheld-height scale, missing-floor refusal, display-space native sidecar intrinsics, and y-up pose conversion. |
+| `tests/test_video_rooms.py` | Tests rotated Manhattan room recovery, median-path wall bracketing, and refusal when complete plane support is absent. |
 | `tests/test_video_floorplan.py` | Tests schema-valid video measurements, occupancy openings, shared-world stitch pairing, independent native placement, and successful video-result routing. |
 | `tests/test_video_openings.py` | Tests occupancy-supported video door/window detection and ensures solid walls do not create phantom openings. |
 | `tests/test_photo_overlap.py` | Tests connected transformed views, low-contrast SIFT fallback, unrelated-room connector rejection, and explicit featureless components. |

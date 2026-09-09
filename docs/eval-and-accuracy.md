@@ -112,6 +112,20 @@ holdout-validation claim. Maximum ceiling point error remains 5.41 cm; four
 opening candidates have no measured opening truth; and the scans remain
 disconnected.
 
+### Current private T18 head-to-head (2026-09-10)
+
+Magicplan iOS **2026.35.0** (App Store listing at ingest; released 2026-09-02;
+device Settings not screenshotted). My-room uses displayed 4.20×3.29 m AABB
+walls. Pooja-room inspector has no Length/Width; six Manhattan inner walls were
+traced from the 2D screenshot (door notch) and scaled to displayed 12.04 m².
+
+`make benchmark` LiDAR vs that incumbent: **5/12 shared dimensions (41.7%)**,
+gate fail (need ≥70%). Shared set is two-room walls plus ceilings and floor
+areas. The same refresh reports LiDAR wall **12.5 cm median / 25 cm p95** (n=12)
+and interval coverage **19/24 (79.2%)** still passing the internal calibration
+gate. Photo overlap after EXIF remains connector/drawing/my/pooja = **2/2/5/3**
+components.
+
 The report distinguishes `pass`, `fail`, `missing_evidence`, and `not_applicable`. Empty geometry therefore produces explicit red opening, ceiling, yield, and calibration gates rather than zeros that look successful.
 
 ## Calibration honesty
