@@ -17,6 +17,7 @@ Harsh’s photos / video / LiDAR are **not** required for the rows below. Use ge
 | **T21** | Yes, if Xcode.app | Thin iOS RoomPlan exporter. Blocked on full Xcode, **not** on captures. Command Line Tools only → skip. |
 | **T10** | **Draft done** | Architecture, tier design, drift, error budget, calibration, agent, fix loop, and known failures are drafted. Final real benchmark tables wait on T3. |
 | **T20** | **T20a done** | Fresh-venv path and one-command synthetic reproduction verified; final real benchmark bundle and coverage remain T3-dependent. |
+| **T17** | **Protocol stage done** | Route 2 operator card, loader-checked per-tier templates, and honest runtime/device matrix ship; measured intervals remain T3-dependent. |
 | T8 remainder | Ingest only (done) | Folder discovery / 2–8 JPEG checks already ship. Metric SfM, scale, adjacency, ±8% walls need T3 photos. |
 | T7 remainder | Ingest only (done) | Frame sampling already ships. Metric VO / ±3% walls need T3 walkthrough. |
 
@@ -38,7 +39,7 @@ Harsh’s photos / video / LiDAR are **not** required for the rows below. Use ge
 | T7 | todo | Video path | T6 | ingest **no**; metric VO **yes** | Sampling shipped; ±3% walls need T3 walkthrough |
 | T8 | todo | Photos path, 2–8 stills, folder stitch | T3 media | ingest **no**; SfM/scale **yes** | T8a ingest done. Target ±8% walls plus opening/ceiling/detection gates |
 | T21 | todo | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | Xcode.app | no | Parallel. Scored route stays Route 2 until install works |
-| T17 | todo | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | Protocol text can be edited now; numbers wait on eval |
+| T17 | doing | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | T17a protocol/templates done; walk-in validation and measured rows wait on T3 |
 | T18 | todo | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | **yes** | Beat/tie ≥ 70% shared dims |
 | T10 | doing | Technical report ≤ 6 pages + benchmark tables | T19 | draft **no**; tables **yes** | 1,805-word engineering draft complete; real benchmark/repeat/incumbent/timing tables remain T3-dependent |
 | T20 | doing | README 15 min + reproduction bundle + compliance matrix | T10 | partial **no**; measured rows **yes** | T20a clean-environment path done in 28.37 s; `make reproduce-synthetic` works; real bundle/coverage remain T3-dependent |
@@ -68,12 +69,13 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-No fully unblocked metric stage remains without capture media. **T21** can start only if full Xcode.app appears; protocol-only T17 polish is possible, but measured numbers still need T3. Do not start T6 raw Record3D, T7 VO, T8 SfM, T17 numbers, T18, or T11 until captures are in `data/private/`.
+No fully unblocked metric stage remains without capture media. **T21** can start only if full Xcode.app appears. T17's protocol-only stage is complete; its walk-in validation and measured numbers need T3. Do not start T6 raw Record3D, T7 VO, T8 SfM, T17 numbers, T18, or T11 until captures are in `data/private/`.
 
 ---
 
 ## Done
 
+- **2026-09-09 T17a protocol handoff** — One-page Route 2 operator card, copyable per-tier manifests checked through the production loader, and a device matrix that separates capture eligibility from current format support and measured accuracy.
 - **2026-09-09 T19 fix loop** — Frozen checksum-locked before and after bundles around one declared status-semantics fix; `pipeline_yield` moved exactly as predicted from fail/partial to pass/ok, with unchanged non-target gates and a readable diff.
 - **2026-09-09 T19a before freeze** — Declared the failing `pipeline_yield` gate, hypothesis, fix, and numeric prediction; pinned commit `523ceea`; stored JSON/SVG/ablation/eval artifacts with SHA-256 verification and isolated-worktree reproduction commands.
 - **2026-09-09 T8a ingest** — Stable per-room photo discovery, official 2–8 count enforcement, real decode/size validation, generated-JPEG tests, and structured refusal until metric SfM/scale/adjacency exist.

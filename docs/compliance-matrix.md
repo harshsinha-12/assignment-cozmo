@@ -6,8 +6,8 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 
 | ID | Requirement | File / command | Artifact | Status |
 | --- | --- | --- | --- | --- |
-| R1 | Choose one capture route | `docs/capture-route.md` | Route 2 one-pager | partial (draft) |
-| R2 | Device matrix | `docs/device-matrix.md` | Hardware × tier × claimed interval | partial (draft) |
+| R1 | Choose one capture route | `docs/capture-route.md` + `data/templates/` | Route 2 operator card plus loader-checked per-tier handoff templates | partial (walk-in untested) |
+| R2 | Device matrix | `docs/device-matrix.md` | Hardware eligibility separated from accepted runtime formats and measured accuracy | partial (measurements pending) |
 | R3 | Photos tier, 2–8 stills, no depth/poses, per-room folders, whole-property stitch | `io/photos.py` + `recon/photos.py` | multi-room ingest/count/decode validation works; metric SfM and whole-property output pending | partial |
 | R4 | Video tier, handheld walkthrough | `recon/video.py` + `io/video.py` | Frames sampled; metric VO pending capture | partial |
 | R5 | LiDAR tier, depth+poses+intrinsics | `recon/lidar.py` | RoomPlan JSON → metric FloorPlan works; Record3D raw + real validation pending | partial |

@@ -140,6 +140,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `tests/test_agent_status_policy.py` | Unit-tests explicit versus automatic fallback status semantics and ensures fallback never upgrades an already-partial run. |
 | `tests/test_stitch.py` | Tests correction-on/off metadata, ablation artifacts, injected 20 cm opening-gap closure, and the drift eval gate. |
 | `tests/test_video.py` | Tests empty video jobs, generated-mp4 frame sampling, pose-sidecar mention, and honest metric refusal. |
+| `tests/test_capture_templates.py` | Loads every public handoff template through the production job loader and checks that tiers use separate job ids/directories. |
 | `tests/conftest.py` | Forces offline fallback during tests so local API keys are never used and tests never spend credits. |
 
 ## Planned modules

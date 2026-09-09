@@ -1,0 +1,5 @@
+job_id: replace-me-photos
+tier: photos
+device: replace-me-exact-iphone-model
+capture_tool: iPhone Camera
+notes: Exactly 8 JPEG stills per room for the benchmark capture.

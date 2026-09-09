@@ -1,75 +1,50 @@
-# Capture route (Route 2) — what they follow at the defense
+# Capture route (Route 2) — walk-in card
 
-**Status:** draft for submission. This page must stay one printed page. Ambiguity is scored against us.
+**Status:** protocol-ready; accuracy remains unclaimed until measured. Print this page for the operator. We use one route: built-in **Camera** for photos/video and **Record3D** for LiDAR. Do not use Polycam or magicplan; they are comparison incumbents.
 
-We submit **one** capture route. This page is Route 2 (always ready). A Route 1 iOS build is a parallel track (`TASKS.md` T21); switch this page only if that build installs in under 10 minutes.
-
-Named tools below are App Store / built-in.
-
-**Apps**
-
-| Tier | Install | What to export |
+| Tier | Phone | Handoff |
 | --- | --- | --- |
-| Photos | iPhone **Camera** (built-in) | JPEG stills, not Live Photos, not Portrait |
-| Video | iPhone **Camera** | One `MOV` or `MP4`, 1080p, rear camera |
-| LiDAR | **Record3D** (free tier) on iPhone Pro / Pro Max | Depth + poses + intrinsics (their “export for research” / CSV+PNG or `.r3d` as documented in README). If Record3D is unavailable, fallback: **3D Scanner App** USDZ + any pose/depth export the README lists. |
+| Photos | Any iPhone 15+ | Eight JPEG stills per room |
+| Video | Any iPhone 15+ | One 1080p MOV/MP4 |
+| LiDAR | Pro / Pro Max with LiDAR | Complete Record3D depth + poses + intrinsics export |
 
-Do **not** use Polycam or magicplan for capture. Those are the Part 3 incumbents we compare against.
+## Before walking
 
-**Hardware**
+Copy one job template and replace every `replace-me` manifest value:
 
-- Photos / video: any iPhone 15 or newer.
-- LiDAR: iPhone 15 Pro / 16 Pro / **17 Pro** / Pro Max. If the device has no LiDAR, that tier cannot run; photos and video still must.
-
-**Before walking**
-
-- Turn on lights. No flash. No zoom. Rear camera only.
-- Lock orientation landscape for photos.
-- Clear people and pets from frames when possible.
-- Walk slowly. Pause at every corner and every door.
-
-**Photos (exactly 8 stills per room — protocol max)**
-
-One folder per room, named `photos/<room_label>/`.
-
-For each room, shoot **exactly 8 JPEGs**:
-
-1. Standing in the doorway, facing in (include the full door frame).
-2–5. One shot per wall, phone at chest height, both corners of that wall in frame.
-6. Through the doorway toward the next room (or hallway).
-7. Ceiling–wall junction on the longest wall.
-8. Second overlap / corner shot (or damage close-up if this room is damaged).
-
-If a room has more than four walls, keep the door + through-door + ceiling shots and allocate the rest to walls, still **exactly 8**. Never fewer than 8 unless the room physically cannot; then shoot every wall and note it.
-
-**Video (one clip per property)**
-
-- Start at the entry, chest height, 1080p.
-- Walk the perimeter of room 1, pause 2 seconds at each corner, walk through the door into the next room, repeat.
-- Include the connector (hallway) as its own slow pass.
-- Stop after the last room. Target 60–180 seconds. No selfie camera, no running.
-
-**LiDAR (Pro)**
-
-- Open Record3D. Start a new recording in the first room. Cover every wall, floor band at waist height, and each opening. Walk into the next room without stopping the session if the app supports a continuous scan; otherwise start a new scan per room and keep order in the folder names.
-- Export the session into `lidar/` as the README specifies (do not email AirDrop previews only).
-
-**Hand-off folder they give us**
-
-```text
-job/
-  manifest.yaml          # we provide a template; they fill device model + tier
-  photos/<room>/         # JPEGs, photo tier
-  video/walkthrough.mov  # video tier
-  lidar/                 # LiDAR tier export
+```bash
+cp -R data/templates/photos data/private/benchmark-photos
+cp -R data/templates/video data/private/benchmark-video
+cp -R data/templates/lidar data/private/benchmark-lidar
 ```
 
-One capture = one tier. Do not mix photos and LiDAR in the same job folder unless `manifest.yaml` says `tier: mixed` (we will not ask for mixed at the walk-in).
+Use one tier per job. Turn on lights; use the rear camera with no flash, zoom, portrait, or cinematic mode. Clear people and pets when possible. Walk slowly and pause at corners and doors.
 
-**Avoid**
+## Photos — exactly eight per room
 
-Mirrors dead-on, shooting through glass, wet glossy floors as the only floor evidence, digital zoom, cinematic mode, portrait mode, covering the LiDAR with a case lip.
+Put each room in `photos/<room_label>/`. Shoot landscape at chest height:
 
-**If something is unclear**
+- **1:** From the doorway, facing inward with the full frame visible.
+- **2–5:** One view per wall, including both corners.
+- **6:** Through the doorway toward the next room or hallway.
+- **7:** The ceiling–wall junction on the longest wall.
+- **8:** One overlapping corner view, or a damage close-up in the staged room.
 
-This page is the spec. If a step is missing, do the conservative thing (more overlap, slower walk) rather than inventing a new app.
+For a non-four-wall room, retain the doorway, through-door, and ceiling views and allocate the remaining frames to walls. If eight cannot cover it, start a second job; the loader accepts at most eight per room.
+
+## Video — one continuous clip
+
+Start at the entry at chest height. Walk each room perimeter, pause two seconds at every corner, and keep recording through each doorway. Give a connector/hallway its own slow pass. Stop after the final room. Target 60–180 seconds; do not run or use the selfie camera. Save as `video/walkthrough.mov` or `.mp4`.
+
+## LiDAR — one complete export
+
+In Record3D, cover every wall, the waist-height floor band, and every opening. Keep one session while moving between rooms when possible; otherwise use ordered room names. AirDrop the complete original session into `lidar/`, record the app version/export format, and keep depth, camera poses, and intrinsics—not preview images alone.
+
+If a RoomPlan JSON export is available, name it `roomplan.json` and follow `docs/formats/roomplan-json.md`. **Current boundary:** the CLI reconstructs RoomPlan JSON; raw Record3D `.r3d`/CSV/PNG exports are preserved but not yet runnable. Do not claim otherwise until a real export validates that adapter.
+
+## Handoff check
+
+- Exact device and app/version are in `manifest.yaml`; deviations are in `notes`.
+- Originals open after AirDrop, and every expected room/connector is present.
+- Mirrors, glass, glossy floors, and case lips blocking LiDAR are avoided.
+- One job contains one tier. More overlap and a slower walk are the safe defaults.

@@ -1,0 +1,5 @@
+job_id: replace-me-video
+tier: video
+device: replace-me-exact-iphone-model
+capture_tool: iPhone Camera
+notes: One continuous 1080p rear-camera walkthrough.

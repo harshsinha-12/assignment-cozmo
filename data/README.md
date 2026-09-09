@@ -13,11 +13,21 @@ Large binaries: GitHub-friendly JPEGs, not 4K masters. Prefer gitignored `data/p
 
 ## Drop-in layout for tomorrow’s capture
 
-Copy into `data/private/benchmark/` (gitignored). Then point the CLI at that folder.
+Copy one tracked template per tier into `data/private/` (gitignored), replace its
+`replace-me` manifest values, then add the capture files:
+
+```bash
+cp -R data/templates/photos data/private/benchmark-photos
+cp -R data/templates/video data/private/benchmark-video
+cp -R data/templates/lidar data/private/benchmark-lidar
+```
+
+Do not put all tiers in one job. The combined tree below is an inventory guide,
+not a single runnable job.
 
 ```text
 data/private/benchmark/
-  manifest.yaml                 # job_id + tier: lidar | video | photos
+  manifest.yaml                 # exact job id, tier, device, app/version
   damage_observations.json      # optional; after staging damage
   photos/
     room_a/  (exactly 8 JPEGs)

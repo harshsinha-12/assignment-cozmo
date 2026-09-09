@@ -1,0 +1,6 @@
+job_id: replace-me-lidar
+tier: lidar
+device: replace-me-exact-iphone-pro-model
+capture_tool: replace-me-app-and-version
+capture_format: replace-me-export-format
+notes: Preserve the complete original export, including depth, poses, and intrinsics.

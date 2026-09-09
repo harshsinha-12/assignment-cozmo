@@ -13,6 +13,19 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T17a Route 2 protocol handoff complete
+
+- Audited the promised walk-in handoff against the production job loader. The route referred to a manifest template that did not exist and could be read as claiming raw Record3D compatibility that has not shipped.
+- Added separate photos, video, and LiDAR job templates under `data/templates/`, plus a contract test that loads every template and enforces distinct job ids/tier directories.
+- Reduced `docs/capture-route.md` to a 469-word operator card with exact copy commands, eight-photo sequence, continuous-video route, LiDAR export checklist, and an explicit RoomPlan-JSON-versus-raw-Record3D boundary.
+- Revised the device matrix to separate capture eligibility, currently accepted runtime inputs, and unmeasured accuracy. No centimetre result was invented.
+- Full Xcode remains unavailable (`xcode-select` points to Command Line Tools; `xcodebuild` requires Xcode), so T21 remains blocked.
+- All 63 tests pass with external pytest plugin autoload disabled; Ruff, compileall, synthetic reproduction, fix-loop verification, and `git diff --check` pass. T17 remains `doing` only for T3 walk-in validation and measured intervals.
+
+### Next
+
+- Capture T3 using one template per tier. Inventory the files before implementing raw Record3D, video VO, or photo SfM.
+
 ## 2026-09-09 — T20a clean-environment reproduction complete
 
 - A fresh Python 3.12 virtual environment exposed a real README bug: installing only `requirements.txt` left `python -m cozmo_floorplan` unavailable. Added the missing `pip install --no-deps -e .` step and verified the same environment resolves the package.

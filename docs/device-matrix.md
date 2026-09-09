@@ -1,13 +1,16 @@
 # Device matrix
 
-Fill with real hardware after capture. Claims without eval numbers stay as “target, not measured.”
+Hardware eligibility and runtime support are different claims. “Capture” means the protocol can collect the evidence; it does not mean the current CLI reconstructs that raw format. Real accuracy stays “not measured” until T3.
 
-| Device | LiDAR hardware | Photos tier | Video tier | LiDAR tier | Notes |
+| Device | Photos capture | Video capture | LiDAR capture | Current accepted input | Measured accuracy |
 | --- | --- | --- | --- | --- | --- |
-| iPhone 15 / 16 (non-Pro) | no | yes | yes | no | Walk-in photos/video possible |
-| iPhone 15 Pro / 16 Pro / 17 Pro / Pro Max | yes | yes | yes | yes | Harsh’s capture phone: **iPhone 17 Pro** (TOF LiDAR). Required for LiDAR gates |
-| iPad Pro with LiDAR | yes | possible | possible | yes | Not the walk-in device they named |
-| Android | varies | not claimed | not claimed | not claimed | Out of walk-in scope |
+| iPhone 15 / 16 non-Pro | yes | yes | no | JPEG; MOV/MP4 ingest | not measured |
+| iPhone Pro / Pro Max with LiDAR | yes | yes | yes | JPEG; MOV/MP4 ingest; RoomPlan JSON reconstructs | not measured |
+| Harsh's iPhone 17 Pro | yes | yes | yes | Same contracts; benchmark device pending T3 | not measured |
+| LiDAR iPad Pro | possible, out of walk-in scope | possible, out of walk-in scope | possible | RoomPlan JSON only | not measured |
+| Android | not claimed | not claimed | not claimed | out of scope | not measured |
+
+Raw Record3D and USDZ are preserved evidence but currently return a structured unsupported-format failure. Update this row only after a real export passes the adapter and evaluation.
 
 ## Accuracy we will claim (after eval)
 
@@ -15,10 +18,10 @@ Replace the TBD cells. Intervals are part of the score; do not tighten them to l
 
 | Tier | Wall length | Openings | Ceiling | Stitched footprint | Scale source |
 | --- | --- | --- | --- | --- | --- |
-| LiDAR | TBD cm (target: tight, openings ≤ 2 cm on ≥ 85%) | TBD | TBD (gate 1.5 cm) | TBD | depth + metric poses |
-| Video | TBD (gate ±3% with calibrated interval) | TBD | TBD | TBD | VO / poses if present, else prior |
-| Photos | TBD (gate ±8% with calibrated intervals) | TBD (chase ≤2 cm; miss/phantom scored) | TBD | ±8% footprint | door-in-frame + VP; CIs must cover error |
+| LiDAR | not measured (gate: ±3 cm) | not measured (≤2 cm on ≥85%) | not measured (gate: 1.5 cm) | not measured | RoomPlan dimensions/poses; raw depth adapter pending |
+| Video | not measured (gate: ±3%) | not measured | not measured | not measured | metric poses/VO required; plain video is unscaled |
+| Photos | not measured (gate: ±8%) | not measured (≤2 cm chase; misses/phantoms scored) | not measured | not measured (gate: ±8%) | known length or calibrated prior required; monocular geometry is unscaled |
 
 ## Walk-in
 
-They choose the tier on the day on **their** iPhone 15 or newer. Non-Pro ⇒ photos or video only. Protocol: `docs/capture-route.md`.
+They choose the tier on the day on **their** iPhone 15 or newer. A non-Pro phone supports photos/video, not LiDAR. Protocol: `docs/capture-route.md`; copyable manifests: `data/templates/`.
