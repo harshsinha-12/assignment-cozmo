@@ -9,7 +9,7 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R1 | Choose one capture route | `docs/capture-route.md` + `data/templates/` | Route 2 operator card plus loader-checked per-tier handoff templates | partial (walk-in untested) |
 | R2 | Device matrix | `docs/device-matrix.md` | Hardware eligibility separated from accepted runtime formats and measured accuracy | partial (measurements pending) |
 | R3 | Photos tier, 2–8 stills, no depth/poses, per-room folders, whole-property stitch | `io/photos.py` + `recon/photos.py` | multi-room ingest/count/decode validation works; metric SfM and whole-property output pending | partial |
-| R4 | Video tier, handheld walkthrough | `recon/video.py` + `io/video.py` | Every room video is sampled with explicit display rotation and sidecar identity; metric VO pending | partial |
+| R4 | Video tier, handheld walkthrough | `recon/video.py` + `recon/video_tracks.py` | Every room video is orientation-normalized and passes/fails on tracked features, inliers, parallax, and coverage; trajectory/metric scale pending | partial |
 | R5 | LiDAR tier, depth+poses+intrinsics | `io/record3d.py`, `recon/record3d_points.py`, `recon/lidar.py` | RoomPlan JSON works; real Record3D emits partial metric rooms/walls/opening candidates, with calibration pending | partial |
 | R6 | Per-room: walls, ceiling, area, openings | schema + lidar recon | RoomPlan fixture and raw Record3D path emit the shared fields; raw opening accuracy remains unmeasured | partial |
 | R7 | Stitched multi-room adjacency | `stitch/constraints.py` + `stitch/pose_graph.py` | shared-opening graph + corrected whole-property SVG on synthetic RoomPlan | partial |

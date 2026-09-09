@@ -13,6 +13,16 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T7c video feature-track gate complete
+
+- Added a separate immutable tracking policy and `video_tracks.py` algorithm. It analyzes at most 60 evenly spaced adjacent sample pairs, bounds frames to 640 px, caches ORB features, applies Hamming ratio matching, and uses seeded fundamental/homography RANSAC.
+- Every pair records keypoint, match, fundamental-inlier, motion, homography-residual parallax, and convex-hull coverage evidence. Low yield, weak geometry, stationary motion, homography dominance/pure rotation, and poor coverage are counted as explicit rejection reasons; a video needs 35% eligible pairs.
+- Added deterministic tests where two-depth translational motion passes, a homography-only rotation sequence fails for low parallax, and blank frames fail without crashing.
+- Real diagnostics: my-room passes 23/60 pairs with median 1,166 keypoints, 262 matches, 178 F-inliers, 78.28 px motion, 1.15 px parallax, and 23.5% coverage. Pooja-room passes 27/60 with 1,188, 257, 190, 93.41 px, 1.23 px, and 20.6%.
+- Both videos are eligible for the next relative-VO stage. This does not establish metric scale, wall dimensions, or the official ±3% gate; the CLI still returns structured `unsupported_tier` after reporting the evidence.
+- All 86 tests, Ruff, touched-file formatting, compileall, synthetic reproduction, private two-video feature smoke, and `git diff --check` pass. No commit was made.
+- Next: T7d scale-free relative pose chaining with explicit segment breaks/relocalization. Do not assign metres without a validated pose sidecar or known length.
+
 ## 2026-09-09 — T7b multi-video orientation-aware ingest complete
 
 - Refactored video ingest around immutable `VideoMetadata` and `SampledVideo` records. Every sorted room walkthrough is now sampled; the filename stem remains its stable identity instead of silently selecting only the first file.

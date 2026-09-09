@@ -17,3 +17,26 @@ class VideoIngestConfig:
 
 
 DEFAULT_VIDEO_INGEST = VideoIngestConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class VideoTrackingConfig:
+    """Bounded ORB and geometric-consistency policy for video diagnostics."""
+
+    maximum_pair_count: int = 60
+    resize_max_dimension_px: int = 640
+    orb_feature_count: int = 1200
+    orb_fast_threshold: int = 12
+    ratio_test: float = 0.75
+    minimum_keypoints_per_frame: int = 80
+    minimum_matches: int = 24
+    minimum_fundamental_inliers: int = 16
+    minimum_fundamental_inlier_ratio: float = 0.35
+    ransac_reprojection_threshold_px: float = 1.5
+    minimum_motion_fraction: float = 0.004
+    minimum_parallax_fraction: float = 0.0015
+    minimum_coverage_fraction: float = 0.08
+    minimum_eligible_pair_ratio: float = 0.35
+
+
+DEFAULT_VIDEO_TRACKING = VideoTrackingConfig()

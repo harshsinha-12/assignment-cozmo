@@ -4,6 +4,23 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-09 — Gate relative video motion before estimating a trajectory
+
+**Context:** A large raw feature count does not establish usable camera motion.
+Blur, blank paint, repeated texture, stationary frames, and pure rotation can
+all produce misleading matches or a homography without translational parallax.
+
+**Decision:** Before VO, analyze a bounded 60 adjacent-pair sample with ORB,
+Hamming ratio matches, seeded fundamental/homography RANSAC, median image motion,
+homography-residual parallax, and convex-hull image coverage. Record every failed
+condition by name and require 35% of analyzed pairs to pass. Do not interpret
+the relative motion as metres.
+
+**Consequence:** Both current walkthroughs pass this internal trackability gate
+with 23/60 and 27/60 eligible pairs. Synthetic pure rotation and blank frames
+fail. T7d can work on a qualified feature graph, but scale and official ±3%
+accuracy remain unproven.
+
 ## 2026-09-09 — Apply video display rotation exactly once
 
 **Context:** Both uploaded iPhone MP4 files store 1280×720 encoded frames plus a

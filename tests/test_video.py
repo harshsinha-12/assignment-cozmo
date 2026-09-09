@@ -73,8 +73,8 @@ def test_synthetic_walkthrough_is_sampled_without_inventing_centimetres(tmp_path
     assert files == [video_path]
     assert len(frames) >= 8
     assert document["status"] == "failed"
-    assert document["warnings"][0]["code"] == "unsupported_tier"
-    assert "Sampled" in document["warnings"][0]["message"]
+    assert document["warnings"][0]["code"] == "insufficient_overlap"
+    assert "samples from" in document["warnings"][0]["message"]
     assert "poses.json" in document["warnings"][0]["message"]
     assert "not be guessed" in document["warnings"][0]["message"]
 

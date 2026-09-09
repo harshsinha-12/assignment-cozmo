@@ -43,7 +43,7 @@ advance against the partial upload.
 | T3 | doing | Human benchmark capture | human + Pro phone | **yes — partial upload present** | Three rooms present; missing connector, repeats, GT, incumbent, damage evidence, and one video |
 | T6 | doing | LiDAR export → FloorPlan | — | **present** | T6a–T6b3 raw `.r3d` partial IR works; calibration, repeatability, shared-opening registration, and GT hardening remain |
 | T9 | done | Stitch + drift correction + on/off ablation | T6 | no | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
-| T7 | doing | Video path | T6 | two of three room videos present | T7b multi-file ingest + explicit 90° clockwise normalization done; feature tracking, scale, FloorPlan, and ±3% path remain |
+| T7 | doing | Video path | T6 | two of three room videos present | T7b ingest/orientation + T7c feature gates done; relative trajectory, scale, FloorPlan, and ±3% path remain |
 | T8 | todo | Photos path, 2–8 stills, folder stitch | — | 23 photos present | T8a ingest done; drawing room has 7 and files lack original Camera EXIF after WhatsApp transfer |
 | T21 | todo | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | Xcode.app | no | Parallel. Scored route stays Route 2 until install works |
 | T17 | doing | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | T17a protocol/templates done; walk-in validation and measured rows wait on T3 |
@@ -76,14 +76,16 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-**T7c:** build deterministic inter-frame feature-track diagnostics per room:
-keypoint yield, match/inlier counts, motion/parallax rejection, and track
-coverage. Keep results non-metric until a pose/scale source is validated.
+**T7d:** recover a scale-free relative camera trajectory across eligible
+keyframes, with explicit segment breaks/relocalization when the feature graph
+fails. Keep translations unitless until a metric sidecar or known length is
+validated.
 
 ---
 
 ## Done
 
+- **2026-09-09 T7c video feature-track gate** — Bounded ORB extraction, ratio matching, seeded fundamental/homography RANSAC, motion/parallax/coverage gates, named rejection counts, accepted multi-depth synthetic motion, rejected pure rotation/blank frames, and real two-video diagnostics. No metric claim.
 - **2026-09-09 T7b multi-video orientation-aware ingest** — All room walkthroughs sampled in stable order, filename-stem identity, explicit quarter-turn normalization, per-video sidecars, ambiguous global-sidecar refusal, real duration/frame diagnostics, and three added tests. No metric geometry inferred.
 - **2026-09-09 T6b3 Record3D partial FloorPlan** — Evidence-gated door/window occupancy profiles, schema-valid rooms/walls/ceilings/areas/openings, deliberately uncalibrated intervals, per-scan provenance, disconnected registration warnings, real JSON/SVG output, and four focused tests. Ground-truth hardening remains T6.
 - **2026-09-09 T6b2 Record3D room-plane candidates** — Horizontal floor/ceiling bands, vertically persistent clutter rejection, 0.5-degree Manhattan yaw search, camera-bracketing wall peaks, real three-scan diagnostics, and four synthetic regression tests. No accuracy claim without tape truth.

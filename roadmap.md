@@ -77,9 +77,10 @@ Done when: two rooms share a door without overlap; ablation images exist.
 
 ## Phase 5 — Video tier
 
-**Status:** partial — T7b multi-walkthrough identity, display-orientation
-normalization, bounded sampling, and sidecar association work on the two current
-iPhone videos. Feature tracking and metric reconstruction remain.
+**Status:** partial — T7b multi-walkthrough identity/orientation and T7c
+deterministic ORB/geometric track gates work on the two current iPhone videos.
+Both pass relative-VO eligibility; trajectory recovery and metric reconstruction
+remain.
 
 - ffmpeg sample + tracking or poses
 - Same IR, wider intervals than LiDAR

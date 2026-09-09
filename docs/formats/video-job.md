@@ -44,3 +44,23 @@ layout.
 Current private diagnostics: `my-room.mp4` → 138 samples / 68.56 s;
 `pooja-room.mp4` → 148 samples / 73.91 s. These are ingest facts, not geometry
 or accuracy results.
+
+## Feature-track gate
+
+T7c analyzes at most 60 evenly spaced adjacent sample pairs per room. Frames are
+bounded to 640 px on the long edge, then ORB features use Hamming ratio matches,
+a seeded fundamental-matrix RANSAC, and a homography residual. A pair is eligible
+only when it has enough keypoints, matches, geometric inliers, image motion,
+non-homographic parallax, and convex-hull coverage. Each failed condition is
+counted by name. A walkthrough needs at least 35% eligible analyzed pairs before
+relative VO can proceed.
+
+Current real results:
+
+| Room | Eligible pairs | Median keypoints | Matches | F inliers | Motion | Homography-residual parallax | Coverage |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| my-room | 23 / 60 | 1,166 | 262 | 178 | 78.28 px | 1.15 px | 23.5% |
+| pooja-room | 27 / 60 | 1,188 | 257 | 190 | 93.41 px | 1.23 px | 20.6% |
+
+Both pass this internal relative-VO eligibility gate. This proves trackable
+image evidence, not metric scale, wall dimensions, or the official ±3% gate.

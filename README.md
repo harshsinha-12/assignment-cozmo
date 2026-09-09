@@ -45,7 +45,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 ## Current status
 
-**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, multi-video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, and one-command synthetic reproduction work. Video ingest now preserves every room file and normalizes display rotation; real Record3D emits partial metric geometry. Cross-scan registration, calibration, and metric video/photos remain.**
+**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, multi-video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, and one-command synthetic reproduction work. Video now has orientation-aware ingest plus ORB/geometric feature-track gates; real Record3D emits partial metric geometry. Relative video trajectory/scale, cross-scan registration, calibration, and metric photos remain.**
 
 See [`roadmap.md`](roadmap.md).
 
@@ -87,7 +87,7 @@ The optional `damage_observations.json` contract supplies surface-mapped metric 
 
 Evaluate the pair with `python -m cozmo_floorplan eval --pred OUT/floorplan.json --truth TRUTH --ablation-off OUT/floorplan.ablation-off.json --out OUT`. Missing repeat, real-capture, and incumbent evidence stays visibly red.
 
-Video jobs: put one MP4/MOV per room in `video/` (`docs/formats/video-job.md`). The CLI samples every file, applies container display rotation exactly once, and currently exits with a structured failure rather than guessing centimetres.
+Video jobs: put one MP4/MOV per room in `video/` (`docs/formats/video-job.md`). The CLI samples every file, applies container display rotation exactly once, evaluates ORB matches/geometric inliers/parallax/coverage, and currently exits with a structured failure rather than guessing centimetres.
 
 Photo jobs: put 2–8 decodable images per room under `photos/<room_id>/` (`docs/formats/photo-job.md`). Ingest is ready; metric SfM, adjacency, and scale remain capture-dependent.
 

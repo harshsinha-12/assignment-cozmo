@@ -39,9 +39,11 @@ Floor extraction: accumulate a point cloud or occupancy from tracked wall/floor 
 **Current implementation:** T7b discovers every room video, keeps filename-stem
 identity, samples each at about 2 Hz, disables OpenCV auto-rotation, and applies
 the container quarter-turn exactly once. Per-video pose sidecars are associated
-by stem; global sidecars are accepted only for a single walkthrough. The current
-two iPhone files normalize to 720×1280 portrait frames. Feature tracking, metric
-scale, and FloorPlan output remain.
+by stem; global sidecars are accepted only for a single walkthrough. T7c adds a
+deterministic ORB/fundamental-matrix track gate with motion, homography-residual
+parallax, coverage, and named rejection reasons. Both current videos pass the
+internal relative-VO eligibility ratio. Relative trajectory, metric scale, and
+FloorPlan output remain.
 
 ## Tier P — Photos
 
