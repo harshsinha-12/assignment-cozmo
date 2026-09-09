@@ -28,6 +28,7 @@ from cozmo_floorplan.recon.measurements import (
     lidar_area,
     lidar_length,
 )
+from cozmo_floorplan.recon.record3d_points import build_metric_point_cloud
 from cozmo_floorplan.recon.record3d_validation import validate_record3d_capture
 
 FloorPlan = dict[str, Any]
@@ -44,19 +45,25 @@ def reconstruct_lidar(job: Job) -> FloorPlan:
 
     record3d_sources = discover_record3d_archives(lidar_dir)
     if record3d_sources:
-        summaries = [
-            validate_record3d_capture(load_record3d_capture(record3d_source))
-            for record3d_source in record3d_sources
-        ]
-        details = ", ".join(
-            f"{source.name}: {summary.frame_count} frames, "
-            f"{summary.valid_depth_fraction:.1%} sampled valid depth"
-            for source, summary in zip(record3d_sources, summaries, strict=True)
-        )
+        details = []
+        for record3d_source in record3d_sources:
+            capture = load_record3d_capture(record3d_source)
+            summary = validate_record3d_capture(capture)
+            cloud = build_metric_point_cloud(capture)
+            minimum, maximum = cloud.bounds_m
+            extents = tuple(
+                high - low for low, high in zip(minimum, maximum, strict=True)
+            )
+            details.append(
+                f"{record3d_source.name}: {summary.frame_count} frames, "
+                f"{len(cloud.points_m)} metric voxels from "
+                f"{len(cloud.sampled_frame_indices)} sampled frames, "
+                f"world extents {extents[0]:.2f}x{extents[1]:.2f}x{extents[2]:.2f} m"
+            )
         raise ReconstructionError(
-            f"Validated {len(summaries)} Record3D RGB-D capture(s) ({details}). "
-            "Metric depth, poses, and intrinsics are readable; point-cloud plane "
-            "extraction into walls/openings is the remaining T6 stage.",
+            f"Built metric point clouds for {len(record3d_sources)} Record3D "
+            f"capture(s) ({'; '.join(details)}). Floor/wall/opening plane extraction "
+            "is the remaining T6 stage; cloud bounds are diagnostics, not room dimensions.",
             warning_code="unsupported_tier",
         )
 

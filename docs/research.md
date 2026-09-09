@@ -31,6 +31,17 @@ depth compressed with LZFSE, uint8 confidence compressed with LZFSE, and one
 pose/intrinsic/timestamp row per frame. T6a decodes and validates this; T6b must
 still fuse the points and fit planes.
 
+### T6b1 coordinate check (2026-09-09)
+
+The official structs order pose values as XYZW quaternion then XYZ position and
+label the intrinsics as RGB coefficients. The maintainer confirms an OpenGL
+right-handed frame whose viewing direction is negative Z; the official stream
+header defines confidence as low=0, medium=1, high=2. T6b1 therefore scales RGB
+intrinsics to the depth resolution, back-projects forward depth on negative Z,
+and applies the pose as camera-to-world. On all three real captures this
+convention produces strong paired horizontal floor/ceiling bands; reversing Z
+does not. Sources: [official structs](https://github.com/marek-simonik/record3d/blob/master/include/record3d/Record3DStructs.h), [maintainer coordinate answer](https://github.com/marek-simonik/record3d/issues/59), [official confidence buffer](https://github.com/marek-simonik/record3d/blob/master/include/record3d/Record3DStream.h).
+
 ## Libraries (Python, Cloud-Agent friendly first)
 
 | Library | Use | Weight |

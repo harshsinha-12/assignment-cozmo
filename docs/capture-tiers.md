@@ -61,7 +61,7 @@ A restoration walk is often LiDAR on the adjuster’s iPhone plus homeowner JPEG
 
 LiDAR JSON → IR → SVG → eval. Everything else reuses extract + stitch.
 
-**Current implementation:** portable RoomPlan JSON v1 → FloorPlan works against `data/fixtures/roomplan_two_room`. T9 plane-anchors shared openings (shared walls stay with the first owner room) and writes a poses-as-is ablation. See `docs/formats/roomplan-json.md`. T6a validates real Record3D archives and decodes their LZFSE depth/confidence frames with poses and intrinsics (`docs/formats/record3d.md`); T6b point-cloud plane extraction is still pending, so raw `.r3d` jobs stop structurally before inventing walls. USDZ remains unsupported.
+**Current implementation:** portable RoomPlan JSON v1 → FloorPlan works against `data/fixtures/roomplan_two_room`. T9 plane-anchors shared openings (shared walls stay with the first owner room) and writes a poses-as-is ablation. See `docs/formats/roomplan-json.md`. T6a validates and decodes real Record3D archives; T6b1 back-projects sampled depth with intrinsics and poses into deterministic metric world clouds (`docs/formats/record3d.md`). T6b2 plane extraction is still pending, so raw `.r3d` jobs stop structurally before inventing walls. USDZ remains unsupported.
 
 Video: frames are sampled from `video/*.mp4` (`docs/formats/video-job.md`). Metric VO is not implemented; uncalibrated walkthroughs do not emit centimetres.
 

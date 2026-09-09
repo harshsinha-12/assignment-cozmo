@@ -4,6 +4,22 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-09 — Build bounded metric clouds before fitting Record3D planes
+
+**Context:** The real scans contain roughly four thousand 60 fps frames each.
+Fusing every depth pixel would add runtime and correlated samples before the
+coordinate path itself was proven.
+
+**Decision:** T6b1 samples 61 inclusive frames, accepts medium/high confidence
+depth from 0.10–8 m, scales RGB intrinsics to depth resolution, back-projects
+forward on OpenGL negative-Z, applies normalized XYZW camera-to-world poses, and
+averages points into 2.5 cm voxels. Sampling, rotation, configuration, and the
+point algorithm live in separate modules.
+
+**Consequence:** Each real room produces 224k–261k deterministic metric voxels
+in about 2.3–2.5 seconds locally. Bounds remain diagnostics—not wall lengths—so
+T6b2 must reject furniture/outliers and fit physical planes before IR output.
+
 ## 2026-09-09 — Decode Record3D first; fit geometry in a separate stage
 
 **Context:** Three real `.r3d` room captures are now available. Each is a ZIP

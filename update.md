@@ -13,6 +13,17 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T6b1 Record3D metric world clouds complete
+
+- Added separate deterministic sampling, quaternion rotation, point-cloud configuration, and Record3D back-projection modules. Depth is filtered to 0.10–8 m at medium/high confidence, projected with RGB intrinsics scaled to depth resolution, transformed through normalized XYZW camera-to-world poses, and averaged into 2.5 cm voxels.
+- Confirmed the convention against the official Record3D structs/source and the real captures: OpenGL negative-Z is camera forward; confidence is low=0, medium=1, high=2. The correct convention produces strong paired horizontal floor/ceiling bands on every scan; reversing Z does not.
+- Real results from 61 sampled frames each: drawing-room 664,570 accepted depth pixels → 252,694 voxels in 2.32 s; my-room 644,372 → 224,435 in 2.28 s; pooja-room 677,189 → 260,653 in 2.45 s.
+- Wired metric-cloud construction into the production LiDAR path. The private three-capture command completes in about 8 s and reports auditable frame/voxel/world-bound diagnostics, then remains a structured failure because bounds include furniture/outliers and are not room dimensions.
+- Added four focused tests covering inclusive sampling, normalized XYZW rotation, negative-Z metric projection, camera translation, voxel bounds, and invalid config. Updated code map, format/research notes, ADR, README, device/compliance status, roadmap, and tasks.
+- All 72 tests, Ruff, touched-file formatting, compileall, synthetic reproduction, private three-scan smoke, and diff checks pass. The private command's exit 2 is intentional until planes become FloorPlan geometry.
+- `mytask.md` remains untouched as Harsh's untracked human-capture checklist.
+- Next: T6b2 horizontal floor/ceiling detection and Manhattan wall-plane extraction for one room, with diagnostic rejection before FloorPlan conversion.
+
 ## 2026-09-09 — T6a real Record3D decode and validation complete
 
 - Inventoried the partial private upload: three genuine Record3D `.r3d` room archives, 23 unique decodable JPEGs across three room folders (8/8/7), and two valid H.264 1280×720 walkthroughs lasting 68.56 s and 73.91 s. The JPEGs have no EXIF after WhatsApp transfer; both MP4s carry a -90° display transform.

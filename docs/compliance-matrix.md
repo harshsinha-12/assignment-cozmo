@@ -10,7 +10,7 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R2 | Device matrix | `docs/device-matrix.md` | Hardware eligibility separated from accepted runtime formats and measured accuracy | partial (measurements pending) |
 | R3 | Photos tier, 2–8 stills, no depth/poses, per-room folders, whole-property stitch | `io/photos.py` + `recon/photos.py` | multi-room ingest/count/decode validation works; metric SfM and whole-property output pending | partial |
 | R4 | Video tier, handheld walkthrough | `recon/video.py` + `io/video.py` | Frames sampled; metric VO pending capture | partial |
-| R5 | LiDAR tier, depth+poses+intrinsics | `io/record3d.py`, `recon/lidar.py` | RoomPlan JSON → metric FloorPlan works; real Record3D frames/poses/intrinsics decode, plane extraction pending | partial |
+| R5 | LiDAR tier, depth+poses+intrinsics | `io/record3d.py`, `recon/record3d_points.py`, `recon/lidar.py` | RoomPlan JSON → metric FloorPlan works; real Record3D metric world clouds build, plane extraction pending | partial |
 | R6 | Per-room: walls, ceiling, area, openings | schema + lidar recon | RoomPlan fixture emits walls, ceilings, areas, openings | partial |
 | R7 | Stitched multi-room adjacency | `stitch/constraints.py` + `stitch/pose_graph.py` | shared-opening graph + corrected whole-property SVG on synthetic RoomPlan | partial |
 | R8 | Damage regions, class + metric extent | `agent/openai_agent.py` + `agent/tools.py` | live/fallback `damage[]` works on synthetic observations; real images pending | partial |

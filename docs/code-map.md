@@ -28,6 +28,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/utils/paths.py` | Finds repository runtime assets and handles the explicit schema-path override. |
 | `src/cozmo_floorplan/utils/env.py` | Loads simple local `.env` values without overriding variables already exported by the caller. |
 | `src/cozmo_floorplan/utils/lzfse.py` | Decodes Record3D LZFSE blocks through python-lzfse or the macOS system Compression framework and enforces exact output sizes. |
+| `src/cozmo_floorplan/utils/sampling.py` | Produces deterministic, inclusive evenly spaced frame indices without capture-specific policy. |
 | `docs/schemas/floorplan.schema.json` | Canonical external data contract. This remains the single schema source of truth. |
 
 ## Geometry and LiDAR reconstruction
@@ -37,12 +38,14 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/geom/transforms.py` | Parses RoomPlan pose encodings and projects surface width axes onto the world x-z floor plane. |
 | `src/cozmo_floorplan/geom/polygons.py` | Polygonizes unordered wall segments, with a reported convex-hull fallback for incomplete loops. |
 | `src/cozmo_floorplan/geom/se2.py` | Reusable immutable SE(2) transforms, frame alignment, angles, and point distances for planar stitching. |
+| `src/cozmo_floorplan/geom/rotations.py` | Normalizes Record3D XYZW quaternions and constructs camera-to-world 3D rotation matrices. |
 | `src/cozmo_floorplan/io/roomplan.py` | Parses the portable single- or multi-room RoomPlan JSON contract into typed immutable capture objects. |
 | `src/cozmo_floorplan/recon/lidar_config.py` | LiDAR confidence scores, uncertainty widths, and recognized RoomPlan filenames. |
 | `src/cozmo_floorplan/recon/measurements.py` | Builds interval-bearing LiDAR and derived diagnostic measurements without treating transforms as exact. |
-| `src/cozmo_floorplan/recon/lidar.py` | Converts RoomPlan surfaces into FloorPlan v0.2; dispatches real Record3D archives through integrity validation and stops before unfinished plane extraction. |
-| `src/cozmo_floorplan/recon/record3d_config.py` | Keeps Record3D integrity-sampling count and valid metric depth range out of archive and algorithm code. |
+| `src/cozmo_floorplan/recon/lidar.py` | Converts RoomPlan surfaces into FloorPlan v0.2; dispatches real Record3D archives through integrity and metric-cloud stages, then stops before unfinished plane extraction. |
+| `src/cozmo_floorplan/recon/record3d_config.py` | Keeps Record3D validation and metric-cloud sampling, confidence, depth, and voxel policies out of I/O and algorithm code. |
 | `src/cozmo_floorplan/recon/record3d_validation.py` | Decodes bounded representative RGB-D frames and reports valid-depth coverage, range, and camera-trajectory extent without claiming walls. |
+| `src/cozmo_floorplan/recon/record3d_points.py` | Back-projects filtered depth along camera negative-Z, applies metric camera poses, and computes deterministic world-space voxel centroids with audit counts. |
 | `docs/formats/roomplan-json.md` | Public input contract for the tested RoomPlan JSON adapter. |
 | `docs/formats/record3d.md` | Documents the tested raw Record3D archive contract, decompression path, and current plane-extraction boundary. |
 | `src/cozmo_floorplan/recon/photos_config.py` | Official 2–8 photo count, accepted extensions, and minimum image-size settings. |
@@ -139,6 +142,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `data/fixtures/roomplan_two_room/` | Synthetic RoomPlan-format LiDAR job that reconstructs the same metric room dimensions. |
 | `tests/test_lidar.py` | Tests single/multi-room discovery, RoomPlan conversion, intervals, metric gates, CLI output, and honest unsupported fallbacks. |
 | `tests/test_record3d.py` | Tests Record3D metadata/index validation, typed RGB-D decoding, integrity summaries, and exact LZFSE output checks. |
+| `tests/test_record3d_points.py` | Tests deterministic frame sampling, quaternion rotation, metric back-projection, pose application, voxel bounds, and invalid configuration. |
 | `tests/test_render.py` | Tests parseable whole-property SVG, dimensions, openings, deterministic output, XML escaping, and failed-run placeholders. |
 | `tests/test_photos.py` | Tests room discovery, the official 2–8 count, corrupt-image rejection, multi-room ordering, and honest metric refusal using generated JPEGs. |
 | `tests/test_fix_loop.py` | Validates the frozen failing gate and ensures checksum verification catches artifact tampering. |

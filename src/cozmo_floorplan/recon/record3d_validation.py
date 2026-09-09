@@ -12,6 +12,7 @@ from cozmo_floorplan.recon.record3d_config import (
     DEFAULT_RECORD3D_VALIDATION,
     Record3DValidationConfig,
 )
+from cozmo_floorplan.utils.sampling import evenly_spaced_indices
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,7 +31,10 @@ def validate_record3d_capture(
 ) -> Record3DValidationSummary:
     """Decode representative frames and summarize evidence without fitting walls."""
 
-    indices = _sample_indices(capture.metadata.frame_count, config.sample_frame_count)
+    indices = evenly_spaced_indices(
+        capture.metadata.frame_count,
+        config.sample_frame_count,
+    )
     valid_count = 0
     total_count = 0
     valid_depths: list[np.ndarray] = []
@@ -65,13 +69,4 @@ def validate_record3d_capture(
         valid_depth_fraction=valid_count / total_count,
         depth_range_m=(float(np.min(concatenated)), float(np.max(concatenated))),
         trajectory_extent_m=(float(extent[0]), float(extent[1]), float(extent[2])),
-    )
-
-
-def _sample_indices(frame_count: int, sample_count: int) -> tuple[int, ...]:
-    if frame_count <= 0 or sample_count <= 0:
-        return ()
-    count = min(frame_count, sample_count)
-    return tuple(
-        sorted({round(value) for value in np.linspace(0, frame_count - 1, count)})
     )

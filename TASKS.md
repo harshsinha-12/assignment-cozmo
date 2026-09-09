@@ -41,7 +41,7 @@ advance against the partial upload.
 | T2 | done | Synthetic two-room fixture | — | no | 2026-09-07 |
 | T4 | done | Reconcile plan with official prompt | T1 | no | 2026-09-08 ingest |
 | T3 | doing | Human benchmark capture | human + Pro phone | **yes — partial upload present** | Three rooms present; missing connector, repeats, GT, incumbent, damage evidence, and one video |
-| T6 | doing | LiDAR export → FloorPlan | — | **present** | T6a real `.r3d` archive/metadata/LZFSE frame validation done; T6b metric point-cloud plane extraction next |
+| T6 | doing | LiDAR export → FloorPlan | — | **present** | T6a decode + T6b1 sampled metric world-cloud fusion done; T6b2 floor/wall/opening plane extraction next |
 | T9 | done | Stitch + drift correction + on/off ablation | T6 | no | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
 | T7 | todo | Video path | T6 | two of three room videos present | Both carry a -90° display transform; multi-file ingest, orientation handling, and ±3% metric path remain |
 | T8 | todo | Photos path, 2–8 stills, folder stitch | — | 23 photos present | T8a ingest done; drawing room has 7 and files lack original Camera EXIF after WhatsApp transfer |
@@ -76,14 +76,16 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-**T6b:** sample/fuse the validated Record3D metric depth using per-frame
-intrinsics and poses, then fit floor/wall planes for one room before attempting
-multi-room stitching. Do not call the current integrity summary a floor plan.
+**T6b2:** detect floor/ceiling horizontal bands and Manhattan wall planes from
+the metric world clouds, beginning with one room. Reject furniture/outliers and
+emit diagnostics before converting planes to FloorPlan walls. Do not treat raw
+cloud bounds as room dimensions.
 
 ---
 
 ## Done
 
+- **2026-09-09 T6b1 Record3D metric world clouds** — Deterministic frame sampling, RGB-to-depth intrinsic scaling, OpenGL camera back-projection, normalized XYZW pose rotation, camera-to-world transformation, confidence/depth filtering, 2.5 cm voxel centroids, real-capture diagnostics, and four focused tests.
 - **2026-09-09 T6a Record3D decode/validation** — Real `.r3d` ZIP indexing, metadata validation, portable/macOS LZFSE decoding, typed RGB-D frames, bounded integrity summaries, private manifests, and four tests. Three uploaded scans validate; raw plane extraction remains T6b.
 - **2026-09-09 T20b compliance audit** — Normalized the interval-contract row to `done` and added a test that locks all 27 requirement ids, ordering, uniqueness, and allowed statuses.
 - **2026-09-09 T17a protocol handoff** — One-page Route 2 operator card, copyable per-tier manifests checked through the production loader, and a device matrix that separates capture eligibility from current format support and measured accuracy.

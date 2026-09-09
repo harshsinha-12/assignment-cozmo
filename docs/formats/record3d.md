@@ -18,10 +18,16 @@ The adapter now reads the real September 9 captures and checks:
 The Python `lzfse` package is the portable decoder. On macOS, the reader also
 uses the system Compression framework if the package is not installed.
 
+## Metric point generation
+
+T6b1 deterministically samples 61 frames, scales the RGB intrinsics to the depth
+resolution, back-projects positive depth along OpenGL camera negative-Z, applies
+the normalized XYZW camera-to-world pose, filters depth/confidence, and averages
+points into 2.5 cm world-space voxels. Counts and bounds are diagnostic evidence;
+they are not room measurements.
+
 ## Current boundary
 
-T6a validates and decodes RGB-D frames, poses, timestamps, and per-frame
-intrinsics. It does not yet claim walls, openings, or ceiling dimensions from
-raw Record3D points. The CLI reports a structured `unsupported_tier` result
-after validation until the next T6 plane-extraction stage turns those metric
-points into the shared FloorPlan IR.
+RGB-D decoding and metric world-cloud generation work on the real captures.
+The CLI still returns structured `unsupported_tier` until T6b2 fits
+floor/ceiling/wall/opening planes and converts them to the shared FloorPlan IR.
