@@ -13,6 +13,23 @@ Format:
 - Next
 ```
 
+## 2026-09-08 — T9 shared-wall fix + T7 video ingest
+
+- Context: Harsh adds photos/video/LiDAR tomorrow. Tonight: finish work that does not need those files. T9’s injected 20 cm gap was not actually closing.
+- Done: walls now take the pose of their first listed room, so shared `a_east` stays with room A while exclusive `b_west` moves. Gap 20 → 0 on the synthetic mutation. Tests treat pytest `agent_fallback` as `partial` (exit 2) and assert geometry `ok` before claims enrichment. Video ingest samples generated MP4s, mentions `poses.json` when present, and fails `unsupported_tier` instead of inventing centimetres.
+- Learned: `_dominant_pose` (first non-identity room) moved shared walls with the neighbor, so both opening frames translated together and residual stayed 20 cm. `COZMO_AGENT_MODE=fallback` in `tests/conftest.py` makes enriched `run_job` `partial`; do not assert `status==ok` on that path.
+- Next: T3 capture into `data/private/`. Without files, T8 photo ingest. With a walkthrough, T7 metric VO. T21 needs Xcode.app.
+
+## 2026-09-09 — T9 stitch and drift ablation complete
+
+- Full Xcode is unavailable (`xcodebuild` points at CommandLineTools), so the requested fallback stage was T9 rather than T21.
+- Preserved and completed the already-staged T9 work: separate SE(2) utilities, drift config, opening constraints, room-pose traversal, geometry application, correction orchestration, CLI ablation output, and tests. File ownership is recorded in `docs/code-map.md`.
+- Normal multi-room runs plane-anchor shared opening frames and write `floorplan.ablation-off.json`; `--no-drift-correction` regenerates the poses-as-is result. Before/after opening-gap residuals are stored as interval-bearing measurements.
+- Tightened accountability so a job with no usable opening constraints reports correction disabled/method `none` rather than claiming a no-op correction.
+- A synthetic RoomPlan mutation injects 20 cm drift into the second room; correction reduces the shared-opening gap from 20 cm to 0 cm. This is algorithm plumbing evidence only, not a real-capture accuracy claim.
+- Verified the focused T9 suite (8 tests). The current full suite passes 45 tests, but that count includes concurrent untracked T7 video work that appeared during final verification and was not reviewed as part of this stage. `ruff check .`, compileall, and staged/unstaged `git diff --check` pass. No commit was made.
+- Next unblocked work without captures: T19 freeze the fix-loop “before” bundle. T3 remains the human priority; T21 requires full Xcode.
+
 ## 2026-09-08 — T16 agent + tools complete
 
 - Implemented a live OpenAI Responses API tool loop plus deterministic fallback for damage, concealed-rule flags, and scope.

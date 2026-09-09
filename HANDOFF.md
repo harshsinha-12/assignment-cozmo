@@ -7,64 +7,57 @@ The current agent overwrites the **Current handoff** section at the end of every
 ## Current handoff
 
 **Date:** 2026-09-08  
-**Branch:** `main`
+**Branch:** `main`  
 **Mode:** Max-score Round 2. **Agent + tools required** (Applied AI). Geometry still classical.
 
 ### What changed this session
 
-- Completed **T16 claims agent + tools** with a live OpenAI Responses path and deterministic offline fallback.
-- Added separate modules for config/policies, prompts, strict tool definitions, mutation tools, observations, image inputs, live agent, fallback agent, models, orchestration, and `.env` loading; all roles are in `docs/code-map.md`.
-- Added `damage_observations.json` as the surface-mapped metric proposal boundary. The LLM cannot pass a quantity into `apply_damage`; tools copy extents and intervals.
-- Added two explicitly synthetic staged-damage observations to the RoomPlan fixture and documented that they are contract data, not real-image evidence.
-- Live `gpt-5-mini` smoke test succeeded with 7 tool calls, 2 damage records, 1 concealed-rule flag, 2 scope lines, and no fallback warning.
+- Finished **T9** for real: shared walls were inheriting the neighbor room’s SE(2), so an injected 20 cm door gap stayed 20 cm. Walls now move with their **first listed owner**; `a_east` stays put, `b_west` snaps, gap → 0.
+- Pytest/CLI on the RoomPlan fixture stay `partial` when `COZMO_AGENT_MODE=fallback` (`agent_fallback`). Geometry-only stitch documents are `ok`. Tests no longer require `status==ok` / exit 0 on the enriched path.
+- Started **T7 ingest** without private captures: OpenCV samples generated MP4s at ~2 Hz, detects `poses.json`, and refuses uncalibrated centimetres (`unsupported_tier` after a successful sample). Layout: `docs/formats/video-job.md`.
 
 ### What is true now
 
 - Product: local CLI. Folder in → JSON + SVG out. No Redis, no our servers.
-- **Recon** owns centimetres and interval-bearing measurements. **Agent** (OpenAI-compatible or Anthropic, disclosed) owns damage class, concealed **rule ids**, scope lines via tools. Fallback = same tools without an API key (walk-in must not crash).
-- All three capture tiers remain pass targets. Route 2 is the guaranteed walk-in.
-- Capture phone: iPhone 17 Pro.
-- Schema v0.2 and its synthetic fixture validate.
-- `python -m cozmo_floorplan run JOB --out OUT` writes paired JSON/SVG artifacts. Unavailable adapters honestly emit a failed JSON and explanatory SVG placeholder, then exit 2.
-- `python -m cozmo_floorplan run data/fixtures/roomplan_two_room --out OUT` emits a schema-valid, dimensioned LiDAR FloorPlan and readable whole-property SVG.
-- With observations present, the pipeline enriches claims through direct OpenAI tool calling when configured or the same validated tools offline. Live mutations roll back before fallback on any provider/tool-loop failure.
-- The synthetic fixture emits 2 damage regions, 1 concealed flag with `CONCEALED_WATER_MIGRATION_001`, and 2 scope lines. Scope quantities exactly copy metric observation extents.
-- Multi-room output is intentionally `partial`: global RoomPlan transforms are used as-is and T9 must add drift correction/ablation.
-- Available synthetic metric gates have zero wall/area/opening error; repeat, drift, incumbent, and pipeline yield remain red or missing as expected.
-- All 34 tests pass; ruff, compileall, and `git diff --check` pass.
-- Raw Record3D/USDZ are not implemented or live-validated. No private sensor capture exists yet.
+- Plane-anchored stitch + regenerable `floorplan.ablation-off.json` work on the two-room RoomPlan fixture. Drift gate passes when that ablation is supplied.
+- Video jobs with a real/synthetic MP4 are ingested (frame count in the warning) but do **not** emit centimetres yet.
+- Photos still `unsupported_tier`. Raw Record3D/USDZ still structured-fail.
+- 45 tests pass. `ruff check src tests`, compileall, `git diff --check` pass. No commit (user did not ask).
 
 ### Blockers
 
-- Human T3 capture.
-- Raw Record3D `.r3d`/metadata/depth fixture for the guaranteed Route 2 LiDAR path.
-- Real damage images/crops and calibrated metric observation generation. The current observations are explicitly synthetic.
-- Cozmo published schema still missing.
+- Human T3 capture (photos, video, LiDAR, tape GT, Polycam/magicplan). Drop files under gitignored `data/private/` using `data/README.md`.
+- Raw Record3D `.r3d`/metadata/depth for Route 2 LiDAR.
+- T21: full Xcode.app (this machine has Command Line Tools only).
+- Metric video VO and photo SfM need the actual media.
 
 ### Next agent should
 
-1. **T21** check for Xcode, then build the thin RoomPlan/ARKit exporter only if it can preserve the 10-minute install goal.
-2. Resume T6 raw Record3D fusion as soon as T3 supplies the real export.
-3. Keep Route 2 as the scored capture route until Route 1 installation is proven.
+1. If T3 files are present: implement metric **T7 VO** and/or **T8 photo** reconstruction against them.
+2. If T3 is still empty: **T8 photo ingest** (mirror video: per-room JPEGs, overlap/count checks, no invented cm) **or** freeze **T19** fix-loop before.
+3. Do not run T21 without Xcode.app.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `docs/capture-route.md`
+2. `docs/formats/video-job.md`
 3. `docs/capture-protocol.md`
-4. `docs/code-map.md`
-5. `docs/agent-layer.md`
+4. `data/README.md`
+5. `docs/code-map.md`
 
 ### Exact next command
 
 ```text
-T21: check whether Xcode is available. If it is, implement a minimal iOS RoomPlan/ARKit exporter whose JSON matches `docs/formats/roomplan-json.md`; keep Route 2 primary until a clean install takes under 10 minutes.
+If data/private/ still empty: implement T8 photo-folder ingest with generated JPEGs in tests (no invented centimetres), same honesty bar as T7 video ingest.
+If a walkthrough exists: start metric T7 VO from sampled frames + optional poses.json.
 ```
 
 ---
 
 ## History
 
+- **2026-09-08** — T9 shared-wall owner-pose fix (20 cm gap actually closes) + T7 video ingest; 45 tests pass.
+- **2026-09-09** — T9 plane-anchored drift correction first land; 42 tests; full Xcode unavailable.
 - **2026-09-08** — T16 live OpenAI tool calling + offline fallback complete; live synthetic smoke and 34 tests pass.
 - **2026-09-08** — T15 JSON/SVG artifact pair complete; synthetic visual QA and 30 tests pass.
 - **2026-09-08** — T6 RoomPlan JSON path works; raw Record3D/USDZ blocked on T3; 27 tests pass.

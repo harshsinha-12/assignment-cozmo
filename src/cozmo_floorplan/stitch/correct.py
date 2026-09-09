@@ -28,14 +28,15 @@ def apply_drift_correction(
 
     constraints = opening_constraints(result)
     residual_before = mean_opening_gap(constraints)
-    if enabled and constraints:
+    correction_applied = enabled and bool(constraints)
+    if correction_applied:
         poses = room_poses(rooms, constraints)
         result = transform_document(result, poses)
         residual_after = mean_opening_gap(opening_constraints(result))
         method = config.method
     else:
         residual_after = residual_before
-        method = "none" if not enabled else config.method
+        method = "none"
 
     result["stitch"] = {
         "edges": rebuild_stitch_edges(
@@ -44,8 +45,8 @@ def apply_drift_correction(
             half_width=config.residual_half_width_cm,
         ),
         "drift_correction": {
-            "enabled": bool(enabled and method != "none"),
-            "method": method if enabled else "none",
+            "enabled": correction_applied,
+            "method": method,
             "residual_before": derived_diagnostic(
                 residual_before,
                 "cm",
@@ -60,11 +61,7 @@ def apply_drift_correction(
                 half_width=config.residual_half_width_cm,
                 confidence=config.residual_confidence,
             ),
-            "notes": (
-                "Plane-anchored opening snap: fix the first room and rigidly align each "
-                "reachable neighbor so shared door/window frames coincide. Ablate with "
-                "--no-drift-correction."
-            ),
+            "notes": _correction_notes(enabled=enabled, applied=correction_applied),
         },
     }
     result = _drop_drift_warning(result)
@@ -82,6 +79,18 @@ def apply_drift_correction(
     else:
         result["status"] = "partial"
     return result
+
+
+def _correction_notes(*, enabled: bool, applied: bool) -> str:
+    if applied:
+        return (
+            "Plane-anchored opening snap: fix the first room and rigidly align each "
+            "reachable neighbor so shared door/window frames coincide. Ablate with "
+            "--no-drift-correction."
+        )
+    if enabled:
+        return "Correction was requested but no shared-opening constraints were available."
+    return "Correction disabled; geometry preserves reconstructed poses for the ablation."
 
 
 def _drop_drift_warning(document: FloorPlan) -> FloorPlan:

@@ -8,6 +8,7 @@ from cozmo_floorplan.floorplan import build_failed_floorplan
 from cozmo_floorplan.errors import ReconstructionError
 from cozmo_floorplan.io.job import Job, load_job
 from cozmo_floorplan.recon.lidar import reconstruct_lidar
+from cozmo_floorplan.recon.video import reconstruct_video
 from cozmo_floorplan.stitch import apply_drift_correction
 
 FloorPlan = dict[str, Any]
@@ -38,20 +39,19 @@ def run_loaded_job(job: Job, *, drift_correction: bool = True) -> tuple[FloorPla
         try:
             raw = reconstruct_lidar(job)
         except ReconstructionError as exc:
-            failed = build_failed_floorplan(
-                job_id=job.job_id,
-                tier=job.tier,
-                warning_code=exc.warning_code,
-                message=str(exc),
-                input_refs=job.input_refs,
-            )
-            return failed, None
+            return _structured_failure(job, exc), None
         ablation_off = apply_drift_correction(raw, enabled=False)
         corrected = apply_drift_correction(raw, enabled=True) if drift_correction else ablation_off
         primary = enrich_floorplan(job, corrected)
         if drift_correction and corrected.get("stitch"):
             return primary, ablation_off
         return primary, None
+
+    if job.tier == "video":
+        try:
+            reconstruct_video(job)
+        except ReconstructionError as exc:
+            return _structured_failure(job, exc), None
 
     failed = build_failed_floorplan(
         job_id=job.job_id,
@@ -61,3 +61,13 @@ def run_loaded_job(job: Job, *, drift_correction: bool = True) -> tuple[FloorPla
         input_refs=job.input_refs,
     )
     return failed, None
+
+
+def _structured_failure(job: Job, exc: ReconstructionError) -> FloorPlan:
+    return build_failed_floorplan(
+        job_id=job.job_id,
+        tier=job.tier,
+        warning_code=exc.warning_code,
+        message=str(exc),
+        input_refs=job.input_refs,
+    )

@@ -21,7 +21,7 @@ def transform_document(document: dict[str, Any], poses: dict[str, Rigid2D]) -> d
         room["polygon"] = [pose.apply(point) for point in room["polygon"]]
 
     for wall in result.get("walls", []):
-        pose = _dominant_pose(wall.get("room_ids", []), poses)
+        pose = _owner_pose(wall.get("room_ids", []), poses)
         if pose == IDENTITY:
             continue
         wall["a"] = pose.apply(wall["a"])
@@ -64,12 +64,12 @@ def rebuild_stitch_edges(
     return edges
 
 
-def _dominant_pose(room_ids: list[Any], poses: dict[str, Rigid2D]) -> Rigid2D:
-    for room_id in room_ids:
-        pose = poses.get(str(room_id))
-        if pose is not None and pose != IDENTITY:
-            return pose
-    return IDENTITY
+def _owner_pose(room_ids: list[Any], poses: dict[str, Rigid2D]) -> Rigid2D:
+    """Move a wall with its first listed room so shared surfaces stay with the root."""
+
+    if not room_ids:
+        return IDENTITY
+    return poses.get(str(room_ids[0]), IDENTITY)
 
 
 def _centroid(polygon: list[list[float]]) -> tuple[float, float]:

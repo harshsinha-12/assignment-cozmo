@@ -18,9 +18,9 @@ Product: local CLI + **disclosed LLM tool-calling agent**. Score policy: max eve
 | T4 | done | Reconcile plan with official prompt | T1 | 2026-09-08 ingest |
 | T3 | todo | Human benchmark capture | human + Pro phone | See Unblocked; parallel with engineering |
 | T6 | blocked | LiDAR export → FloorPlan | T3 real Record3D export | RoomPlan JSON works; raw Record3D/USDZ must be hardened on captured files |
-| T9 | todo | Stitch + drift correction + on/off ablation | T6 | Auto-fail if poses used as-is |
-| T7 | todo | Video path | T6 | ±3% walls with CIs |
-| T8 | todo | Photos path, 2–8 stills, folder stitch | T9 | Target ±8% walls **and** opening/ceiling/detection gates |
+| T9 | done | Stitch + drift correction + on/off ablation | T6 | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
+| T7 | todo | Video path | T6 | Ingest+sampling shipped; metric VO / ±3% still needs T3 walkthrough |
+| T8 | todo | Photos path, 2–8 stills, folder stitch | T9 | Unblocked. Target ±8% walls **and** opening/ceiling/detection gates |
 | T21 | todo | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | Parallel. Scored route stays Route 2 until install works |
 | T17 | todo | Device matrix + capture-route polish | T3 | Fill measured intervals after eval |
 | T18 | todo | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | Beat/tie ≥ 70% shared dims |
@@ -53,12 +53,14 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-**T21** thin iOS RoomPlan/ARKit exporter if Xcode is available. Keep Route 2 as the scored route until a clean 10-minute install is proven. T6 raw Record3D remains blocked on human **T3**.
+If T3 files are not in the repo yet: **T8 photo ingest** (mirror the video sampler: per-room JPEGs, no invented centimetres) or freeze **T19** “before”. Metric **T7 VO** starts as soon as a walkthrough exists. **T21** only if full Xcode.app is installed. T6 raw Record3D remains blocked on human **T3**.
 
 ---
 
 ## Done
 
+- **2026-09-08 T7 ingest** — Video job sampling (OpenCV, ~2 Hz) and pose-sidecar detection. Structured failure until metric VO; no guessed centimetres. Generated mp4 tests, no private capture required.
+- **2026-09-09 T9** — Plane-anchored shared-opening drift correction, SE(2) constraint graph, correction-on/poses-as-is CLI artifacts, residual metadata, eval wiring, and synthetic 20 cm drift regression. Shared walls stay with the originating room so the gap actually closes.
 - **2026-09-08 T16** — Live OpenAI Responses tool-calling agent plus transactional deterministic fallback; strict damage, concealed-rule, and scope tools; metric observation contract; live synthetic smoke test.
 - **2026-09-08 T15** — Deterministic whole-property SVG renderer, paired atomically-written JSON/SVG artifacts, measured wall intervals, openings, scale bar, status/provenance summary, and failed-run placeholder.
 - **2026-09-08 T14** — Official-gate eval package and CLI: red empty predictions, openings, ceilings, repeatability, drift ablation, photo stitch, photo/video walls, calibration, yield, and LiDAR head-to-head.

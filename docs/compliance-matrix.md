@@ -9,10 +9,10 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R1 | Choose one capture route | `docs/capture-route.md` | Route 2 one-pager | partial (draft) |
 | R2 | Device matrix | `docs/device-matrix.md` | Hardware × tier × claimed interval | partial (draft) |
 | R3 | Photos tier, 2–8 stills, no depth/poses, per-room folders, whole-property stitch | `src/` (not started) | JSON + SVG from photo job | missing |
-| R4 | Video tier, handheld walkthrough | `src/` | JSON + SVG from video job | missing |
+| R4 | Video tier, handheld walkthrough | `recon/video.py` + `io/video.py` | Frames sampled; metric VO pending capture | partial |
 | R5 | LiDAR tier, depth+poses+intrinsics | `recon/lidar.py` | RoomPlan JSON → metric FloorPlan works; Record3D raw + real validation pending | partial |
-| R6 | Per-room: walls, ceiling, area, openings | schema + pipeline | `floorplan.json` | missing |
-| R7 | Stitched multi-room adjacency | stitch module | stitch graph + SVG | missing |
+| R6 | Per-room: walls, ceiling, area, openings | schema + lidar recon | RoomPlan fixture emits walls, ceilings, areas, openings | partial |
+| R7 | Stitched multi-room adjacency | `stitch/constraints.py` + `stitch/pose_graph.py` | shared-opening graph + corrected whole-property SVG on synthetic RoomPlan | partial |
 | R8 | Damage regions, class + metric extent | `agent/openai_agent.py` + `agent/tools.py` | live/fallback `damage[]` works on synthetic observations; real images pending | partial |
 | R9 | Concealed-damage flags + rule id | `agent/tools.py::fire_concealed_rule` | policy-validated `concealed_flags[]` generated live and offline | done |
 | R10 | Scope line items keyed to surfaces | `agent/tools.py::add_scope_line` | quantity copied from metric damage observation; generated live and offline | done |
@@ -23,7 +23,7 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R15 | Benchmark: 3+ rooms + connector, all tiers, damage, repeat, tape GT | `data/fixtures/` | raw + GT | missing |
 | R16 | Opening width gate | `eval/evaluator.py` | ≤2 cm, ≥85%, misses/phantoms scored; real data pending | partial |
 | R17 | Ceiling height + repeatability gates | `eval/evaluator.py` | thresholds and missing-evidence reporting implemented; captures pending | partial |
-| R18 | Drift ablation | `eval --ablation-off` | on/off methods and footprints reported; adapter outputs pending | partial |
+| R18 | Drift ablation | `run` + `--no-drift-correction` + `eval --ablation-off` | corrected and poses-as-is artifacts, residuals, and eval gate pass on synthetic drift; real capture pending | partial |
 | R19 | Photo-tier whole-property stitch ±8% | `eval/evaluator.py` | adjacency, overlap, footprint, and wall gates implemented; photos pending | partial |
 | R20 | Head-to-head vs incumbent, 2 rooms, LiDAR | `eval --incumbent` | shared-dimension win-rate implemented; two-room exports pending | partial |
 | R21 | Fix loop: declaration, before, after, diff | `docs/fix-loop.md` | bundle | missing |

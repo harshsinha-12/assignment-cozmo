@@ -4,6 +4,16 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-09 — Plane-anchor shared openings; always emit a poses-as-is ablation
+
+**Context:** The official drift gate rejects RoomPlan poses used unchanged. No real repeated capture exists yet, but the synthetic two-room RoomPlan fixture can carry a controlled transform error.
+
+**Decision:** Fix the first room as the floor-plan frame, derive SE(2) constraints from shared opening frames, and rigidly align each reachable neighboring room. The normal CLI emits corrected geometry and `floorplan.ablation-off.json`; `--no-drift-correction` regenerates only the poses-as-is path. Record before/after opening-gap residuals with intervals. If there are no usable constraints, report method `none` instead of claiming a no-op correction.
+
+**Consequence:** T9 is implemented and testable on a synthetic 20 cm drift injection, including the existing eval gate. This proves algorithm and artifact plumbing, not real-world centimetre accuracy or loop-closure quality; those claims remain blocked on T3 captures.
+
+---
+
 ## 2026-09-08 — Normalize RoomPlan JSON; do not guess raw Record3D bytes
 
 **Context:** No real LiDAR capture exists yet. Apple exposes metric RoomPlan surfaces but does not define one universal third-party JSON layout. Record3D exposes depth, confidence, intrinsics, and poses, while the on-disk `.r3d` path needs a captured fixture to validate decompression and frame conventions.

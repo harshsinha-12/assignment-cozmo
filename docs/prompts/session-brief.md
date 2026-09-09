@@ -65,9 +65,9 @@ job dir → normalizer → recon (LiDAR | video | photos) → FloorPlan numbers
 
 ## Next work
 
-**Code:** T12 schema, T13 CLI, T14 eval, and the T6 RoomPlan JSON path work. Raw Record3D/USDZ await real captures. Next unblocked: T15 SVG, then T9 stitch+ablation, T7 video, T8 photos, T16 agent.
+**Code:** T9 stitch is done (shared-opening snap + ablation). T7 **ingests** video (samples frames, no cm yet). Next without captures: T8 photo ingest. With captures: T7 metric VO, T8 SfM, T6 raw Record3D. T21 needs Xcode.app.
 
-**Human (Harsh):** T3 capture tonight (`docs/capture-protocol.md`).
+**Human (Harsh):** T3 capture tomorrow (`docs/capture-protocol.md`). Drop files in gitignored `data/private/` — layout in `data/README.md`.
 
 **Do not:** website; ESX; LLM-guessed wall lengths; skip photos/video; fake cm; re-scrape hellocozmo.ai; re-extract the Brynz PDF; implement RoomPlan on Linux (ingest JSON/USDZ only).
 
