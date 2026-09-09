@@ -12,109 +12,65 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- **T8b3 (code, unverified on real photos):** OpenCV was reading iPhone JPEGs
-  without EXIF orientation. Several stills are orientation 6 (portrait
-  stored as landscape). Ingest and feature extraction now use Pillow
-  `ImageOps.exif_transpose` via `load_display_oriented_bgr`. Tests exist in
-  `tests/test_photos.py` and `tests/test_photo_overlap.py`. The old real-graph
-  counts 2/2/5/3 are **pre-EXIF** and must be remeasured.
-- **T7h (code, unverified on real MP4s):** Trajectory recovery can skip one
-  failed adjacent pair by estimating a real i→i+2 pose (`maximum_edge_span=2`,
-  step length = span). Adjacent-only break behaviour is locked with
-  `maximum_edge_span=1`. Native Camera video with no ARKit sidecar can build an
-  in-memory y-up unit sidecar, triangulate, and scale from a disclosed 1.45 m
-  handheld-height prior if a floor band exists (`scale_source=imu_vo`).
-  Independent native rooms are bookkeeping-placed, not registered. Wider
-  intervals: `HANDHELD_VIDEO_OUTPUT`.
-- **T18 (evidence densified, benchmark not re-run):** Magicplan my-room
-  displayed 4.20×3.29 m is now four AABB walls. Pooja-room still has no honest
-  wall lengths. Head-to-head now also scores floor area. Exact app version is
-  still unrecorded.
-- Tests were written (`test_video_native_scale.py`, skip-span trajectory,
-  independent imu_vo FloorPlan, incumbent skip-if-missing). Focused suite:
-  **53 passed** (`PYTEST_DISABLE_PLUGIN_AUTOLOAD=1`). Full `make test` and
-  `make benchmark` were not run. No commit.
-- Docs not yet patched: `docs/formats/photo-job.md`, `video-job.md`,
-  `docs/capture-tiers.md`, `docs/decisions.md`, `docs/code-map.md`.
+- **T21h timing + Xcode open:** Harsh timed the cable install copy onto his
+  iPhone at **~18 s**. The walk-in card and installer now also document
+  `open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj` (repo-relative;
+  Cursor will not open it). `--open-xcode` / `make open-capture-app` open
+  the project only. Route 2 stays scored until Cozmo's phone is timed.
+- T11a walk-in harness from earlier today is unchanged: templates exist,
+  holdout media is still missing.
 
 ### What is true now
 
 - Product: local CLI. Folder **or Cozmo Capture ZIP** in → JSON + SVG out.
-- Route 1 capture on Harsh's phone works. Route 2 remains the **scored** walk-in
-  route until a timed under-10-minute install is demonstrated on **their**
-  (Cozmo) phone, not only ours (**T21h**).
-- First Route 1 job is one room (`Room 1`), not a stitched property. Do not mix
-  it with Route 2 Record3D under `data/private/benchmark-lidar/`.
-- Remaining T21: T21h route decision; T21d Photos/Video modes if the on-phone
-  build lacks the LiDAR/Photos/Video picker (rebuild/reinstall).
-- The active benchmark has 8/8/8/5 decodable primary photos, four primary
-  videos, an 8-photo `my-room` repeat, a repeat `my-room` video, three room
-  Record3D scans, normalized tape measurements, and two-class damage evidence.
-- Magicplan covers `my-room` and `pooja-room`. My-room now has four AABB walls
-  from displayed length/width (420×329 cm). Pooja-room still has no individual
-  walls. Exact app version is still unrecorded. Head-to-head now includes
-  floor area as well as walls/openings/ceilings; do not quote the old 2/2
-  ceiling-only win until `make benchmark` is re-run.
-- Primary/repeat photos and video run but fail their current geometry gates.
-  LiDAR emits a partial FloorPlan.
-- LiDAR's remaining measured failures include 30 cm on both `my-room` long
-  walls, 5.41 cm maximum ceiling error, unscored/unmatched opening predictions,
-  and disconnected room scans. These are not hidden by the evaluator fix.
-- LiDAR interval calibration passes 16/18 on the current benchmark. Two
-  `my-room` long-wall truths remain outside the support-conditioned intervals;
-  repeat/holdout validation is still unavailable.
-- Last full `make benchmark` still reports the **pre-T8b3 / pre-T18** state:
-  photo graphs 2/2/5/3 components, head-to-head 2/2 shared ceilings. Those
-  numbers are stale relative to the new code/evidence.
-- Native video still has no ARKit sidecars. The handheld-height path is
-  implemented but has not been proven on the four private MP4s. If floor
-  support is missing it must stay `unsupported_tier` / `native_scale=no-floor`.
+- Route 2 remains the **scored** walk-in. Route 1 cable install is optional
+  (`docs/capture-route-route1.md`) until timed on Cozmo's phone.
+- Harsh's T21h numbers: signed iPhoneOS build 46 s, device copy ~18 s.
+  Developer Mode was already on.
+- T11 is **not done**. The rehearsal folder exists; there is no holdout capture
+  yet. Do not drop benchmark rooms into `data/private/walkin/`.
+- First Route 1 job is still one room (`Room 1`). Do not mix it with Route 2
+  Record3D or the walk-in folder.
 
 ### Blockers
 
 - Human T3 remainder, if available: exact Magicplan version, connector LiDAR,
   and measured property placement/opening supporting walls and offsets.
-- T21h: timed under-10-minute install on Cozmo's walk-in phone. Harsh's
-  T21g install is evidence Route 1 runs, not an automatic scored-route switch.
-  TestFlight needs a paid Developer Program enrollment (not the current
-  Personal Team).
+- T21h remaining: time `./scripts/install-cozmo-capture.sh` on **Cozmo's**
+  phone. Harsh's ~18 s is not that switch.
+- T11 remaining: shoot a new room into `data/private/walkin/`, then
+  `make walkin`.
 - T8c metric SfM remains blocked until the **post-EXIF** overlap graph is
-  measured. Pre-EXIF isolated files were my-room `02-wall-a.JPG` and
-  `08-damage-and-overlap.JPG`, plus pooja-room `03-wall-b.JPG` and
-  `08-ceiling-wall.JPG`. Several of those are EXIF orientation 6. Do not
-  loosen overlap gates. Do not start SfM on disconnected rooms.
+  measured. Do not loosen overlap gates.
 
 ### Next agent should
 
-1. Run tests with `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1` (venv pytest if present).
-   Then re-run real photo overlap and native video smoke; update photo-job /
-   video-job diagnostics from those numbers, not the old 2/2/5/3 counts.
-2. Patch `docs/code-map.md` (`video_native_scale.py`, EXIF loader),
-   `docs/formats/photo-job.md`, `docs/formats/video-job.md`, and an ADR for
-   skip-span (real i→i+2 pose, not interpolating a failed adjacent edge).
-3. Re-run `make benchmark` so T18 head-to-head includes my-room AABB walls and
-   areas. Still do not invent pooja-room walls or a Magicplan version.
-4. T21h remains separate: Route 2 scored until timed <10 min install on
-   Cozmo's phone. Do not mix Route 1 RoomPlan with Route 2 Record3D.
+1. Keep Route 2 scored. Do not treat Harsh's 18 s as Cozmo's walk-in install.
+2. If holdout media arrives: `make walkin` and record elapsed_s.
+3. Run tests with `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1`. Then remasure photo
+   overlap / native video and `make benchmark` for T18.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `src/cozmo_floorplan/recon/video_native_scale.py`
-3. `src/cozmo_floorplan/utils/images.py`
-4. `data/private/benchmark-incumbent/floorplan.json`
-5. `tests/test_video_native_scale.py`
+2. `docs/capture-route-route1.md`
+3. `docs/t21h-install-rehearsal.md`
+4. `docs/capture-route.md`
+5. `docs/walk-in.md`
 
 ### Exact next command
 
 ```bash
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -q
+./scripts/install-cozmo-capture.sh --dry-run
 ```
 
 ---
 
 ## History
 
+- **2026-09-10** — T21h: Harsh device copy ~18 s; added `open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj`.
+- **2026-09-10** — T11a: walk-in harness (`make walkin`) for a holdout room; refuses benchmark-room reuse; 2-still crash test; media still pending.
+- **2026-09-10** — T21h: cable Personal-Team install card + script; signed iPhoneOS build 46 s; TestFlight declined; Route 2 still scored.
 - **2026-09-10** — T8 EXIF orientation, T7 skip-span + handheld-height native scale, T18 my-room AABB walls + area in head-to-head. Code landed; tests/docs/benchmark not finished.
 - **2026-09-10** — T21g: Harsh installed Cozmo Capture; first Route 1 job ingested (`status=partial`, open wall loop).
 - **2026-09-10** — T6d support-conditioned Record3D intervals moved private coverage 61.1%→88.9% without changing centre estimates.

@@ -19,7 +19,7 @@ Replace the TBD cells. Intervals are part of the score; do not tighten them to l
 | Tier | Wall length | Openings | Ceiling | Stitched footprint | Scale source |
 | --- | --- | --- | --- | --- | --- |
 | LiDAR | 2.5 cm median / 30 cm p95, n=12 | unavailable: no truth openings; four predictions | 5.41 cm max error, n=3 | unavailable: scans disconnected | Record3D depth + intrinsics + metric poses |
-| Video | not measured (gate: ±3%) | not measured | not measured | not measured | metric poses/VO required; plain video is unscaled |
+| Video | not measured (gate: ±3%; do not claim from handheld intervals) | occupancy openings in code; unmeasured vs tape | not measured | native rooms independently placed, not registered | `arkit_poses` when sidecars exist; else disclosed 1.45 m handheld height (`known_length`) after a floor band |
 | Photos | not measured (gate: ±8%) | not measured (≤2 cm chase; misses/phantoms scored) | not measured | not measured (gate: ±8%) | known length or calibrated prior required; monocular geometry is unscaled |
 
 ## Walk-in

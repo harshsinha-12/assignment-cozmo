@@ -1,4 +1,4 @@
-.PHONY: setup test reproduce-synthetic benchmark walkin fmt install-capture-app
+.PHONY: setup test reproduce-synthetic benchmark walkin fmt install-capture-app open-capture-app
 
 PYTHON ?= python3
 VENV ?= .venv
@@ -50,3 +50,6 @@ fmt:
 
 install-capture-app:
 	./scripts/install-cozmo-capture.sh
+
+open-capture-app:
+	open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj

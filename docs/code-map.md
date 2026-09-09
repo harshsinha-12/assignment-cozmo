@@ -43,6 +43,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `ios/CozmoCapture/CozmoCaptureTests/PortableRoomPlanTests.swift` | Compiled contract tests for format metadata, multi-room `rooms[]`, shared-wall association, and unique labels. |
 | `ios/CozmoCapture/README.md` | Build, first-flight iPhone install, and pointer to the T21h cable-install card. |
 | `docs/capture-route-route1.md` | Optional Route 1 walk-in card: 10-minute Personal-Team cable install, no TestFlight. |
+| `docs/t21h-install-rehearsal.md` | Timed signed iPhoneOS build (46 s) and Harsh's device copy (~18 s). Cozmo phone still untimed. |
 | `scripts/install-cozmo-capture.sh` | One-command signed iPhoneOS build + `devicectl` install; `--dry-run` / `--build-only`. |
 
 ## Contract and I/O
@@ -105,11 +106,13 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/recon/video_pose_alignment.py` | Fits an orientation-preserving 3D similarity per local trajectory segment using exact source-frame/timestamp matches and rejects sparse, degenerate, or high-RMSE alignments. |
 | `src/cozmo_floorplan/recon/video_triangulation.py` | Triangulates robust correspondences only inside accepted metric segments using v1.1 calibrated projection matrices, then filters depth, reprojection error, ray angle, and voxel duplicates. |
 | `src/cozmo_floorplan/recon/video_surfaces.py` | Finds support-qualified horizontal and vertical coordinate bands in sparse y-up video points. |
-| `src/cozmo_floorplan/recon/video_rooms.py` | Searches Manhattan yaw and requires floor, ceiling, and two camera-bracketing wall candidates on each planar axis before defining a room envelope. |
-| `src/cozmo_floorplan/recon/video_measurements.py` | Builds interval-bearing video lengths and areas with explicitly uncalibrated candidate-stage uncertainty. |
-| `src/cozmo_floorplan/recon/video_floorplan.py` | Converts accepted calibrated video room evidence into schema-valid partial FloorPlan rooms/walls while enforcing one shared sidecar world frame and inventing no openings. |
+| `src/cozmo_floorplan/recon/video_rooms.py` | Searches Manhattan yaw and requires floor, ceiling, and walls on both sides of the median camera path before defining a room envelope. |
+| `src/cozmo_floorplan/recon/video_native_scale.py` | Builds an in-memory y-up unit sidecar from the longest VO segment and scales it with a disclosed 1.45 m handheld-height prior after a floor band exists. |
+| `src/cozmo_floorplan/recon/video_openings.py` | Reuses occupancy-profile door/window detection on sparse video rooms with wider bins; solid walls still emit zero openings. |
+| `src/cozmo_floorplan/recon/video_measurements.py` | Builds interval-bearing video lengths, areas, and opening widths with explicitly uncalibrated candidate-stage uncertainty. |
+| `src/cozmo_floorplan/recon/video_floorplan.py` | Converts accepted video rooms into schema-valid partial FloorPlan rooms/walls/openings. Native rooms stay independently placed. Shared-world coinciding openings may constrain stitch. |
 | `src/cozmo_floorplan/utils/point_clouds.py` | Provides validated deterministic metric voxel centroids for sparse reconstruction outputs. |
-| `src/cozmo_floorplan/recon/video.py` | Video-tier adapter: samples every walkthrough, runs tracking/alignment/triangulation/room fitting, returns the shared IR only after every metric gate succeeds, and otherwise returns an actionable structured refusal. |
+| `src/cozmo_floorplan/recon/video.py` | Video-tier adapter: samples every walkthrough, runs tracking/alignment/triangulation/room fitting/openings, emits a partial FloorPlan for rooms that pass, and refuses centimetres when none do. |
 | `docs/formats/video-job.md` | Public video job layout and metric boundary. |
 
 ## Stitching and drift correction
@@ -248,7 +251,8 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `tests/test_video_pose_alignment.py` | Tests strict metric-sidecar parsing, units/frame/quaternion rejection, exact frame/time matching, similarity scale recovery, metric positions, and timestamp-mismatch refusal. |
 | `tests/test_video_triangulation.py` | Tests calibrated world-point recovery, reprojection rejection, v1 calibration and accepted-segment guards, and sparse floor/wall candidate support. |
 | `tests/test_video_rooms.py` | Tests rotated Manhattan room recovery and refusal when complete plane support is absent. |
-| `tests/test_video_floorplan.py` | Tests schema-valid video measurements, shared-world-frame enforcement, and successful video-result routing through the main pipeline. |
+| `tests/test_video_floorplan.py` | Tests schema-valid video measurements, occupancy openings, shared-world stitch pairing, independent native placement, and successful video-result routing. |
+| `tests/test_video_openings.py` | Tests occupancy-supported video door/window detection and ensures solid walls do not create phantom openings. |
 | `tests/test_photo_overlap.py` | Tests connected transformed views, low-contrast SIFT fallback, unrelated-room connector rejection, and explicit featureless components. |
 | `tests/test_capture_templates.py` | Loads every public handoff template through the production job loader and checks that tiers use separate job ids/directories. |
 | `tests/conftest.py` | Forces offline fallback during tests so local API keys are never used and tests never spend credits. |

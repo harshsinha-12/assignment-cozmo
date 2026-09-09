@@ -46,7 +46,7 @@ class Record3DPlaneConfig:
     camera_bracket_quantile: float = 0.10
     camera_wall_margin_m: float = 0.05
     outer_wall_support_ratio: float = 0.35
-    horizontal_envelope_ratio: float = 0.30
+    max_clutter_offset_m: float = 0.45
     minimum_room_span_m: float = 1.50
     maximum_room_span_m: float = 12.0
     minimum_ceiling_height_m: float = 2.0

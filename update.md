@@ -13,6 +13,57 @@ Format:
 - Next
 ```
 
+## 2026-09-10 — T21h device copy ~18 s + open Xcode
+
+- Context: Harsh timed the cable install on his already-working iPhone and
+  asked to add the Xcode open command.
+- Done: Recorded ~18 s device copy. Walk-in card, iOS README, installer, and
+  `make open-capture-app` now use `open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj`
+  (repo-relative; Cursor will not). `--open-xcode` opens the project only.
+- Learned: Incremental reinstall on a phone with Developer Mode already on is
+  far under 10 minutes. That is still not a timed install on Cozmo's phone.
+- Next: Keep Route 2 scored until they time the same commands. Do not pay for
+  TestFlight.
+
+## 2026-09-10 — T11a walk-in harness for a holdout room
+
+- Context: User asked to work T11 (walk-in rehearsal on a new room, all three
+  tiers). T20a–c already shipped, so the blocker was the missing rehearsal
+  itself, not packaging. No holdout capture existed; the first Route 1 job is
+  still unlabeled `Room 1` and must not be used as the cold room.
+- Done: Added `walkin` CLI / `make walkin`, holdout templates, automatic 2-still
+  photo subset, forbidden-room collision check, operator card in
+  `docs/walk-in.md`, and a Route 2 handoff that runs
+  `python -m cozmo_floorplan run` instead of `make benchmark`. Seeded
+  `data/private/walkin/`. 10 walk-in tests passed. Current audit:
+  `pending_inputs` ×4 (photos, video, LiDAR, tape).
+- Learned: The previous operator card would have dumped a defense capture into
+  the author's benchmark. Walk-in jobs are ready only when original media
+  exists, not when empty templates are copied. Recapturing drawing-room /
+  my-room / pooja-room / connector is `invalid_holdout`, exit 2. T11 stays
+  `doing` until Harsh shoots a new room.
+- Next: Shoot kitchen/guest/bath at all three Route 2 tiers, tape it, then
+  `make walkin`. Do not mix with `benchmark-*` or Route 1 RoomPlan.
+
+## 2026-09-10 — T21h cable install, not TestFlight
+
+- Context: User asked to work T21h. The app already runs on Harsh's iPhone.
+  A paid Apple Developer Program team ($99) is not available and will not be
+  purchased. TestFlight therefore cannot be used.
+- Done: One-page Route 1 card (`docs/capture-route-route1.md`), one-command
+  installer (`scripts/install-cozmo-capture.sh`), ADR that the official prompt
+  accepts a 10-minute cable dev build, and a signed generic iPhoneOS rehearsal
+  of **46 s**. Two tests pass. Route 2 remains the scored walk-in. No commit.
+- Learned: Personal Team signing works without the $99 fee. Harsh's iPhone
+  already has Developer Mode enabled. It was paired but USB-disconnected this
+  session (`tunnel=disconnected`), so the `devicectl` copy was not timed. A
+  Developer Mode restart on a phone that has never been used for development
+  is the abort-to-Route-2 condition.
+- Next: Plug in a phone and run `./scripts/install-cozmo-capture.sh`. Switch
+  the scored route only if that run is under 10:00 on Cozmo's phone. Otherwise
+  keep `docs/capture-route.md`. Do not follow the same-day TestFlight
+  enrollment note; that path is unused.
+
 ## 2026-09-10 — T7/T8/T18 native video, EXIF photos, denser Magicplan
 
 - Context: User asked to work T7 (no metric poses on native MP4s), T8
@@ -34,7 +85,8 @@ Format:
   invent its walls. Pytest needs `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1`.
 - Next: Run the test suite, remasure real photo overlap and native video,
   patch format/code-map/ADR docs, then `make benchmark` for the denser
-  T18 table. T8c still waits on a connected graph. T21h is unchanged.
+  T18 table. T8c still waits on a connected graph. T21h now has a cable
+  install path; TestFlight is not used.
 
 ## 2026-09-10 — TestFlight path (blocked on paid team)
 

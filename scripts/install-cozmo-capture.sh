@@ -15,14 +15,17 @@ Options:
   --help        Show this help
   --dry-run     Print destinations and commands; do not build or install
   --build-only  Signed generic iPhoneOS build only (no device install)
+  --open-xcode  Open the project in Xcode.app (Cursor will not)
 
 The 10-minute clock starts when this script starts. A Developer Mode restart,
 missing Xcode, or an unreachable phone is an abort to Route 2
-(docs/capture-route.md).
+(docs/capture-route.md). After a successful install the script also opens
+Xcode; pass --no-open to skip that.
 EOF
 }
 
 MODE=install
+OPEN_XCODE=1
 for arg in "$@"; do
   case "$arg" in
     --help|-h)
@@ -34,6 +37,12 @@ for arg in "$@"; do
       ;;
     --build-only)
       MODE=build-only
+      ;;
+    --open-xcode)
+      MODE=open-xcode
+      ;;
+    --no-open)
+      OPEN_XCODE=0
       ;;
     *)
       echo "unknown argument: $arg" >&2
@@ -62,8 +71,23 @@ fail() {
   exit 1
 }
 
+open_xcode() {
+  if ! command -v open >/dev/null 2>&1; then
+    echo "open -a Xcode is unavailable on this machine"
+    return 1
+  fi
+  echo "Opening Xcode: $PROJECT"
+  open -a Xcode "$PROJECT"
+}
+
 if [[ ! -f "$PROJECT/project.pbxproj" ]]; then
   fail "missing Xcode project at $PROJECT"
+fi
+
+if [[ "$MODE" == "open-xcode" ]]; then
+  open_xcode || fail "could not open Xcode.app"
+  echo "elapsed_s=$(elapsed)"
+  exit 0
 fi
 
 if ! command -v xcodebuild >/dev/null 2>&1; then
@@ -72,6 +96,7 @@ if ! command -v xcodebuild >/dev/null 2>&1; then
     echo "project: $PROJECT"
     echo "team: $TEAM"
     echo "would: xcodebuild -project ios/CozmoCapture/CozmoCapture.xcodeproj -scheme $SCHEME -destination 'generic/platform=iOS' -allowProvisioningUpdates DEVELOPMENT_TEAM=$TEAM build"
+    echo "would open: open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj"
     exit 0
   fi
   fail "xcodebuild not found; install Xcode.app"
@@ -127,6 +152,7 @@ CHOSEN_UDID=$(python3 -c 'import json,sys; d=json.loads(sys.argv[1]); c=d.get("c
 CHOSEN_ID=$(python3 -c 'import json,sys; d=json.loads(sys.argv[1]); c=d.get("chosen") or {}; print(c.get("identifier") or "")' "$SELECTION")
 CHOSEN_NAME=$(python3 -c 'import json,sys; d=json.loads(sys.argv[1]); c=d.get("chosen") or {}; print(c.get("name") or "")' "$SELECTION")
 DEV_MODE=$(python3 -c 'import json,sys; d=json.loads(sys.argv[1]); c=d.get("chosen") or {}; print(c.get("developer_mode") or "unknown")' "$SELECTION")
+TUNNEL=$(python3 -c 'import json,sys; d=json.loads(sys.argv[1]); c=d.get("chosen") or {}; print(c.get("tunnel") or "unknown")' "$SELECTION")
 REACHABLE=$(python3 -c 'import json,sys; print("yes" if json.loads(sys.argv[1]).get("reachable") else "no")' "$SELECTION")
 
 echo "Cozmo Capture cable install"
@@ -136,6 +162,7 @@ if [[ -n "$CHOSEN_NAME" ]]; then
   echo "  phone: $CHOSEN_NAME"
   echo "  udid: $CHOSEN_UDID"
   echo "  developer mode: $DEV_MODE"
+  echo "  tunnel: $TUNNEL"
   echo "  reachable: $REACHABLE"
 else
   echo "  phone: none paired"
@@ -148,6 +175,7 @@ if [[ "$MODE" == "dry-run" ]]; then
   else
     echo "would install: (plug in an iPhone first)"
   fi
+  echo "would open: open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj"
   echo "elapsed_s=$(elapsed)"
   exit 0
 fi
@@ -196,5 +224,10 @@ echo "Installing onto the phone…"
 xcrun devicectl device install app --device "$CHOSEN_ID" "$APP"
 
 echo "elapsed_s=$(elapsed)"
+if [[ "$OPEN_XCODE" == "1" ]]; then
+  open_xcode || true
+else
+  echo "GUI fallback: open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj"
+fi
 echo "Open Cozmo Capture on the phone. If iOS blocks it: Settings → General → VPN & Device Management → Trust Apple Development."
 echo "Route 2 remains the scored walk-in until this install is timed on Cozmo's phone."

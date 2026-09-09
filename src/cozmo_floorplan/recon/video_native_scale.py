@@ -57,9 +57,7 @@ def build_native_unit_sidecar(
     ):
         return None
     width, height = video.metadata.display_size_px
-    focal = trajectory.assumed_focal_length_px or (
-        trajectory_config.assumed_focal_length_fraction * max(width, height)
-    )
+    focal = trajectory_config.assumed_focal_length_fraction * max(width, height)
     poses = tuple(
         _yup_pose(video, pose.frame_index, pose.position_unitless, pose.rotation_camera_to_segment)
         for pose in segment.poses

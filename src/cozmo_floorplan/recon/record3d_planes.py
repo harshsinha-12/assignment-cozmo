@@ -116,8 +116,8 @@ def _horizontal_levels(
         raise ReconstructionError(
             "Record3D points do not contain floor and ceiling candidates on opposite sides of the camera path."
         )
-    floor_seed = _peak_seed(centers, dense_counts, smoothed, floor_mask, config, preference="lowest")
-    ceiling_seed = _peak_seed(centers, dense_counts, smoothed, ceiling_mask, config, preference="highest")
+    floor_seed = _peak_seed(centers, dense_counts, smoothed, floor_mask, config)
+    ceiling_seed = _peak_seed(centers, dense_counts, smoothed, ceiling_mask, config)
     floor_y, floor_support = _refine_level(point_y, floor_seed, config)
     ceiling_y, ceiling_support = _refine_level(point_y, ceiling_seed, config)
     height = ceiling_y - floor_y
@@ -141,22 +141,11 @@ def _peak_seed(
     smoothed: np.ndarray,
     eligible: np.ndarray,
     config: Record3DPlaneConfig,
-    *,
-    preference: str,
 ) -> float:
     eligible_indices = np.flatnonzero(eligible)
-    peak_smooth = float(np.max(smoothed[eligible]))
-    significant = eligible_indices[
-        smoothed[eligible] >= peak_smooth * config.horizontal_envelope_ratio
-    ]
-    if preference == "lowest":
-        chosen = int(significant[np.argmin(centers[significant])])
-    elif preference == "highest":
-        chosen = int(significant[np.argmax(centers[significant])])
-    else:
-        raise ValueError(f"Unsupported horizontal peak preference {preference!r}")
+    smooth_peak = int(eligible_indices[np.argmax(smoothed[eligible])])
     radius = config.horizontal_smoothing_bins // 2
-    neighborhood = eligible_indices[np.abs(eligible_indices - chosen) <= radius]
+    neighborhood = eligible_indices[np.abs(eligible_indices - smooth_peak) <= radius]
     raw_peak = int(neighborhood[np.argmax(counts[neighborhood])])
     return float(centers[raw_peak])
 
@@ -276,14 +265,24 @@ def _outer_supported_peak(
     side: str,
     config: Record3DPlaneConfig,
 ) -> int:
-    """Prefer the architectural envelope over a denser inward clutter plane."""
+    """Step outward from the densest peak only through thin clutter, not the next room."""
 
+    densest = int(candidates[np.argmax(counts[candidates])])
     peak_support = float(np.max(counts[candidates]))
     significant = candidates[counts[candidates] >= peak_support * config.outer_wall_support_ratio]
+    densest_coord = float(coordinates[densest])
     if side == "low":
-        return int(significant[np.argmin(coordinates[significant])])
+        band = significant[
+            (coordinates[significant] <= densest_coord)
+            & (coordinates[significant] >= densest_coord - config.max_clutter_offset_m)
+        ]
+        return int(band[np.argmin(coordinates[band])]) if len(band) else densest
     if side == "high":
-        return int(significant[np.argmax(coordinates[significant])])
+        band = significant[
+            (coordinates[significant] >= densest_coord)
+            & (coordinates[significant] <= densest_coord + config.max_clutter_offset_m)
+        ]
+        return int(band[np.argmax(coordinates[band])]) if len(band) else densest
     raise ValueError(f"Unsupported wall side {side!r}")
 
 
@@ -319,5 +318,5 @@ def _validate_inputs(
         raise ValueError("yaw_step_degrees must be between zero and 90")
     if not 0 < config.outer_wall_support_ratio <= 1:
         raise ValueError("outer_wall_support_ratio must be in (0, 1]")
-    if not 0 < config.horizontal_envelope_ratio <= 1:
-        raise ValueError("horizontal_envelope_ratio must be in (0, 1]")
+    if config.max_clutter_offset_m <= 0:
+        raise ValueError("max_clutter_offset_m must be positive")

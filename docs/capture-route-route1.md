@@ -24,11 +24,17 @@ A free Personal Team is enough. Do not enroll in the $99 program for this.
 
 ## Install
 
-Plug in the phone, tap **Trust** if asked, then:
+Plug in the phone, tap **Trust** if asked, then from the repo root:
 
 ```bash
 ./scripts/install-cozmo-capture.sh
+open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj
 ```
+
+The first command installs the app (free Personal Team). The second opens
+the project in Xcode.app — Cursor will not. The install script also opens
+Xcode when it finishes; `./scripts/install-cozmo-capture.sh --open-xcode`
+only opens the project.
 
 Using your own Apple ID instead of the repo team:
 
@@ -41,6 +47,9 @@ If iOS blocks the app: Settings → General → VPN & Device Management → Trus
 
 The script prints elapsed seconds. If the total is over 10:00, stop and
 follow `docs/capture-route.md` instead.
+
+Rehearsal on 2026-09-10: signed iPhoneOS build **46 s**; Harsh's phone copy
+**~18 s** (`docs/t21h-install-rehearsal.md`). Cozmo's phone is still untimed.
 
 ## Capture (after the app is open)
 

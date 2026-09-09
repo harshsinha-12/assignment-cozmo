@@ -14,6 +14,9 @@ from cozmo_floorplan.eval.io import load_floorplan, write_evaluation
 from cozmo_floorplan.io.artifacts import write_run_artifacts
 from cozmo_floorplan.io.output import write_json_atomic, write_text_atomic
 from cozmo_floorplan.pipeline import run_job_with_ablation
+from cozmo_floorplan.recon.lidar_config import ROOMPLAN_FILENAMES
+from cozmo_floorplan.recon.photos_config import DEFAULT_PHOTO_INGEST, PHOTO_EXTENSIONS
+from cozmo_floorplan.recon.video_config import VIDEO_EXTENSIONS
 from cozmo_floorplan.schema import validate_floorplan
 from cozmo_floorplan.walkin.config import (
     TIERS,
@@ -132,8 +135,8 @@ def audit_walkin_inputs(manifest: WalkinManifest) -> list[dict[str, Any]]:
         _check(
             f"job_{tier}",
             manifest.jobs[tier],
-            (manifest.jobs[tier] / MANIFEST_FILENAME).is_file(),
-            f"Add the {tier} walk-in job directory with manifest.yaml.",
+            job_has_capture_media(manifest.jobs[tier], tier),
+            f"Add original {tier} capture files under {tier}/. Empty templates are not a walk-in.",
         )
         for tier in TIERS
     )
@@ -160,19 +163,70 @@ def _run_two_photo_subset(
     return _run_timed_job(TWO_PHOTO_TIER, materialized, output_dir)
 
 
+def job_has_capture_media(job_path: Path, tier: str) -> bool:
+    """Return True when the job has original capture files, not only a template."""
+
+    if not (job_path / MANIFEST_FILENAME).is_file():
+        return False
+    if tier == "photos":
+        photos_dir = job_path / "photos"
+        if not photos_dir.is_dir():
+            return False
+        for room_dir in photos_dir.iterdir():
+            if not room_dir.is_dir() or room_dir.name.startswith("."):
+                continue
+            images = [
+                path
+                for path in room_dir.iterdir()
+                if path.is_file() and path.suffix.lower() in PHOTO_EXTENSIONS
+            ]
+            if len(images) >= DEFAULT_PHOTO_INGEST.min_photos_per_room:
+                return True
+        return False
+    if tier == "video":
+        video_dir = job_path / "video"
+        if not video_dir.is_dir():
+            return False
+        return any(
+            path.is_file() and path.suffix.lower() in VIDEO_EXTENSIONS
+            for path in video_dir.iterdir()
+        )
+    if tier == "lidar":
+        lidar_dir = job_path / "lidar"
+        if not lidar_dir.is_dir():
+            return False
+        names = {name.lower() for name in ROOMPLAN_FILENAMES}
+        return any(
+            path.is_file()
+            and path.name != ".gitkeep"
+            and (
+                path.suffix.lower() == ".r3d"
+                or path.name.lower() in names
+            )
+            for path in lidar_dir.iterdir()
+        )
+    return False
+
+
 def _run_timed_job(
     tier: str,
     job_path: Path,
     output_dir: Path,
 ) -> tuple[dict[str, Any], dict[str, Any] | None]:
-    if not (job_path / MANIFEST_FILENAME).is_file():
+    media_tier = "photos" if tier == TWO_PHOTO_TIER else tier
+    if not job_has_capture_media(job_path, media_tier):
+        detail = (
+            "Job manifest is not available."
+            if not (job_path / MANIFEST_FILENAME).is_file()
+            else "Capture files are not available yet."
+        )
         return (
             {
                 "tier": tier,
                 "status": "pending",
                 "job": job_path.as_posix(),
                 "elapsed_s": None,
-                "detail": "Job manifest is not available.",
+                "detail": detail,
             },
             None,
         )

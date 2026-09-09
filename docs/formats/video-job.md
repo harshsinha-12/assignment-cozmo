@@ -172,17 +172,36 @@ voxelization.
 ## Conservative room conversion
 
 T7g searches Manhattan yaw and requires supported floor and ceiling bands plus
-two wall bands on each planar axis that bracket the accepted metric camera
-path. Room spans and ceiling height must remain within configured residential
-bounds. Only then does the adapter emit a four-wall room in the shared
-FloorPlan IR.
+wall bands on both sides of the **median** camera path (not the 10–90% trajectory
+span, which VO drift can push into the walls). Room spans and ceiling height
+must remain within configured residential bounds. Incomplete planes are still
+refused. If some walkthroughs in a multi-video job fail those gates, successful
+rooms are emitted as a `partial` FloorPlan instead of discarding them.
 
-Measurements include candidate-stage intervals and the output remains
-`partial`: those intervals are not calibrated without tape/laser truth, and the
-video path does not yet detect openings. Multiple video rooms may share their
-exported coordinates only when all sidecars name one `world_frame_id`; even
-then, adjacency and drift correction stay pending until a shared opening is
-proven.
+## Openings and stitch
 
-The two current native Camera-app MP4s do not have sidecars, so their diagnostic
-output says `metric_alignment=not-available` and stays structurally unsupported.
+T7 remainder reuses the Record3D occupancy-profile detector on sparse video
+rooms (wider bins, still lintel/sill gated). Solid walls emit zero openings.
+Native Camera rooms stay independently placed; coinciding openings are linked
+for stitch **only** when rooms share one exported world frame. The existing
+plane-anchored stitcher then runs if two-room `connects_room_ids` exist.
+
+Measurements include candidate-stage intervals. Handheld-height native output
+uses wide uncalibrated bounds (`HANDHELD_VIDEO_OUTPUT`, ~22% relative length).
+Those intervals are **not** the official ±3% wall gate. Claim ±3% only after
+tape eval on reconstructed rooms.
+
+## Native Camera path (no ARKit sidecar)
+
+T7h builds an in-memory y-up unit sidecar from the longest VO segment
+(`maximum_edge_span=2` may skip one failed adjacent pair with a real i→i+2
+pose). Sparse triangulation stays unitless until a floor band supports the
+disclosed 1.45 m handheld-height prior (`scale_source=known_length`). Missing
+floor support stays `native_scale=no-floor` and is not dimensioned.
+
+Current private set: four 1080p/30 Camera clips
+(`drawing-room`, `my-room`, `pooja-room`, `connector-my-room-to-pooja-room`).
+A 2026-09-10 smoke reached room-fitting on connector and my-room, then failed
+the x-high wall gate; drawing-room and pooja-room did not retain a 3-pose
+native sidecar in that run. Re-smoke after median bracketing and partial
+emission before quoting rooms or ±3%.

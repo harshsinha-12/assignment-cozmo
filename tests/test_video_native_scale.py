@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from cozmo_floorplan.geom.rotations import (
     matrix_to_quaternion_xyzw,
@@ -97,6 +98,9 @@ def test_native_unit_sidecar_uses_y_up_and_exact_frame_times(tmp_path):
     assert sidecar is not None
     assert sidecar.scale_source == NATIVE_SCALE_SOURCE
     assert sidecar.world_frame_id == "native-video-assumed-up:room-a"
+    assert sidecar.intrinsics.image_size_px == (80, 48)
+    assert sidecar.intrinsics.fx_px == pytest.approx(0.9 * 80)
+    assert sidecar.intrinsics.cx_px == 40.0
     assert [pose.source_frame_index for pose in sidecar.poses] == [0, 4, 8]
     assert sidecar.poses[1].position_m[0] == 1.0
     assert sidecar.poses[1].position_m[1] == 0.0

@@ -4,6 +4,27 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-10 — Native video emits partial rooms; ±3% waits on tape
+
+**Context:** Four Camera-app MP4s have no ARKit sidecars. A handheld-height
+prior can scale unitless VO only after a triangulated floor exists. Requiring
+every clip in the job to produce a four-wall room discarded connector/my-room
+evidence that had already reached room fitting. Trajectory 10–90% bracketing
+also failed when VO drift pushed cameras toward a wall. Official video walls
+are ±3% with calibrated intervals; handheld intervals are intentionally wide.
+
+**Decision:** Skip at most one failed adjacent VO edge with a measured i→i+2
+pose (`maximum_edge_span=2`). Bracket walls about the median camera coordinate.
+Emit a `partial` FloorPlan for rooms that pass floor/ceiling/wall support;
+omit failed walkthroughs with warnings. Detect occupancy-profile openings
+without inventing phantoms. Link openings for stitch only in a shared exported
+world frame. Do not overlay independently scaled native rooms. Do not shrink
+handheld intervals to the official ±3% row.
+
+**Consequence:** A native job can return some rooms instead of `unsupported_tier`
+when the connector clip is not a rectangle. ±3% remains a measured eval result,
+not a reconstruction claim.
+
 ## 2026-09-10 — Walk-in rehearsal is a holdout folder, not the benchmark
 
 **Context:** T11 is a cold rehearsal of the 30% defense: a room they have never

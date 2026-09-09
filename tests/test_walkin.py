@@ -108,6 +108,11 @@ ground_truth: ground_truth.json
         ("walkin-lidar", "lidar"),
     ):
         _write_job(capture_root / name, tier=tier, room_id="kitchen")
+    photos = capture_root / "walkin-photos" / "photos" / "kitchen"
+    _write_photo(photos / "01.jpg")
+    _write_photo(photos / "02.jpg")
+    (capture_root / "walkin-video" / "video" / "walkthrough.mp4").write_bytes(b"fake-mp4")
+    (capture_root / "walkin-lidar" / "lidar" / "roomplan.json").write_text("{}", encoding="utf-8")
     truth = json.loads(truth_text)
     monkeypatch.setattr(
         runner_module,
@@ -169,6 +174,31 @@ def test_two_photo_materialize_keeps_first_two_stills(tmp_path):
     assert destination is not None
     names = sorted(path.name for path in (destination / "photos" / "kitchen").iterdir())
     assert names == ["00.jpg", "01.jpg"]
+
+
+def test_empty_templates_stay_pending_instead_of_failed_runs(tmp_path):
+    capture_root = tmp_path / "capture"
+    capture_root.mkdir()
+    (capture_root / "walkin.yaml").write_text(
+        TEMPLATE_ROOT.joinpath("walkin.yaml").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    for folder in ("walkin-photos", "walkin-video", "walkin-lidar"):
+        source = TEMPLATE_ROOT / folder
+        dest = capture_root / folder
+        dest.mkdir()
+        (dest / "manifest.yaml").write_text(
+            (source / "manifest.yaml").read_text(encoding="utf-8"), encoding="utf-8"
+        )
+        (dest / folder.split("-", maxsplit=1)[1]).mkdir()
+
+    report = run_walkin(capture_root, tmp_path / "output")
+
+    assert report["status"] == "pending_inputs"
+    assert "job_photos" in report["pending_inputs"]
+    assert "job_video" in report["pending_inputs"]
+    assert "job_lidar" in report["pending_inputs"]
+    assert all(item["status"] == "pending" for item in report["runs"] if item["tier"] != "photos_2still")
 
 
 def test_walkin_templates_load_as_declared_tiers() -> None:

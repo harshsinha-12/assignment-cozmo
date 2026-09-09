@@ -20,15 +20,16 @@ placement/opening offsets remain unavailable. Do **not** invent centimetres.
 
 | ID | Can finish now? | What to do without uploads |
 | --- | --- | --- |
-| **T21** | **T21g done on Harsh's phone** | First Route 1 job ingested. TestFlight for other phones needs a paid Apple Developer Program team (Personal Team cannot upload). Scored walk-in stays Route 2 until T21h. |
+| **T21** | **T21h cable path shipped; scored route still Route 2** | App runs on Harsh's phone. Walk-in install is `./scripts/install-cozmo-capture.sh` then `open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj`. Free Personal Team; TestFlight not used. Harsh timed device copy **~18 s** (signed build 46 s). Cozmo's phone is still untimed. |
 | **T10** | **Draft done** | Architecture, tier design, drift, error budget, calibration, agent, fix loop, and known failures are drafted. Final real benchmark tables wait on T3. |
 | **T20** | **Pre-shoot code done** | T20a reproduction, T20b audit, and T20c one-command benchmark/readiness runner are verified; measured coverage remains T3-dependent. |
 | **T17** | **Protocol stage done** | Route 2 operator card, loader-checked per-tier templates, and honest runtime/device matrix ship; measured intervals remain T3-dependent. |
+| **T11** | **Harness done; media pending** | `make walkin` times a holdout room, crash-tests 2 stills, and refuses benchmark-room reuse. Shoot kitchen/guest/bath — not drawing-room/my-room/pooja-room/connector. |
 | T8 remainder | Full count present | EXIF orientation is now applied. Last measured graphs (pre-EXIF) were connector/drawing/my/pooja = 2/2/5/3. Remeasure before T8c. Do not loosen gates. |
 | T7 remainder | Four MP4s present | T7b–T7g sidecar path remains. T7h skip-span + handheld-height prior is coded (`imu_vo`) but not proven on the private Camera MP4s. |
 
 **Still evidence-blocked:** measured T17 intervals, numeric photo repeatability,
-and T11 walk-in. T18 now has my-room AABB walls plus areas in the gate, but
+and T11 holdout media (harness is ready). T18 now has my-room AABB walls plus areas in the gate, but
 pooja walls and app version are still missing; re-run eval before quoting wins.
 T6/T7/T8 can still advance against uploaded media.
 
@@ -47,12 +48,12 @@ T6/T7/T8 can still advance against uploaded media.
 | T9 | done | Stitch + drift correction + on/off ablation | T6 | no | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
 | T7 | doing | Video path | T6 | four MP4s present | T7b–T7h done as code. Native MP4s still have no ARKit sidecars; handheld-height path needs a real-video smoke |
 | T8 | doing | Photos path, 2–8 stills, folder stitch | — | present | T8a–T8b3 done. T8c SfM still blocked until post-EXIF overlap is measured and connected |
-| T21 | doing | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | no | T21a–T21g done on Harsh's iPhone 17 Pro. T21h is TestFlight or a timed install on *their* phone; scored route stays Route 2 until then |
+| T21 | doing | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | no | T21a–T21g done on Harsh's iPhone 17 Pro. T21h cable card+script done; Harsh device copy **~18 s**. TestFlight declined. Scored route stays Route 2 until the same install is timed on *their* phone |
 | T17 | doing | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | T17a protocol/templates done; walk-in validation and measured rows wait on T3 |
 | T18 | doing | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | evidence present | My-room AABB walls (420/329 cm) plus floor area are now in the incumbent IR/eval. Pooja walls and app version still missing. Last quoted 2/2 ceiling win is stale until `make benchmark` |
 | T10 | doing | Technical report ≤ 6 pages + benchmark tables | T19 | draft **no**; tables **yes** | 1,805-word engineering draft complete; real benchmark/repeat/incumbent/timing tables remain T3-dependent |
 | T20 | doing | README 15 min + reproduction bundle + compliance matrix | T10 | partial **no**; measured rows **yes** | T20a–T20c code/docs done; final real bundle and coverage remain T3-dependent |
-| T11 | todo | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | Follow submitted capture route |
+| T11 | doing | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | Harness shipped (`make walkin`, `docs/walk-in.md`). Media still needed: eight JPEGs, one MP4, Record3D `.r3d`, tape. Forbidden rooms: drawing-room, my-room, pooja-room, connector |
 
 ---
 
@@ -78,10 +79,15 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-Verify the T7h/T8b3/T18 landings on real media: `make test`, remasure photo
-overlap after EXIF, smoke native video, then `make benchmark`. Do not loosen
-T8b gates. Do not invent pooja-room Magicplan walls. T8c waits on a connected
-graph. T21h stays the scored-route install rehearsal.
+Harsh: shoot a **new** room (kitchen/guest/bath — not drawing-room/my-room/
+pooja-room/connector) into `data/private/walkin/` following
+`docs/capture-route.md`, tape it, then `make walkin`. The harness is ready.
+
+Engineering: verify the T7h/T8b3/T18 landings on real media: `make test`,
+remeasure photo overlap after EXIF, smoke native video, then `make benchmark`.
+Do not loosen T8b gates. Do not invent pooja-room Magicplan walls. T8c waits
+on a connected graph. T21h cable install is the Route 1 walk-in path; Route 2
+stays scored until their phone is timed.
 
 ### Media-ready freeze sequence
 
@@ -116,6 +122,10 @@ scaffolding. Minor fixes after real captures remain normal and allowed.
 ---
 
 ## Done
+
+- **2026-09-10 T11a walk-in harness** — Separate holdout folder, timed three-tier `walkin` CLI, automatic 2-still photo crash test, and refusal to score drawing-room/my-room/pooja-room/connector recaptures. Empty templates stay `pending_inputs`. Holdout media and tape are still missing, so T11 remains `doing`.
+
+- **2026-09-10 T21h cable install (not TestFlight)** — Official prompt allows a 10-minute cable dev build. Added `docs/capture-route-route1.md`, `scripts/install-cozmo-capture.sh`, and `open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj`. Harsh timed device copy **~18 s** (signed build 46 s). Paid Apple Developer Program is not used. Cozmo's phone is still untimed, so the scored walk-in stays Route 2.
 
 - **2026-09-10 T18 Magicplan AABB + area head-to-head** — Encoded my-room displayed 4.20×3.29 m as four bounding-box walls; left pooja-room walls absent. Head-to-head now compares floor area as well as walls/openings/ceilings. App version still unrecorded. Focused tests pass; `make benchmark` not re-run.
 - **2026-09-10 T7h native video skip-span + handheld height** — Alternative real i→i+2 poses when adjacent tracking fails; disclosed 1.45 m camera-height prior (`imu_vo`) after floor-supported triangulation. Independent native rooms are not overlaid. Focused tests pass; private MP4 smoke not run.

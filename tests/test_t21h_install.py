@@ -35,6 +35,8 @@ def test_install_script_help_and_dry_run_do_not_need_a_phone() -> None:
     assert dry_run.returncode == 0, dry_run.stderr + dry_run.stdout
     assert "elapsed_s=" in dry_run.stdout
     assert "PH4KQ4LY92" in dry_run.stdout
+    assert "open -a Xcode" in dry_run.stdout
+    assert "--open-xcode" in help_run.stdout
 
 
 def test_route1_card_is_the_ten_minute_dev_build_not_testflight() -> None:
@@ -44,6 +46,7 @@ def test_route1_card_is_the_ten_minute_dev_build_not_testflight() -> None:
 
     assert "10" in card
     assert "install-cozmo-capture.sh" in card
+    assert "open -a Xcode" in card
     assert "Apple Developer Program" in card
     assert "docs/capture-route.md" in card
     assert scored.startswith("# Capture route (Route 2)")

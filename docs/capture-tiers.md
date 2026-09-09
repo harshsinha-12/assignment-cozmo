@@ -92,13 +92,12 @@ LiDAR JSON → IR → SVG → eval. Everything else reuses extract + stitch.
 **Current implementation:** portable RoomPlan JSON v1 → FloorPlan works against `data/fixtures/roomplan_two_room`. T9 plane-anchors shared openings (shared walls stay with the first owner room) and writes a poses-as-is ablation. See `docs/formats/roomplan-json.md`. T6a validates and decodes real Record3D archives; T6b1 builds deterministic metric world clouds; T6b2 detects floor/ceiling levels and four conservative Manhattan wall candidates; T6b3 adds evidence-gated openings and partial FloorPlan conversion (`docs/formats/record3d.md`). Separate archives are not called registered or accurate without connector and tape evidence. USDZ remains unsupported.
 
 Video: frames are sampled from `video/*.mp4` (`docs/formats/video-job.md`).
-Scale-free segmented VO and strict optional metric-pose alignment are
-implemented. A calibrated sidecar v1.1 can produce filtered sparse metric
-points only inside accepted aligned segments; v1.2 adds the output scale/shared
-frame contract. Complete floor/ceiling and
-camera-bracketing wall support now converts to a conservative interval-bearing
-room, while incomplete surfaces are refused. Openings, shared-room constraints,
-and real interval calibration remain; uncalibrated walkthroughs do not emit
-centimetres.
+Scale-free segmented VO, skip-span edges, optional metric-pose alignment, and a
+handheld-height native fallback are implemented. Complete floor/ceiling and
+median-path wall support converts to a conservative interval-bearing room.
+Incomplete walkthroughs are omitted from a `partial` FloorPlan rather than
+wiping successful rooms. Occupancy-profile openings are detected; native rooms
+are not overlaid. Shared-world coinciding openings may constrain stitch. The
+official ±3% wall gate is not claimed from uncalibrated handheld intervals.
 
 Photos: per-room folders and 2–8 decodable images per room are validated, and geometric overlap connectivity is measured (`docs/formats/photo-job.md`). The current capture fails that gate; metric SfM, adjacency inference, and calibrated scale remain. No invented centimetres are emitted.

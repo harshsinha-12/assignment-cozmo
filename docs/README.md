@@ -11,6 +11,7 @@ Read `AGENTS.md` first, not this folder.
 | `takehome.md` | Official Round 2 prompt |
 | `capture-route.md` | Walk-in protocol (Route 2, scored) |
 | `capture-route-route1.md` | Optional Route 1: 10-minute cable install (not TestFlight) |
+| `t21h-install-rehearsal.md` | Timed signed iPhoneOS build; Cozmo-phone copy still open |
 | `capture-protocol.md` | Our benchmark shoot (max-score) |
 | `compliance-matrix.md` | Requirement coverage |
 | `device-matrix.md` | Hardware × tier |

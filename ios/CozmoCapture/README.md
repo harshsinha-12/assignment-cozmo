@@ -25,6 +25,19 @@ xcodebuild \
 
 ## First flight on your iPhone (about 10 minutes)
 
+Preferred, timed commands (from the repo root):
+
+```bash
+./scripts/install-cozmo-capture.sh
+open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj
+```
+
+Print [`docs/capture-route-route1.md`](../../docs/capture-route-route1.md).
+Harsh's 2026-09-10 rehearsal: signed iPhoneOS binary **46 s**, device copy
+**~18 s** ([`docs/t21h-install-rehearsal.md`](../../docs/t21h-install-rehearsal.md)).
+`--open-xcode` only opens the project. Cursor will not. GUI steps below are
+the fallback if the script cannot see the phone.
+
 1. Unlock the iPhone, plug it into the Mac with a data cable, and tap **Trust**
    if asked. On the phone, Settings → Privacy & Security → **Developer Mode**
    → On, then restart if iOS asks.
