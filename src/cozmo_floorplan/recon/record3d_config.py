@@ -55,6 +55,18 @@ DEFAULT_RECORD3D_PLANES = Record3DPlaneConfig()
 
 
 @dataclass(frozen=True, slots=True)
+class Record3DUncertaintyConfig:
+    """Raw-support policy for candidate-stage measurement intervals."""
+
+    support_window_m: float = 0.10
+    residual_quantile: float = 0.95
+    vertical_margin_m: float = 0.10
+
+
+DEFAULT_RECORD3D_UNCERTAINTY = Record3DUncertaintyConfig()
+
+
+@dataclass(frozen=True, slots=True)
 class Record3DOpeningConfig:
     """Occupancy-profile thresholds for supported wall-opening candidates."""
 

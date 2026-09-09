@@ -3,12 +3,15 @@ from pathlib import Path
 import cv2
 import numpy as np
 import pytest
+from PIL import Image
 
 from cozmo_floorplan.errors import ReconstructionError
 from cozmo_floorplan.io.job import load_job
 from cozmo_floorplan.io.photos import load_photo_rooms
 from cozmo_floorplan.pipeline import run_job
+from cozmo_floorplan.recon.photo_image import load_resized_gray
 from cozmo_floorplan.recon.photos import reconstruct_photos
+from cozmo_floorplan.utils.images import load_display_oriented_bgr
 
 
 def _write_job(job_dir: Path) -> Path:
@@ -52,6 +55,50 @@ def test_room_enforces_official_two_to_eight_photo_count(tmp_path, count):
 
     assert raised.value.warning_code == "incomplete_scan"
     assert f"contains {count}" in str(raised.value)
+
+
+def _write_exif_oriented_jpeg(
+    path: Path, display_rgb: np.ndarray, orientation: int
+) -> None:
+    """Store pixels rotated so EXIF orientation restores `display_rgb`."""
+
+    visual = Image.fromarray(display_rgb)
+    stored = {
+        1: visual,
+        3: visual.transpose(Image.Transpose.ROTATE_180),
+        6: visual.transpose(Image.Transpose.ROTATE_90),
+        8: visual.transpose(Image.Transpose.ROTATE_270),
+    }[orientation]
+    exif = Image.Exif()
+    exif[0x0112] = orientation
+    path.parent.mkdir(parents=True, exist_ok=True)
+    stored.save(path, format="JPEG", quality=95, exif=exif)
+
+
+def test_exif_orientation_is_applied_before_photo_ingest(tmp_path):
+    photos_dir = tmp_path / "photos"
+    display = np.zeros((120, 80, 3), dtype=np.uint8)
+    display[:20] = (0, 255, 0)
+    display[-12:] = (255, 0, 0)
+    _write_photo(photos_dir / "room_a" / "01.jpg")
+    _write_exif_oriented_jpeg(photos_dir / "room_a" / "02.jpg", display, 6)
+
+    rooms = load_photo_rooms(photos_dir)
+    oriented = load_display_oriented_bgr(photos_dir / "room_a" / "02.jpg")
+    gray = load_resized_gray(photos_dir / "room_a" / "02.jpg", 900)
+
+    assert rooms[0].frames[1].width_px == 80
+    assert rooms[0].frames[1].height_px == 120
+    assert oriented is not None
+    assert oriented.shape[0] == 120
+    assert oriented.shape[1] == 80
+    assert gray.shape[0] > gray.shape[1]
+    top_bgr = oriented[:20].mean(axis=(0, 1))
+    bottom_bgr = oriented[-12:].mean(axis=(0, 1))
+    assert top_bgr[1] > top_bgr[0] + 100
+    assert top_bgr[1] > top_bgr[2] + 100
+    assert bottom_bgr[0] > bottom_bgr[1] + 100
+    assert bottom_bgr[0] > bottom_bgr[2] + 100
 
 
 def test_corrupt_photo_is_rejected_before_reconstruction(tmp_path):

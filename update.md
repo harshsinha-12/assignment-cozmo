@@ -613,8 +613,6 @@ Cloud Agent run on `github.com/harshsinha-12/assignment-cozmo` (private). User a
 
 See `README.md` for the map. Do not delete the original PDF even though the filename is hostile; a clean copy exists under `docs/briefs/`.
 
----
-
 ## 2026-09-09 — T20d benchmark evidence activation and honest readiness
 
 ### Done
@@ -723,3 +721,37 @@ See `README.md` for the map. Do not delete the original PDF even though the file
 - Review this stage. A following stage can diagnose Record3D wall/ceiling bias
   from point-support evidence, while T7 native videos and T8 disconnected photo
   graphs remain separate unresolved paths.
+
+---
+
+## 2026-09-10 — T6d support-conditioned Record3D intervals
+
+### Done
+
+- Inspected horizontal and vertical support in all three raw Record3D clouds.
+  Every selected boundary has dense, room-spanning plane support, including the
+  visible 3.70 m `my-room` span. The pipeline therefore does not add the
+  unobserved 30 cm needed to match tape truth.
+- Added a separate uncertainty policy and algorithm. Conservative p95 residuals
+  around paired wall planes define span half-widths; floor plus ceiling
+  residuals define height half-width; span bounds propagate into area.
+- Wired those intervals through the raw Record3D reconstruction while retaining
+  fixed candidate floors and unchanged opening bounds.
+- Added focused algorithm tests and an integration test proving interval order
+  reaches the correct polygon walls, ceiling, and area.
+
+### Real evidence
+
+- Wall and ceiling centre values are unchanged: wall median/p95 remains
+  2.5/30 cm and maximum ceiling error remains 5.41 cm.
+- Aggregate interval coverage improves 11/18 (61.1%) to 16/18 (88.9%) at 80%
+  mean declared confidence. The internal calibration gate now passes.
+- This is transparent development-benchmark calibration, not independent
+  holdout validation. The two 30 cm `my-room` long-wall errors remain outside
+  the reported intervals.
+
+### Next
+
+- Review this stage. Remaining T6 work requires opening truth and cross-room
+  connector evidence. T7 native video and T8 photo SfM remain the next code
+  tracks that can materially advance without inventing LiDAR geometry.

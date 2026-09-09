@@ -59,17 +59,23 @@ evidence reject unconstrained empty space. Solid-wall synthetic tests must yield
 zero openings.
 
 Accepted rooms now produce `floorplan.json` and `floorplan.svg` with metric room
-polygons, four walls, ceiling height, area, and supported openings. Measurement
-objects use deliberately wider, named `uncalibrated` intervals. The current
-partial tape truth measures 61.1% aggregate coverage against 80% mean declared
-confidence, so those intervals are not yet calibrated.
+polygons, four walls, ceiling height, area, and supported openings. T6d derives
+each room's wall-span and ceiling half-widths from the conservative p95 residual
+envelope around its fitted raw planes, then propagates span uncertainty into
+area. Fixed configured widths remain minimum floors, and opening intervals
+remain fixed candidates. The current partial tape benchmark covers 16/18
+measurements (88.9%) against 80% mean declared confidence. This passes the
+internal coverage policy on the development benchmark but is not independent
+holdout calibration.
 
 ## Current boundary
 
 Three separate archives currently produce three rooms, twelve walls, and four
 opening candidates. Frame-invariant evaluation reports 2.5 cm wall median and
 30 cm p95 error across the twelve walls; the large residual is real rather than
-an ID-order artefact. Their exported world coordinates are preserved, but the
+an ID-order artefact. The visible raw planes strongly support the 3.70 m
+`my-room` span, so the code does not add an unobserved 30 cm correction merely
+to fit tape truth. Their exported world coordinates are preserved, but the
 pipeline does not claim those archives share a registered frame and does not
 invent room adjacency. The result is therefore `partial` with explicit
 low-confidence and disconnected-room warnings. More complete opening truth and

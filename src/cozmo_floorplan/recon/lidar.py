@@ -36,6 +36,7 @@ from cozmo_floorplan.recon.record3d_floorplan import (
 from cozmo_floorplan.recon.record3d_openings import detect_record3d_openings
 from cozmo_floorplan.recon.record3d_planes import extract_manhattan_room_candidate
 from cozmo_floorplan.recon.record3d_points import build_metric_point_cloud
+from cozmo_floorplan.recon.record3d_uncertainty import estimate_record3d_uncertainty
 from cozmo_floorplan.recon.record3d_validation import validate_record3d_capture
 
 FloorPlan = dict[str, Any]
@@ -62,6 +63,7 @@ def reconstruct_lidar(job: Job) -> FloorPlan:
             )
             candidate = extract_manhattan_room_candidate(cloud.points_m, cameras_m)
             openings = detect_record3d_openings(cloud.points_m, candidate)
+            uncertainty = estimate_record3d_uncertainty(cloud.points_m, candidate)
             reconstructions.append(
                 Record3DRoomReconstruction(
                     source=record3d_source,
@@ -70,6 +72,7 @@ def reconstruct_lidar(job: Job) -> FloorPlan:
                     frame_count=summary.frame_count,
                     sampled_frame_count=len(cloud.sampled_frame_indices),
                     metric_voxel_count=len(cloud.points_m),
+                    uncertainty=uncertainty,
                 )
             )
         return build_record3d_floorplan(job, tuple(reconstructions))

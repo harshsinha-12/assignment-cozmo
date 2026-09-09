@@ -33,11 +33,16 @@ def record3d_area(
     value_cm2: float,
     evidence_ref: str,
     *,
+    relative_half_width: float | None = None,
     config: Record3DOutputConfig = DEFAULT_RECORD3D_OUTPUT,
 ) -> dict[str, Any]:
     """Return polygon area with the uncalibrated relative interval policy."""
 
-    half_width = value_cm2 * config.area_relative_half_width
+    half_width = value_cm2 * (
+        config.area_relative_half_width
+        if relative_half_width is None
+        else relative_half_width
+    )
     return _measurement(
         value_cm2,
         "cm2",

@@ -19,6 +19,7 @@ from cozmo_floorplan.recon.record3d_measurements import (
 )
 from cozmo_floorplan.recon.record3d_openings import Record3DOpeningCandidate
 from cozmo_floorplan.recon.record3d_planes import ManhattanRoomCandidate
+from cozmo_floorplan.recon.record3d_uncertainty import Record3DUncertainty
 
 FloorPlan = dict[str, Any]
 
@@ -33,6 +34,7 @@ class Record3DRoomReconstruction:
     frame_count: int
     sampled_frame_count: int
     metric_voxel_count: int
+    uncertainty: Record3DUncertainty | None = None
 
 
 def build_record3d_floorplan(
@@ -56,7 +58,18 @@ def build_record3d_floorplan(
             [_clean(x_m * 100.0), _clean(z_m * 100.0)]
             for x_m, z_m in reconstruction.room.polygon_xz_m
         ]
-        room_walls = _build_walls(room_id, polygon_cm, evidence_ref, config)
+        wall_half_widths = (
+            reconstruction.uncertainty.polygon_wall_half_widths_cm
+            if reconstruction.uncertainty
+            else (config.wall_half_width_cm,) * 4
+        )
+        room_walls = _build_walls(
+            room_id,
+            polygon_cm,
+            evidence_ref,
+            wall_half_widths,
+            config,
+        )
         rooms.append(
             {
                 "id": room_id,
@@ -65,7 +78,11 @@ def build_record3d_floorplan(
                 "ceiling_height": record3d_length(
                     reconstruction.room.levels.ceiling_height_m * 100.0,
                     f"{evidence_ref}#horizontal-levels",
-                    half_width_cm=config.ceiling_half_width_cm,
+                    half_width_cm=(
+                        reconstruction.uncertainty.ceiling_half_width_cm
+                        if reconstruction.uncertainty
+                        else config.ceiling_half_width_cm
+                    ),
                     config=config,
                 ),
                 "area": record3d_area(
@@ -73,6 +90,11 @@ def build_record3d_floorplan(
                     * reconstruction.room.depth_m
                     * 10_000.0,
                     f"{evidence_ref}#manhattan-polygon",
+                    relative_half_width=(
+                        reconstruction.uncertainty.area_relative_half_width
+                        if reconstruction.uncertainty
+                        else None
+                    ),
                     config=config,
                 ),
                 "confidence": config.confidence,
@@ -93,14 +115,20 @@ def build_record3d_floorplan(
             f"{reconstruction.sampled_frame_count} sampled, "
             f"{reconstruction.metric_voxel_count} metric voxels, "
             f"{len(reconstruction.openings)} supported opening candidates"
+            + (
+                ", support-conditioned conservative plane residual intervals"
+                if reconstruction.uncertainty
+                else ""
+            )
         )
 
     warnings: list[dict[str, Any]] = [
         {
             "code": "low_confidence",
             "message": (
-                "Record3D plane/opening intervals are candidate-stage engineering "
-                "bounds and remain uncalibrated until tape/laser ground truth is supplied."
+                "Record3D room intervals are conditioned on conservative raw-plane "
+                "residuals and pass the current benchmark coverage policy, but lack "
+                "independent holdout validation; opening intervals remain fixed candidates."
             ),
             "refs": evidence_refs,
         }
@@ -148,6 +176,7 @@ def _build_walls(
     room_id: str,
     polygon_cm: list[list[float]],
     evidence_ref: str,
+    half_widths_cm: tuple[float, float, float, float],
     config: Record3DOutputConfig,
 ) -> list[dict[str, Any]]:
     walls: list[dict[str, Any]] = []
@@ -163,7 +192,7 @@ def _build_walls(
                 "length": record3d_length(
                     length_cm,
                     f"{evidence_ref}#wall:{index + 1}",
-                    half_width_cm=config.wall_half_width_cm,
+                    half_width_cm=half_widths_cm[index],
                     config=config,
                 ),
                 "confidence": config.confidence,

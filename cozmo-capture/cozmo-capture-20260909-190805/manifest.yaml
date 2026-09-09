@@ -1,0 +1,11 @@
+job_id: "cozmo-capture-20260909-190805"
+tier: lidar
+device: "iPhone"
+capture_tool: "Cozmo Capture 0.1.0"
+capture_format: "roomplan-json-v1+record3d-r3d"
+rooms:
+  - "Room 1"
+lidar_files:
+  - "lidar/roomplan.json"
+  - "lidar/room-1.r3d"
+notes: "Route 1 Cozmo Capture export. RoomPlan JSON is the wall source; .r3d files are raw ARKit RGB-D."

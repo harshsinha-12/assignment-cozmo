@@ -38,7 +38,7 @@ Route 2 is the scored capture route until the optional iOS exporter installs in 
 
 | Tier | Devices | Evidence and scale | Current implementation | Remaining proof |
 | --- | --- | --- | --- | --- |
-| LiDAR | iPhone 15/16/17 Pro or Pro Max; LiDAR iPad Pro | RoomPlan dimensions or depth + metric poses/intrinsics | Portable RoomPlan JSON maps walls, openings, ceilings, rooms, scale and provenance into the IR | Raw Record3D/USDZ path and independent tape validation |
+| LiDAR | iPhone 15/16/17 Pro or Pro Max; LiDAR iPad Pro | RoomPlan dimensions or depth + metric poses/intrinsics | RoomPlan JSON and raw Record3D map walls, ceilings, areas, supported openings, scale and provenance into the IR | Cross-room registration, opening truth, repeat/holdout validation, and USDZ |
 | Video | Any iPhone 15+ | Walkthrough frames; metric poses when present, otherwise VO plus an auditable scale source | MP4/MOV validation and approximately 2 Hz frame sampling; pose sidecar is detected | Metric VO, scale, reconstruction and calibrated intervals on real capture |
 | Photos | Any iPhone 15+ | 2–8 stills per room; overlap, doorway correspondences and declared scale evidence | Deterministic room discovery, 2–8 count enforcement, decode/dimension validation | SfM, scale, adjacency, openings/ceiling and calibrated whole-property output |
 
@@ -72,7 +72,7 @@ The point estimate is only half the output. Each tier needs an interval wide eno
 
 The evaluator matches entities by stable id first and Hungarian geometry matching second. It reports opening detection and width, ceiling bias and repeat spread, wall error, photo adjacency/overlap/footprint, drift on/off, yield, head-to-head performance, and interval coverage. Missing repeat, ablation, or incumbent inputs are `missing_evidence`, never a zero that looks successful.
 
-Calibration is evaluated as empirical interval coverage against the mean declared confidence, with a five-percentage-point tolerance. The synthetic contract fixture covers 15/15 measurements (100%) at mean declared confidence 95%. That result only verifies schema/evaluator behavior because the fixture and truth share exact geometry. Final calibration claims require independent tape truth, repeated captures, and reporting by tier and scale source.
+Calibration is evaluated as empirical interval coverage against the mean declared confidence, with a five-percentage-point tolerance. The synthetic contract fixture covers 15/15 measurements (100%) at mean declared confidence 95%; that only verifies schema/evaluator behavior. On the three-room Record3D development benchmark, conservative p95 raw-plane residual envelopes define wall/ceiling half-widths and span propagation defines area intervals. They cover 16/18 measurements (88.9%) at 80% mean declared confidence without moving any centre estimate. This passes the internal gate on development data, not independent calibration; repeat captures and a held-out property remain required.
 
 ## 5. Claims agent and operational fallback
 

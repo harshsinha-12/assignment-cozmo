@@ -2,6 +2,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+from PIL import Image
 
 from cozmo_floorplan.io.photos import load_photo_rooms
 from cozmo_floorplan.recon.photo_overlap import analyze_photo_overlap
@@ -34,6 +35,33 @@ def _translated_views(seed: int, count: int) -> list[np.ndarray]:
         )
         for index in range(count)
     ]
+
+
+def _write_exif_oriented_jpeg(
+    path: Path, display_bgr: np.ndarray, orientation: int
+) -> None:
+    visual = Image.fromarray(cv2.cvtColor(display_bgr, cv2.COLOR_BGR2RGB))
+    stored = {
+        1: visual,
+        6: visual.transpose(Image.Transpose.ROTATE_90),
+    }[orientation]
+    exif = Image.Exif()
+    exif[0x0112] = orientation
+    stored.save(path, format="JPEG", quality=95, exif=exif)
+
+
+def test_exif_oriented_pair_still_builds_within_room_edge(tmp_path):
+    photos_dir = tmp_path / "photos"
+    views = _translated_views(7, 2)
+    room_dir = photos_dir / "room-a"
+    room_dir.mkdir(parents=True)
+    assert cv2.imwrite(str(room_dir / "00.jpg"), views[0])
+    _write_exif_oriented_jpeg(room_dir / "01.jpg", views[1], 6)
+
+    diagnostics = analyze_photo_overlap(load_photo_rooms(photos_dir))
+
+    assert diagnostics.rooms[0].connected is True
+    assert diagnostics.rooms[0].eligible_edges == 1
 
 
 def test_within_room_overlap_builds_connected_graph(tmp_path):

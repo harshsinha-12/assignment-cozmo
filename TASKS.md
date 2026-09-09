@@ -42,7 +42,7 @@ VO, and T8 can advance against the uploaded media.
 | T2 | done | Synthetic two-room fixture | — | no | 2026-09-07 |
 | T4 | done | Reconcile plan with official prompt | T1 | no | 2026-09-08 ingest |
 | T3 | doing | Human benchmark capture | human + Pro phone | **yes — active** | Primary/repeat photos and videos, three room `.r3d`, measurements, damage, and two-room Magicplan summaries are active. Connector LiDAR and measured property placement remain unavailable |
-| T6 | doing | LiDAR export → FloorPlan | — | **present** | T6a–T6c raw `.r3d` partial IR and frame-invariant wall evaluation work. Current wall median/p95 = 2.5/30 cm and coverage = 61.1%; geometry bias, ceiling/opening calibration, and cross-room registration remain |
+| T6 | doing | LiDAR export → FloorPlan | — | **present** | T6a–T6d raw `.r3d`, frame-invariant eval, and support-conditioned intervals work. Wall median/p95 = 2.5/30 cm; calibration covers 16/18 (88.9%) and passes internally. Point accuracy, openings, cross-room registration, and holdout proof remain |
 | T9 | done | Stitch + drift correction + on/off ablation | T6 | no | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
 | T7 | doing | Video path | T6 | four MP4s present | T7b–T7g calibrated room/FloorPlan path done; new captures need ingest diagnostics and lack metric sidecars |
 | T8 | doing | Photos path, 2–8 stills, folder stitch | — | present | CLAHE+SIFT fallback improves graphs to connector/drawing/my/pooja = 2/2/5/3 components and finds connector↔my-room/pooja-room candidates. All remain disconnected; T8c metric SfM is still blocked |
@@ -114,6 +114,7 @@ scaffolding. Minor fixes after real captures remain normal and allowed.
 
 ## Done
 
+- **2026-09-10 T6d support-conditioned Record3D intervals** — Diagnosed all selected planes against raw support, refused an unobserved 30 cm correction, and derived per-room wall/ceiling/area bounds from conservative p95 plane residuals. Centre errors are unchanged; private interval coverage moves 61.1%→88.9% (16/18) and the internal calibration gate passes, with holdout validation still explicitly pending.
 - **2026-09-10 T6c frame-invariant wall evaluation** — Replaced unsafe generated-ID wall pairing with room-local cyclic matching across translated/rotated/reflected scan frames. Private LiDAR wall median changed from invalid 75 cm to honest 2.5 cm (p95 30 cm); interval coverage is 61.1%, so calibration remains failed rather than tuned on the benchmark.
 - **2026-09-10 T8b2 robust photo overlap** — Added bounded CLAHE+SIFT fallback without lowering normalized acceptance gates, exposed named components/isolated images, and improved real connector/drawing/my/pooja graphs from 5/6/7/7 to 2/2/5/3 components with two conservative cross-room candidates. Metric SfM remains blocked honestly.
 - **2026-09-09 T20d evidence activation/readiness** — Activated photo/video repeat manifests, corrected primary manifest descriptions, normalized supplied tape measurements and two-class damage records, encoded two-room Magicplan summary evidence without inventing walls, and aligned readiness with the official any-tier repeat rule. The real benchmark now has zero pending input classes.

@@ -3,14 +3,13 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-import cv2
-
 from cozmo_floorplan.errors import ReconstructionError
 from cozmo_floorplan.recon.photos_config import (
     DEFAULT_PHOTO_INGEST,
     PHOTO_EXTENSIONS,
     PhotoIngestConfig,
 )
+from cozmo_floorplan.utils.images import load_display_oriented_bgr
 
 
 @dataclass(frozen=True, slots=True)
@@ -73,7 +72,7 @@ def _load_room(room_dir: Path, config: PhotoIngestConfig) -> PhotoRoom:
 
 
 def _inspect_photo(path: Path, config: PhotoIngestConfig) -> PhotoFrame:
-    image = cv2.imread(str(path), cv2.IMREAD_COLOR)
+    image = load_display_oriented_bgr(path)
     if image is None:
         raise ReconstructionError(
             f"Could not decode photo {path.name!r} in room {path.parent.name!r}.",

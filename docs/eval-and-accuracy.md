@@ -103,9 +103,13 @@ short sides. Per-room wall absolute errors are:
 - `pooja-room`: 5, 5, 0, 0 cm
 
 This is an evaluation correction, not benchmark-driven reconstruction tuning.
-The remaining errors stay red. Aggregate interval coverage is 11/18 (61.1%)
-against 80% mean declared confidence; maximum ceiling error is 5.41 cm; four
-opening candidates have no measured opening truth; and the three scans remain
+The remaining errors stay red. T6d leaves these centre values unchanged and
+uses each scan's conservative p95 raw-plane residuals for wall-span and ceiling
+intervals, with area uncertainty propagated from both spans. Aggregate interval
+coverage is now 16/18 (88.9%) against 80% mean declared confidence, so the
+internal calibration gate passes on this development benchmark. It is not a
+holdout-validation claim. Maximum ceiling point error remains 5.41 cm; four
+opening candidates have no measured opening truth; and the scans remain
 disconnected.
 
 The report distinguishes `pass`, `fail`, `missing_evidence`, and `not_applicable`. Empty geometry therefore produces explicit red opening, ceiling, yield, and calibration gates rather than zeros that look successful.

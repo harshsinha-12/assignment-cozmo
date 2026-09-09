@@ -1,4 +1,5 @@
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import jsonschema
@@ -13,6 +14,7 @@ from cozmo_floorplan.recon.record3d_planes import (
     HorizontalPlaneLevels,
     ManhattanRoomCandidate,
 )
+from cozmo_floorplan.recon.record3d_uncertainty import Record3DUncertainty
 from cozmo_floorplan.stitch import apply_drift_correction
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -83,7 +85,7 @@ def test_record3d_candidate_converts_to_interval_bearing_floorplan(tmp_path):
     assert document["openings"][0]["offset_along_wall"]["value"] == 120
     assert document["openings"][0]["connects_room_ids"] == ["room-a"]
     assert document["openings"][0]["confidence"] == 0.60
-    assert "uncalibrated" in document["warnings"][0]["message"]
+    assert "independent holdout validation" in document["warnings"][0]["message"]
 
 
 def test_multiple_archives_remain_explicitly_unregistered(tmp_path):
@@ -107,3 +109,28 @@ def test_multiple_archives_remain_explicitly_unregistered(tmp_path):
         )
         == 1
     )
+
+
+def test_support_conditioned_intervals_reach_floorplan_measurements(tmp_path):
+    uncertainty = Record3DUncertainty(
+        x_span_half_width_cm=10.0,
+        z_span_half_width_cm=20.0,
+        ceiling_half_width_cm=7.0,
+        area_relative_half_width=0.12,
+        wall_residual_quantile_cm=(4.0, 6.0, 9.0, 11.0),
+        floor_residual_quantile_cm=3.0,
+        ceiling_residual_quantile_cm=4.0,
+    )
+    reconstruction = replace(_reconstruction(tmp_path), uncertainty=uncertainty)
+
+    document = build_record3d_floorplan(_job(tmp_path), (reconstruction,))
+
+    wall_half_widths = [
+        wall["length"]["interval"]["high"] - wall["length"]["value"]
+        for wall in document["walls"]
+    ]
+    ceiling = document["rooms"][0]["ceiling_height"]
+    area = document["rooms"][0]["area"]
+    assert wall_half_widths == [20.0, 10.0, 20.0, 10.0]
+    assert ceiling["interval"]["high"] - ceiling["value"] == 7.0
+    assert (area["interval"]["high"] - area["value"]) / area["value"] == 0.12
