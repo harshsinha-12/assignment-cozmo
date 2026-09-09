@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import cv2
@@ -46,6 +47,26 @@ def _write_synthetic_mp4(path: Path, *, frames: int = 72, fps: float = 12.0) -> 
     writer.release()
 
 
+def _write_metric_sidecar(path: Path) -> None:
+    document = {
+        "schema_version": "1.0.0",
+        "units": "m",
+        "transform": "camera_to_world",
+        "coordinate_system": "right_handed_y_up",
+        "timestamp_origin": "video_start",
+        "poses": [
+            {
+                "source_frame_index": index * 6,
+                "timestamp_s": index * 0.5,
+                "position_m": [index * 0.1, 0.0, 0.0],
+                "rotation_xyzw": [0.0, 0.0, 0.0, 1.0],
+            }
+            for index in range(3)
+        ],
+    }
+    path.write_text(json.dumps(document), encoding="utf-8")
+
+
 def test_empty_video_directory_is_incomplete_scan(tmp_path):
     job_dir = tmp_path / "empty_video"
     _write_manifest(job_dir)
@@ -62,16 +83,38 @@ def test_synthetic_walkthrough_is_sampled_without_inventing_centimetres(tmp_path
     _write_manifest(job_dir)
     video_path = job_dir / "video" / "walkthrough.mp4"
     _write_synthetic_mp4(video_path)
-    (job_dir / "video" / "poses.json").write_text("[]", encoding="utf-8")
+    _write_metric_sidecar(job_dir / "video" / "poses.json")
 
     files = find_video_files(job_dir / "video")
+    ingest_config = VideoIngestConfig(sample_fps=2.0, max_frames=40, min_frames=8)
+    sampled = sample_video(files[0], config=ingest_config)
     frames = sample_video_frames(
-        files[0], config=VideoIngestConfig(sample_fps=2.0, max_frames=40, min_frames=8)
+        files[0],
+        config=ingest_config,
     )
     document = run_job(job_dir)
 
     assert files == [video_path]
     assert len(frames) >= 8
+    assert len(sampled.source_frame_indices) == len(sampled.frames)
+    assert len(sampled.timestamps_s) == len(sampled.frames)
+    assert sampled.source_frame_indices[0] == 0
+    assert all(
+        right > left
+        for left, right in zip(
+            sampled.source_frame_indices,
+            sampled.source_frame_indices[1:],
+            strict=False,
+        )
+    )
+    assert all(
+        right > left
+        for left, right in zip(
+            sampled.timestamps_s,
+            sampled.timestamps_s[1:],
+            strict=False,
+        )
+    )
     assert document["status"] == "failed"
     assert document["warnings"][0]["code"] == "insufficient_overlap"
     assert "samples from" in document["warnings"][0]["message"]
@@ -99,7 +142,7 @@ def test_multiple_walkthroughs_keep_identity_and_named_sidecars(tmp_path):
     _write_manifest(job_dir)
     _write_synthetic_mp4(job_dir / "video" / "my-room.mp4")
     _write_synthetic_mp4(job_dir / "video" / "pooja-room.mp4")
-    (job_dir / "video" / "my-room.poses.json").write_text("[]", encoding="utf-8")
+    _write_metric_sidecar(job_dir / "video" / "my-room.poses.json")
     (job_dir / "video" / "poses.json").write_text("[]", encoding="utf-8")
 
     with pytest.raises(ReconstructionError) as raised:
@@ -162,8 +205,26 @@ def test_sample_video_applies_container_rotation_explicitly(monkeypatch, tmp_pat
     assert sampled.metadata.display_size_px == (2, 3)
     assert sampled.metadata.rotation_degrees_clockwise == 90
     assert sampled.frames[0] == pytest.approx(expected_rgb)
+    assert sampled.source_frame_indices == (0,)
+    assert sampled.timestamps_s == (0.0,)
 
 
 def test_quarter_turn_rotation_rejects_non_right_angle():
     with pytest.raises(ValueError, match="multiple of 90"):
         rotate_quarter_turns_clockwise(np.zeros((2, 3, 3), dtype=np.uint8), 45)
+
+
+def test_malformed_metric_pose_sidecar_fails_structurally(tmp_path):
+    job_dir = tmp_path / "malformed_sidecar"
+    _write_manifest(job_dir)
+    _write_synthetic_mp4(job_dir / "video" / "walkthrough.mp4")
+    (job_dir / "video" / "walkthrough.poses.json").write_text(
+        '{"units":"cm","poses":[]}',
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ReconstructionError) as raised:
+        reconstruct_video(load_job(job_dir))
+
+    assert raised.value.warning_code == "incomplete_scan"
+    assert "schema_version" in str(raised.value)

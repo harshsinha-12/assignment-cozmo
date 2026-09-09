@@ -13,6 +13,27 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T7e metric video-pose sidecar complete
+
+- Extended normalized video samples with their exact encoded frame indices and
+  clip-relative decode timestamps; display rotation does not erase identity.
+- Added `video_poses.py`, a strict versioned metre/camera-to-world parser with
+  coordinate convention, increasing frame/time, finite-position, and unit-XYZW
+  quaternion validation. Malformed sidecars fail structurally.
+- Added `video_pose_alignment.py`. It fits an orientation-preserving 3D
+  similarity per local VO segment only after at least three exact frame/time
+  matches, rejects degenerate motion and >15 cm RMSE, and reports scale and
+  aligned metric camera positions without yet claiming walls.
+- Synthetic tests recover a known 0.4 m/unit transform and reject wrong units,
+  duplicate frames, invalid quaternions, and 100 ms timestamp shifts. The two
+  private MP4s have no sidecars, report `metric_alignment=not-available`, and
+  remain structurally unsupported rather than receiving guessed scale.
+- All 96 tests, Ruff, touched-file formatting, compileall, synthetic
+  reproduction, private two-video no-sidecar smoke, and `git diff --check` pass.
+  No commit was made.
+- Next: T7f sparse triangulation/plane diagnostics for sidecar-aligned segments,
+  or T8b photo overlap graph against the uploaded images.
+
 ## 2026-09-09 — T7d scale-free video trajectory complete
 
 - Refactored ORB extraction, ratio matching, and seeded fundamental estimation

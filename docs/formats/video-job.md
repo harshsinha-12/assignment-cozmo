@@ -38,8 +38,8 @@ rotation. The two current iPhone videos report 90° clockwise and normalize to
 Phone video has **no metric scale** unless camera poses are metric
 (ARKit/ARCore/Record3D) or a known length is supplied later. The adapter will
 not print centimetres from an uncalibrated MP4. Sidecars are detected and named
-in the diagnostic so metric pose parsing can plug in without changing the job
-layout.
+by video stem, strictly validated, and matched to decoded samples by both
+encoded frame index and clip-relative timestamp.
 
 Current private diagnostics: `my-room.mp4` → 138 samples / 68.56 s;
 `pooja-room.mp4` → 148 samples / 73.91 s. These are ingest facts, not geometry
@@ -84,3 +84,40 @@ written to the FloorPlan IR.
 Current real results: `my-room` recovers 21/89 edges in 10 local segments;
 `pooja-room` recovers 17/89 in 9. Fragmentation is retained as evidence rather
 than bridged with guessed motion.
+
+## Metric pose sidecar v1
+
+Use `<video-stem>.poses.json` for every multi-video job. A single-video job may
+also use `poses.json`. The contract is deliberately explicit:
+
+```json
+{
+  "schema_version": "1.0.0",
+  "units": "m",
+  "transform": "camera_to_world",
+  "coordinate_system": "right_handed_y_up",
+  "timestamp_origin": "video_start",
+  "poses": [
+    {
+      "source_frame_index": 0,
+      "timestamp_s": 0.0,
+      "position_m": [0.0, 1.45, 0.0],
+      "rotation_xyzw": [0.0, 0.0, 0.0, 1.0]
+    }
+  ]
+}
+```
+
+Frame indices and timestamps must be unique and strictly increasing. Positions
+must be finite metres and quaternions must have unit norm. The pipeline retains
+each sampled frame's original encoded index and timestamp; an alignment match
+requires the frame index to exist and its timestamp to agree within 25 ms.
+
+Each local VO segment needs at least three matched poses and two-dimensional
+trajectory spread. An orientation-preserving 3D similarity is accepted only at
+≤0.15 m matched-position RMSE. These are conservative internal eligibility
+thresholds, not the official ±3% wall gate. The sidecar rotations are validated
+for the next triangulation stage; T7e alignment uses camera positions only.
+
+The two current native Camera-app MP4s do not have sidecars, so their diagnostic
+output says `metric_alignment=not-available` and stays structurally unsupported.

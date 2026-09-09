@@ -4,6 +4,25 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-09 — Metric video poses require two correspondence keys
+
+**Context:** A JSON list of positions beside a video is not enough to establish
+which decoded image each pose describes. Attaching poses by array order can
+silently scale the wrong frames, especially after bounded sampling or variable
+frame timing.
+
+**Decision:** Accept metric video poses only in a versioned per-video contract:
+metres, camera-to-world, right-handed y-up, clip-relative timestamps, increasing
+encoded frame indices, finite positions, and unit XYZW quaternions. Preserve
+the sampled source-frame index and timestamp. Align each local VO segment only
+with at least three exact frame matches whose timestamps agree within 25 ms;
+reject degenerate paths and alignment RMSE above 15 cm.
+
+**Consequence:** Synthetic alignment recovers known metric scale and positions,
+while wrong units, duplicate frames, invalid rotations, and shifted timestamps
+fail explicitly. The current Camera-app MP4s have no sidecars and remain
+unitless; this stage does not claim video wall accuracy.
+
 ## 2026-09-09 — Split video trajectories instead of bridging failed edges
 
 **Context:** A video can contain useful translational runs separated by blur,

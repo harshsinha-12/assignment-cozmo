@@ -79,8 +79,9 @@ Done when: two rooms share a door without overlap; ablation images exist.
 
 **Status:** partial — T7b multi-walkthrough identity/orientation, T7c
 deterministic ORB/geometric track gates, and T7d segmented scale-free relative
-poses work on the two current iPhone videos. Metric scale, room geometry, and
-FloorPlan output remain.
+poses work on the two current iPhone videos. T7e adds strict metric pose-sidecar
+validation and per-segment similarity alignment. The current videos have no
+sidecars; room geometry and FloorPlan output remain.
 
 - ffmpeg sample + tracking or poses
 - Same IR, wider intervals than LiDAR

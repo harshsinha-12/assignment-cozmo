@@ -38,6 +38,8 @@ class SampledVideo:
     identifier: str
     metadata: VideoMetadata
     frames: tuple[np.ndarray, ...]
+    source_frame_indices: tuple[int, ...] = ()
+    timestamps_s: tuple[float, ...] = ()
 
 
 def find_video_files(video_dir: Path) -> list[Path]:
@@ -97,6 +99,8 @@ def sample_video(
         stride = max(1, round(metadata.native_fps / config.sample_fps))
 
     frames: list[np.ndarray] = []
+    source_frame_indices: list[int] = []
+    timestamps_s: list[float] = []
     index = 0
     try:
         while len(frames) < config.max_frames:
@@ -109,6 +113,12 @@ def sample_video(
                     metadata.rotation_degrees_clockwise,
                 )
                 frames.append(cv2.cvtColor(oriented, cv2.COLOR_BGR2RGB))
+                source_frame_indices.append(index)
+                timestamp_ms = float(capture.get(cv2.CAP_PROP_POS_MSEC) or 0.0)
+                timestamp_s = timestamp_ms / 1000.0
+                if index > 0 and timestamp_s <= 0 and metadata.native_fps > 0:
+                    timestamp_s = index / metadata.native_fps
+                timestamps_s.append(timestamp_s)
             index += 1
     finally:
         capture.release()
@@ -116,6 +126,8 @@ def sample_video(
         identifier=path.stem,
         metadata=metadata,
         frames=tuple(frames),
+        source_frame_indices=tuple(source_frame_indices),
+        timestamps_s=tuple(timestamps_s),
     )
 
 

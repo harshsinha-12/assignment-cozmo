@@ -54,3 +54,17 @@ class VideoTrajectoryConfig:
 
 
 DEFAULT_VIDEO_TRAJECTORY = VideoTrajectoryConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class VideoMetricPoseConfig:
+    """Validation and similarity-alignment policy for metric pose sidecars."""
+
+    timestamp_tolerance_s: float = 0.025
+    quaternion_norm_tolerance: float = 0.01
+    minimum_alignment_poses: int = 3
+    minimum_alignment_rank: int = 2
+    maximum_alignment_rmse_m: float = 0.15
+
+
+DEFAULT_VIDEO_METRIC_POSE = VideoMetricPoseConfig()

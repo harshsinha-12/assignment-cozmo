@@ -43,7 +43,7 @@ advance against the partial upload.
 | T3 | doing | Human benchmark capture | human + Pro phone | **yes — partial upload present** | Three rooms present; missing connector, repeats, GT, incumbent, damage evidence, and one video |
 | T6 | doing | LiDAR export → FloorPlan | — | **present** | T6a–T6b3 raw `.r3d` partial IR works; calibration, repeatability, shared-opening registration, and GT hardening remain |
 | T9 | done | Stitch + drift correction + on/off ablation | T6 | no | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
-| T7 | doing | Video path | T6 | two of three room videos present | T7b ingest/orientation + T7c feature gates + T7d unitless segmented poses done; scale, FloorPlan, and ±3% path remain |
+| T7 | doing | Video path | T6 | two of three room videos present | T7b–T7e ingest, tracks, unitless poses, and strict optional metric sidecar alignment done; current videos lack sidecars, surface/FloorPlan/±3% remain |
 | T8 | todo | Photos path, 2–8 stills, folder stitch | — | 23 photos present | T8a ingest done; drawing room has 7 and files lack original Camera EXIF after WhatsApp transfer |
 | T21 | todo | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | Xcode.app | no | Parallel. Scored route stays Route 2 until install works |
 | T17 | doing | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | T17a protocol/templates done; walk-in validation and measured rows wait on T3 |
@@ -76,14 +76,16 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-**T7e:** validate and parse a per-video metric camera-pose sidecar, then align
-scale-free segments only where timestamp/frame correspondence is proven. Keep
-native-video-only jobs unitless and structurally unsupported.
+**T7f:** triangulate sparse metric points only for accepted, sidecar-aligned
+segments, then add diagnostic floor/wall-plane candidates. If staying on the
+current native MP4s, start T8b photo overlap/feature graph instead; do not infer
+metric video geometry without a sidecar.
 
 ---
 
 ## Done
 
+- **2026-09-09 T7e metric pose sidecar/alignment** — Exact sampled source-frame/timestamp identity, strict versioned metre/camera-to-world sidecars, unit-quaternion validation, per-segment 3D similarity alignment, degeneracy/RMSE rejection, and synthetic metric recovery tests. Current MP4s remain unitless because no sidecars exist.
 - **2026-09-09 T7d scale-free video trajectory** — Shared ORB/fundamental correspondences, assumed-intrinsics essential poses, unit-normalized translation directions, explicit segment breaks/restarts, two-view and graph-break tests, and real two-video diagnostics. No metric claim.
 - **2026-09-09 T7c video feature-track gate** — Bounded ORB extraction, ratio matching, seeded fundamental/homography RANSAC, motion/parallax/coverage gates, named rejection counts, accepted multi-depth synthetic motion, rejected pure rotation/blank frames, and real two-video diagnostics. No metric claim.
 - **2026-09-09 T7b multi-video orientation-aware ingest** — All room walkthroughs sampled in stable order, filename-stem identity, explicit quarter-turn normalization, per-video sidecars, ambiguous global-sidecar refusal, real duration/frame diagnostics, and three added tests. No metric geometry inferred.
