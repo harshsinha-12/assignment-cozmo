@@ -13,6 +13,15 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T19a fix-loop before bundle frozen
+
+- Selected the worst measured current failure: `pipeline_yield=fail` because explicit, complete offline claims fallback changes the one-job prediction from `ok` to `partial` (0/1 successful yield).
+- Wrote `docs/fix-loop.md` with evidence, root-cause hypothesis, intended fix, and a precise prediction: status `partial` → `ok`, yield 0% → 100%, while geometry and calibration metrics remain unchanged.
+- Pinned the baseline to commit `523ceea11ba1bb405e3bc1c922447d1f427a0333` and stored `floorplan.json`, SVG, drift-off JSON, and `eval.json` under `data/fix-loop/before/`.
+- Added a manifest with expected exit codes and SHA-256 hashes, a verifier command, isolated-worktree reproduction instructions, and tamper tests.
+- Verified the frozen bundle, all 52 tests, `ruff check .`, compileall, and diff checks. No commit was made.
+- The fix is intentionally not implemented in T19a. Next reviewable stage is T19b: ship only the declared status-semantics fix, generate `after/`, and produce a readable diff.
+
 ## 2026-09-09 — TASKS: what can ship without media
 
 - Added a **Without media** section and a **Needs media?** column so agents do not wait on T3 for T19 / T21 / writeup draft.

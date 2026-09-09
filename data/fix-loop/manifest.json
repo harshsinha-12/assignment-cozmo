@@ -1,0 +1,37 @@
+{
+  "version": "1.0",
+  "case_id": "agent-fallback-yield",
+  "fixture": "data/fixtures/roomplan_two_room",
+  "target_gate": {
+    "name": "pipeline_yield",
+    "before_status": "fail",
+    "before_value": "prediction_status=partial",
+    "predicted_after_status": "pass",
+    "predicted_after_value": "prediction_status=ok"
+  },
+  "before": {
+    "source_commit": "523ceea11ba1bb405e3bc1c922447d1f427a0333",
+    "agent_mode": "fallback",
+    "run_exit_code": 2,
+    "eval_exit_code": 3,
+    "artifacts": [
+      {
+        "path": "before/eval.json",
+        "sha256": "09a3914db0bebf533a2eb7cc9128ea66dd4584ccd7ce61d7a11931f870ece83f"
+      },
+      {
+        "path": "before/floorplan.ablation-off.json",
+        "sha256": "2c34bd388f50cddec0e71590b5c117bff48bffefe3e3efad69ff775b4552357f"
+      },
+      {
+        "path": "before/floorplan.json",
+        "sha256": "8f24d5703f172133871763f7c7dd50579802b5653fc663eb5ec4b4b326bf084e"
+      },
+      {
+        "path": "before/floorplan.svg",
+        "sha256": "5d89943a9458f3c3380a55a523e4d09dafbff29767bbf6cda806cf3dd3b87b97"
+      }
+    ]
+  },
+  "after": null
+}

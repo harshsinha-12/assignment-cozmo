@@ -71,6 +71,18 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/eval/evaluator.py` | Composes official gates: openings, ceilings, repeatability, drift ablation, photo stitch, tier wall accuracy, calibration, yield, and head-to-head. |
 | `src/cozmo_floorplan/eval/io.py` | Loads schema-valid FloorPlans and atomically writes `eval.json`. |
 
+## Fix-loop evidence
+
+| File | Responsibility |
+| --- | --- |
+| `src/cozmo_floorplan/fix_loop/config.py` | Required frozen-artifact names for the fix-loop bundle. |
+| `src/cozmo_floorplan/fix_loop/verify.py` | Verifies bundle paths, SHA-256 hashes, and consistency between the declared target and `before/eval.json`; also provides a local verification command. |
+| `src/cozmo_floorplan/fix_loop/__init__.py` | Declares the fix-loop verification package. |
+| `data/fix-loop/manifest.json` | Pins the case id, source commit, expected exit codes, target gate/prediction, artifact hashes, and pending after state. |
+| `data/fix-loop/before/` | Immutable baseline FloorPlan, SVG, drift-off ablation, and evaluation report. |
+| `data/fix-loop/README.md` | Verification and isolated-worktree regeneration commands for the frozen baseline. |
+| `docs/fix-loop.md` | One-page declaration: worst gate, evidence-backed hypothesis, intended fix, prediction, and reproduction contract. |
+
 ## Rendering
 
 | File | Responsibility |
@@ -109,6 +121,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `tests/test_lidar.py` | Tests single/multi-room discovery, RoomPlan conversion, intervals, metric gates, CLI output, and honest unsupported fallbacks. |
 | `tests/test_render.py` | Tests parseable whole-property SVG, dimensions, openings, deterministic output, XML escaping, and failed-run placeholders. |
 | `tests/test_photos.py` | Tests room discovery, the official 2–8 count, corrupt-image rejection, multi-room ordering, and honest metric refusal using generated JPEGs. |
+| `tests/test_fix_loop.py` | Validates the frozen failing gate and ensures checksum verification catches artifact tampering. |
 | `tests/test_agent.py` | Tests fallback and mocked-live agents, metric ownership, rule validation, transactional rollback, and schema-valid claims output. |
 | `tests/test_stitch.py` | Tests correction-on/off metadata, ablation artifacts, injected 20 cm opening-gap closure, and the drift eval gate. |
 | `tests/test_video.py` | Tests empty video jobs, generated-mp4 frame sampling, pose-sidecar mention, and honest metric refusal. |

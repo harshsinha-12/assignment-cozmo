@@ -12,12 +12,10 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-
-- Completed **T8a photo-folder ingest** without private captures.
-- Added focused modules for ingest configuration, immutable room/frame metadata, decoding/validation, and the photo reconstruction boundary; file roles are in `docs/code-map.md`.
-- Added generated-JPEG tests for missing rooms, 1/9-image count failures, corrupt files, deterministic multi-room discovery, and honest metric refusal.
-- Updated the queue to distinguish completed photo ingest from capture-blocked metric SfM, scale, adjacency, and calibrated intervals.
-- Clarified `TASKS.md`: **Without media** table plus a **Needs media?** column. T19/T21/writeup draft can proceed before uploads; T6/T7 VO/T8 SfM/T17/T18/T11 cannot.
+- Completed **T19a**: froze the fix-loop before bundle without shipping the fix.
+- The target is `pipeline_yield=fail`: explicit deterministic fallback completes claims but downgrades the prediction to `partial`.
+- Added the one-page declaration, exact prediction, pinned source commit, baseline FloorPlan/SVG/ablation/eval, SHA-256 manifest, isolated-worktree reproduction instructions, verifier, and tamper tests.
+- Recorded every new file’s responsibility in `docs/code-map.md`.
 
 ### What is true now
 
@@ -26,7 +24,8 @@ The current agent overwrites the **Current handoff** section at the end of every
 - Video jobs with a real/synthetic MP4 are ingested (frame count in the warning) but do **not** emit centimetres yet.
 - Photo jobs validate one folder per room, 2–8 decodable images per folder, and stable room/image metadata. They intentionally remain `unsupported_tier` until metric reconstruction exists.
 - Raw Record3D/USDZ still structured-fail.
-- All 50 tests pass; `ruff check .`, compileall, unstaged diff check, and combined HEAD diff check pass. No commit was made.
+- T19a before is immutable evidence from commit `523ceea`; its run exits 2 and eval exits 3 by design. The fix is not yet implemented.
+- Bundle verification, all 52 tests, `ruff check .`, compileall, and diff checks pass. No commit was made.
 
 ### Blockers
 
@@ -37,29 +36,29 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### Next agent should
 
-1. If T3 is still empty: execute **T19**, freezing a regenerable fix-loop “before” bundle.
+1. Execute **T19b**: implement only the declared fallback-status fix, then generate `after/` and a readable diff.
 2. If T3 files are present: implement metric **T7 VO** and/or **T8 photo** reconstruction against them.
 3. Do not run T21 without Xcode.app.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `docs/formats/photo-job.md`
-3. `docs/capture-protocol.md`
-4. `docs/fix-loop.md`
+2. `docs/fix-loop.md`
+3. `data/fix-loop/manifest.json`
+4. `src/cozmo_floorplan/agent/orchestrator.py`
 5. `docs/code-map.md`
 
 ### Exact next command
 
 ```text
-If data/private/ is still empty: execute exactly T19 and freeze the regenerable fix-loop "before" bundle.
-If captures exist: inventory them first, then resume the matching T6/T7/T8 metric adapter.
+Execute exactly T19b: preserve data/fix-loop/before, implement the declared explicit-fallback status fix, generate data/fix-loop/after, update the manifest, and add a readable diff.
 ```
 
 ---
 
 ## History
 
+- **2026-09-09** — T19a declaration and checksum-locked before bundle frozen at commit `523ceea`; fix deliberately pending.
 - **2026-09-09** — T8a per-room photo ingest and honest metric boundary complete.
 - **2026-09-08** — T9 shared-wall owner-pose fix (20 cm gap actually closes) + T7 video ingest; 45 tests pass.
 - **2026-09-09** — T9 plane-anchored drift correction first land; 42 tests; full Xcode unavailable.

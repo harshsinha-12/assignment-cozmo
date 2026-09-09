@@ -1,0 +1,770 @@
+{
+  "concealed_flags": [
+    {
+      "damage_ids": [
+        "damage-staged-water-stain"
+      ],
+      "evidence_refs": [
+        "synthetic://staged-water-stain"
+      ],
+      "id": "concealed-damage-staged-water-stain",
+      "notes": "Rule-selected inspection flag; not a confirmed concealed condition.",
+      "rule_id": "CONCEALED_WATER_MIGRATION_001",
+      "status": "suspected",
+      "surface": {
+        "id": "a_north",
+        "kind": "wall"
+      }
+    }
+  ],
+  "damage": [
+    {
+      "class": "water_stain",
+      "confidence": 0.94,
+      "evidence_refs": [
+        "synthetic://staged-water-stain"
+      ],
+      "extent": {
+        "evidence_refs": [
+          "synthetic://staged-water-stain-mask"
+        ],
+        "interval": {
+          "confidence": 0.9,
+          "high": 2070.0,
+          "low": 1530.0
+        },
+        "method": "synthetic_surface_projection",
+        "unit": "cm2",
+        "value": 1800.0
+      },
+      "id": "damage-staged-water-stain",
+      "region": [
+        [
+          40.0,
+          80.0
+        ],
+        [
+          100.0,
+          80.0
+        ],
+        [
+          100.0,
+          110.0
+        ],
+        [
+          40.0,
+          110.0
+        ]
+      ],
+      "surface": {
+        "id": "a_north",
+        "kind": "wall"
+      }
+    },
+    {
+      "class": "impact_damage",
+      "confidence": 0.91,
+      "evidence_refs": [
+        "synthetic://staged-impact"
+      ],
+      "extent": {
+        "evidence_refs": [
+          "synthetic://staged-impact-mask"
+        ],
+        "interval": {
+          "confidence": 0.9,
+          "high": 540.0,
+          "low": 360.0
+        },
+        "method": "synthetic_surface_projection",
+        "unit": "cm2",
+        "value": 450.0
+      },
+      "id": "damage-staged-impact",
+      "region": [
+        [
+          120.0,
+          90.0
+        ],
+        [
+          145.0,
+          90.0
+        ],
+        [
+          145.0,
+          108.0
+        ],
+        [
+          120.0,
+          108.0
+        ]
+      ],
+      "surface": {
+        "id": "b_north",
+        "kind": "wall"
+      }
+    }
+  ],
+  "floor_id": "roomplan_two_room",
+  "openings": [
+    {
+      "confidence": 0.95,
+      "connects_room_ids": [
+        "room_a",
+        "room_b"
+      ],
+      "height": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:door_ab"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 211.0,
+          "low": 209.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 210.0
+      },
+      "id": "door_ab",
+      "kind": "door",
+      "offset_along_wall": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:door_ab"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 151.0,
+          "low": 149.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 150.0
+      },
+      "wall_id": "a_east",
+      "width": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:door_ab"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 81.0,
+          "low": 79.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 80.0
+      }
+    }
+  ],
+  "origin": {
+    "frame": "roomplan-world-xz",
+    "up": [
+      0,
+      1,
+      0
+    ]
+  },
+  "provenance": {
+    "gravity_source": "device",
+    "inputs": [
+      "manifest.yaml",
+      "damage_observations.json",
+      "lidar/roomplan.json"
+    ],
+    "notes": "Metric RoomPlan surfaces projected from world x-z; T9 snaps shared openings. Claims agent: mode=fallback provider=deterministic-rules tool_calls=7.",
+    "pipeline": "cozmo-floorplan/roomplan-json-v1+plane-anchored-stitch",
+    "scale_source": "lidar",
+    "tier": "lidar"
+  },
+  "rooms": [
+    {
+      "area": {
+        "evidence_refs": [
+          "lidar/roomplan.json"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 122400.0,
+          "low": 117600.0
+        },
+        "method": "roomplan_polygon",
+        "unit": "cm2",
+        "value": 120000.0
+      },
+      "ceiling_height": {
+        "evidence_refs": [
+          "lidar/roomplan.json"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 251.0,
+          "low": 249.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 250.0
+      },
+      "confidence": 0.95,
+      "id": "room_a",
+      "label": "Room A",
+      "polygon": [
+        [
+          400.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          300.0
+        ],
+        [
+          400.0,
+          300.0
+        ]
+      ]
+    },
+    {
+      "area": {
+        "evidence_refs": [
+          "lidar/roomplan.json"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 99960.0,
+          "low": 96040.0
+        },
+        "method": "roomplan_polygon",
+        "unit": "cm2",
+        "value": 98000.0
+      },
+      "ceiling_height": {
+        "evidence_refs": [
+          "lidar/roomplan.json"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 251.0,
+          "low": 249.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 250.0
+      },
+      "confidence": 0.95,
+      "id": "room_b",
+      "label": "Room B",
+      "polygon": [
+        [
+          750.0,
+          10.0
+        ],
+        [
+          400.0,
+          10.0
+        ],
+        [
+          400.0,
+          290.0
+        ],
+        [
+          750.0,
+          290.0
+        ]
+      ]
+    }
+  ],
+  "scope": [
+    {
+      "action": "remove affected material",
+      "concealed_flag_ids": [
+        "concealed-damage-staged-water-stain"
+      ],
+      "damage_ids": [
+        "damage-staged-water-stain"
+      ],
+      "id": "scope-damage-staged-water-stain",
+      "notes": "Quantity copied from the metric damage observation by tool execution.",
+      "quantity": {
+        "evidence_refs": [
+          "synthetic://staged-water-stain-mask"
+        ],
+        "interval": {
+          "confidence": 0.9,
+          "high": 2070.0,
+          "low": 1530.0
+        },
+        "method": "synthetic_surface_projection",
+        "unit": "cm2",
+        "value": 1800.0
+      },
+      "quantity_source": "damage_extent",
+      "surface": {
+        "id": "a_north",
+        "kind": "wall"
+      }
+    },
+    {
+      "action": "repair affected material",
+      "concealed_flag_ids": [],
+      "damage_ids": [
+        "damage-staged-impact"
+      ],
+      "id": "scope-damage-staged-impact",
+      "notes": "Quantity copied from the metric damage observation by tool execution.",
+      "quantity": {
+        "evidence_refs": [
+          "synthetic://staged-impact-mask"
+        ],
+        "interval": {
+          "confidence": 0.9,
+          "high": 540.0,
+          "low": 360.0
+        },
+        "method": "synthetic_surface_projection",
+        "unit": "cm2",
+        "value": 450.0
+      },
+      "quantity_source": "damage_extent",
+      "surface": {
+        "id": "b_north",
+        "kind": "wall"
+      }
+    }
+  ],
+  "status": "partial",
+  "stitch": {
+    "drift_correction": {
+      "enabled": true,
+      "method": "plane_anchored",
+      "notes": "Plane-anchored opening snap: fix the first room and rigidly align each reachable neighbor so shared door/window frames coincide. Ablate with --no-drift-correction.",
+      "residual_after": {
+        "evidence_refs": [
+          "stitch:opening-gap"
+        ],
+        "interval": {
+          "confidence": 0.8,
+          "high": 2.5,
+          "low": -2.5
+        },
+        "method": "derived_roomplan_transform",
+        "unit": "cm",
+        "value": 0.0
+      },
+      "residual_before": {
+        "evidence_refs": [
+          "stitch:opening-gap"
+        ],
+        "interval": {
+          "confidence": 0.8,
+          "high": 2.5,
+          "low": -2.5
+        },
+        "method": "derived_roomplan_transform",
+        "unit": "cm",
+        "value": 0.0
+      }
+    },
+    "edges": [
+      {
+        "dtheta": {
+          "evidence_refs": [
+            "opening:door_ab"
+          ],
+          "interval": {
+            "confidence": 0.8,
+            "high": 1.0,
+            "low": -1.0
+          },
+          "method": "derived_roomplan_transform",
+          "unit": "deg",
+          "value": 0.0
+        },
+        "dx": {
+          "evidence_refs": [
+            "opening:door_ab"
+          ],
+          "interval": {
+            "confidence": 0.8,
+            "high": 377.5,
+            "low": 372.5
+          },
+          "method": "derived_roomplan_transform",
+          "unit": "cm",
+          "value": 375.0
+        },
+        "dy": {
+          "evidence_refs": [
+            "opening:door_ab"
+          ],
+          "interval": {
+            "confidence": 0.8,
+            "high": 2.5,
+            "low": -2.5
+          },
+          "method": "derived_roomplan_transform",
+          "unit": "cm",
+          "value": 0.0
+        },
+        "left_room": "room_a",
+        "residual": {
+          "evidence_refs": [
+            "opening:door_ab"
+          ],
+          "interval": {
+            "confidence": 0.8,
+            "high": 2.5,
+            "low": -2.5
+          },
+          "method": "derived_roomplan_transform",
+          "unit": "cm",
+          "value": 0.0
+        },
+        "right_room": "room_b",
+        "via": "door_ab"
+      }
+    ]
+  },
+  "units": "cm",
+  "version": "0.2.0",
+  "walls": [
+    {
+      "a": [
+        0.0,
+        0.0
+      ],
+      "b": [
+        400.0,
+        0.0
+      ],
+      "confidence": 0.95,
+      "id": "a_south",
+      "length": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:a_south"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 401.0,
+          "low": 399.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 400.0
+      },
+      "room_ids": [
+        "room_a"
+      ],
+      "thickness": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:a_south"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 11.0,
+          "low": 9.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 10.0
+      }
+    },
+    {
+      "a": [
+        400.0,
+        0.0
+      ],
+      "b": [
+        400.0,
+        300.0
+      ],
+      "confidence": 0.95,
+      "id": "a_east",
+      "length": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:a_east"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 301.0,
+          "low": 299.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 300.0
+      },
+      "room_ids": [
+        "room_a",
+        "room_b"
+      ],
+      "thickness": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:a_east"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 11.0,
+          "low": 9.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 10.0
+      }
+    },
+    {
+      "a": [
+        400.0,
+        300.0
+      ],
+      "b": [
+        0.0,
+        300.0
+      ],
+      "confidence": 0.95,
+      "id": "a_north",
+      "length": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:a_north"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 401.0,
+          "low": 399.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 400.0
+      },
+      "room_ids": [
+        "room_a"
+      ],
+      "thickness": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:a_north"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 11.0,
+          "low": 9.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 10.0
+      }
+    },
+    {
+      "a": [
+        0.0,
+        300.0
+      ],
+      "b": [
+        0.0,
+        0.0
+      ],
+      "confidence": 0.95,
+      "id": "a_west",
+      "length": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:a_west"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 301.0,
+          "low": 299.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 300.0
+      },
+      "room_ids": [
+        "room_a"
+      ],
+      "thickness": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:a_west"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 11.0,
+          "low": 9.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 10.0
+      }
+    },
+    {
+      "a": [
+        400.0,
+        10.0
+      ],
+      "b": [
+        750.0,
+        10.0
+      ],
+      "confidence": 0.95,
+      "id": "b_south",
+      "length": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:b_south"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 351.0,
+          "low": 349.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 350.0
+      },
+      "room_ids": [
+        "room_b"
+      ],
+      "thickness": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:b_south"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 11.0,
+          "low": 9.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 10.0
+      }
+    },
+    {
+      "a": [
+        750.0,
+        10.0
+      ],
+      "b": [
+        750.0,
+        290.0
+      ],
+      "confidence": 0.95,
+      "id": "b_east",
+      "length": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:b_east"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 281.0,
+          "low": 279.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 280.0
+      },
+      "room_ids": [
+        "room_b"
+      ],
+      "thickness": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:b_east"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 11.0,
+          "low": 9.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 10.0
+      }
+    },
+    {
+      "a": [
+        750.0,
+        290.0
+      ],
+      "b": [
+        400.0,
+        290.0
+      ],
+      "confidence": 0.95,
+      "id": "b_north",
+      "length": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:b_north"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 351.0,
+          "low": 349.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 350.0
+      },
+      "room_ids": [
+        "room_b"
+      ],
+      "thickness": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:b_north"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 11.0,
+          "low": 9.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 10.0
+      }
+    },
+    {
+      "a": [
+        400.0,
+        290.0
+      ],
+      "b": [
+        400.0,
+        10.0
+      ],
+      "confidence": 0.95,
+      "id": "b_west",
+      "length": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:b_west"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 281.0,
+          "low": 279.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 280.0
+      },
+      "room_ids": [
+        "room_b"
+      ],
+      "thickness": {
+        "evidence_refs": [
+          "lidar/roomplan.json#surface:b_west"
+        ],
+        "interval": {
+          "confidence": 0.95,
+          "high": 11.0,
+          "low": 9.0
+        },
+        "method": "roomplan_surface",
+        "unit": "cm",
+        "value": 10.0
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "code": "agent_fallback",
+      "message": "Agent mode requested deterministic fallback"
+    }
+  ]
+}

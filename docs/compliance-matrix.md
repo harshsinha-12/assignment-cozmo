@@ -26,7 +26,7 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R18 | Drift ablation | `run` + `--no-drift-correction` + `eval --ablation-off` | corrected and poses-as-is artifacts, residuals, and eval gate pass on synthetic drift; real capture pending | partial |
 | R19 | Photo-tier whole-property stitch ±8% | `eval/evaluator.py` | adjacency, overlap, footprint, and wall gates implemented; photos pending | partial |
 | R20 | Head-to-head vs incumbent, 2 rooms, LiDAR | `eval --incumbent` | shared-dimension win-rate implemented; two-room exports pending | partial |
-| R21 | Fix loop: declaration, before, after, diff | `docs/fix-loop.md` | bundle | missing |
+| R21 | Fix loop: declaration, before, after, diff | `docs/fix-loop.md` + `data/fix-loop/` | checksum-locked declaration/before/eval/ablation complete; shipped after and diff pending | partial |
 | R22 | README 15 min clean machine | `README.md` | — | partial |
 | R23 | Reproduction bundle | `Makefile` + caches | regenerable numbers | missing |
 | R24 | Technical report ≤ 6 pages | `docs/writeup.md` | PDF or md | missing |

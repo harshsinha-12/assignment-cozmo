@@ -1,0 +1,113 @@
+{
+  "gates": [
+    {
+      "detail": "A partial or failed job is counted in yield and cannot pass the benchmark row.",
+      "metrics": {
+        "prediction_status": "partial"
+      },
+      "name": "pipeline_yield",
+      "passed": false,
+      "status": "fail",
+      "threshold": "prediction status must be ok"
+    },
+    {
+      "detail": "Unmatched truth openings and unmatched predictions are scored as failures.",
+      "metrics": {
+        "accurate_count": 1,
+        "matched_count": 1,
+        "median_error_cm": 0.0,
+        "p95_error_cm": 0.0,
+        "prediction_count": 1,
+        "success_rate": 1.0,
+        "truth_count": 1
+      },
+      "name": "opening_widths",
+      "passed": true,
+      "status": "pass",
+      "threshold": "absolute width error <= 2 cm on >= 85%; misses and phantoms count"
+    },
+    {
+      "detail": "Accuracy and repeat spread are reported separately to expose bias versus instability.",
+      "metrics": {
+        "matched_rooms": 2,
+        "max_error_cm": 0.0,
+        "max_repeat_spread_cm": null,
+        "missed_rooms": 0
+      },
+      "name": "ceiling_height",
+      "passed": true,
+      "status": "pass",
+      "threshold": "error <= 1.5 cm per room; repeat spread <= 1 cm when supplied"
+    },
+    {
+      "detail": "Pass --repeat with a second capture of the same room.",
+      "metrics": {},
+      "name": "repeatability",
+      "passed": false,
+      "status": "missing_evidence",
+      "threshold": "per-wall spread <= max(1 cm, 0.5% of wall length)"
+    },
+    {
+      "detail": "This gate proves the ablation exists; downstream reports must also interpret its delta.",
+      "metrics": {
+        "absolute_footprint_delta_cm2": 0.0,
+        "footprint_off_cm2": 218000.0,
+        "footprint_on_cm2": 218000.0,
+        "off_method": "none",
+        "on_method": "plane_anchored"
+      },
+      "name": "drift_accountability",
+      "passed": true,
+      "status": "pass",
+      "threshold": "correction enabled plus a supplied correction-off ablation"
+    },
+    {
+      "detail": "This gate applies only to photo-tier predictions.",
+      "metrics": {},
+      "name": "photo_whole_property_stitch",
+      "passed": null,
+      "status": "not_applicable",
+      "threshold": "correct adjacency, no room overlap, and footprint relative error <= 8%"
+    },
+    {
+      "detail": "The official prompt does not give this percentage gate for tier 'lidar'.",
+      "metrics": {},
+      "name": "tier_wall_accuracy",
+      "passed": null,
+      "status": "not_applicable",
+      "threshold": "photos <= 8%; video <= 3% relative wall-length error"
+    },
+    {
+      "detail": "Calibration is scored at every tier; this policy is explicit until a published method is supplied.",
+      "metrics": {
+        "count": 15,
+        "coverage": 1.0,
+        "covered": 15,
+        "mean_declared_confidence": 0.95
+      },
+      "name": "interval_calibration",
+      "passed": true,
+      "status": "pass",
+      "threshold": "empirical coverage must not trail mean declared confidence by more than 5% (explicit internal policy)"
+    },
+    {
+      "detail": "Pass --incumbent with the normalized Polycam or magicplan FloorPlan export.",
+      "metrics": {},
+      "name": "head_to_head",
+      "passed": false,
+      "status": "missing_evidence",
+      "threshold": "beat or tie incumbent error on >= 70% shared dimensions"
+    }
+  ],
+  "passed": false,
+  "prediction_status": "partial",
+  "summary": {
+    "area_median_relative_error": 0.0,
+    "opening_median_error_cm": 0.0,
+    "wall_count": 8,
+    "wall_median_error_cm": 0.0,
+    "wall_p95_error_cm": 0.0
+  },
+  "tier": "lidar",
+  "version": "0.1.0"
+}

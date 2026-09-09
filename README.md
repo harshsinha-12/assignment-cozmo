@@ -76,6 +76,8 @@ Video jobs: put one MP4/MOV in `video/` (`docs/formats/video-job.md`). The CLI s
 
 Photo jobs: put 2–8 decodable images per room under `photos/<room_id>/` (`docs/formats/photo-job.md`). Ingest is ready; metric SfM, adjacency, and scale remain capture-dependent.
 
+The fix-loop baseline is frozen under `data/fix-loop/` and verified with `PYTHONPATH=src python3 -m cozmo_floorplan.fix_loop.verify data/fix-loop`. Its declaration and predicted fix are in `docs/fix-loop.md`; the after stage remains intentionally unshipped.
+
 ## Design in one paragraph
 
 One FloorPlan IR for photos, video, and LiDAR. One command emits JSON + SVG. Centimetres come from geometry. An **LLM agent with tools** fills damage, concealed-damage rules, and scope (disclosed public API + fallback). Eval reports official gates in centimetres.
