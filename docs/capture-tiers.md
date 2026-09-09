@@ -92,8 +92,12 @@ LiDAR JSON → IR → SVG → eval. Everything else reuses extract + stitch.
 
 Video: frames are sampled from `video/*.mp4` (`docs/formats/video-job.md`).
 Scale-free segmented VO and strict optional metric-pose alignment are
-implemented. A calibrated sidecar v1.1 can now produce filtered sparse metric
-points and diagnostic plane bands only inside accepted aligned segments, but
-room extraction is not; uncalibrated walkthroughs do not emit centimetres.
+implemented. A calibrated sidecar v1.1 can produce filtered sparse metric
+points only inside accepted aligned segments; v1.2 adds the output scale/shared
+frame contract. Complete floor/ceiling and
+camera-bracketing wall support now converts to a conservative interval-bearing
+room, while incomplete surfaces are refused. Openings, shared-room constraints,
+and real interval calibration remain; uncalibrated walkthroughs do not emit
+centimetres.
 
 Photos: per-room folders and 2–8 decodable images per room are validated, and geometric overlap connectivity is measured (`docs/formats/photo-job.md`). The current capture fails that gate; metric SfM, adjacency inference, and calibrated scale remain. No invented centimetres are emitted.

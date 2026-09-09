@@ -1,9 +1,16 @@
-"""Video-tier adapter: ingest walkthroughs honestly until metric VO exists."""
+"""Video-tier adapter from walkthrough evidence to conservative metric rooms."""
+
+import numpy as np
 
 from cozmo_floorplan.errors import ReconstructionError
 from cozmo_floorplan.io.job import Job
-from cozmo_floorplan.io.video import find_pose_sidecar, find_video_files, sample_video
-from cozmo_floorplan.io.video_poses import load_metric_pose_sidecar
+from cozmo_floorplan.io.video import (
+    SampledVideo,
+    find_pose_sidecar,
+    find_video_files,
+    sample_video,
+)
+from cozmo_floorplan.io.video_poses import MetricPoseSidecar, load_metric_pose_sidecar
 from cozmo_floorplan.recon.video_config import (
     DEFAULT_VIDEO_INGEST,
     DEFAULT_VIDEO_TRACKING,
@@ -12,15 +19,20 @@ from cozmo_floorplan.recon.video_config import (
     VideoTrackingConfig,
 )
 from cozmo_floorplan.recon.video_tracks import analyze_video_tracks
+from cozmo_floorplan.recon.video_floorplan import (
+    VideoRoomReconstruction,
+    build_video_floorplan,
+)
 from cozmo_floorplan.recon.video_pose_alignment import (
     MetricSegmentAlignment,
     align_trajectory_to_metric_poses,
 )
 from cozmo_floorplan.recon.video_trajectory import recover_scale_free_trajectory
+from cozmo_floorplan.recon.video_trajectory import VideoTrajectoryDiagnostics
+from cozmo_floorplan.recon.video_rooms import fit_video_room_candidate
 from cozmo_floorplan.recon.video_triangulation import (
     triangulate_aligned_video_segments,
 )
-from cozmo_floorplan.recon.video_surfaces import diagnose_video_planes
 
 
 def reconstruct_video(
@@ -41,6 +53,8 @@ def reconstruct_video(
 
     summaries: list[str] = []
     rejected: list[str] = []
+    geometry_rejections: list[str] = []
+    reconstructions: list[VideoRoomReconstruction] = []
     for source in media:
         try:
             sampled = sample_video(source, config=config)
@@ -118,12 +132,38 @@ def reconstruct_video(
                 if cloud is None:
                     alignment_note += ", triangulation=not-calibrated"
                 else:
-                    planes = diagnose_video_planes(cloud.points_m)
-                    alignment_note += (
-                        f", triangulation={len(cloud.points_m)} voxels/"
-                        f"{cloud.accepted_pairs}/{cloud.attempted_pairs} pairs, "
-                        f"plane_candidates={len(planes)}"
+                    camera_positions = _accepted_camera_positions(
+                        sampled, trajectory, alignment.segments, metric_sidecar
                     )
+                    try:
+                        room = fit_video_room_candidate(
+                            cloud.points_m, camera_positions
+                        )
+                    except ReconstructionError as exc:
+                        geometry_rejections.append(f"{sampled.identifier}: {exc}")
+                        alignment_note += (
+                            f", triangulation={len(cloud.points_m)} voxels/"
+                            f"{cloud.accepted_pairs}/{cloud.attempted_pairs} pairs, "
+                            "room=not-supported"
+                        )
+                    else:
+                        reconstructions.append(
+                            VideoRoomReconstruction(
+                                source=source,
+                                pose_sidecar=metric_sidecar.source,
+                                world_frame_id=metric_sidecar.world_frame_id or "",
+                                scale_source=metric_sidecar.scale_source or "",
+                                room=room,
+                                sampled_frames=len(sampled.frames),
+                                metric_voxel_count=len(cloud.points_m),
+                                accepted_pair_count=cloud.accepted_pairs,
+                            )
+                        )
+                        alignment_note += (
+                            f", triangulation={len(cloud.points_m)} voxels/"
+                            f"{cloud.accepted_pairs}/{cloud.attempted_pairs} pairs, "
+                            f"room={room.width_m:.2f}x{room.depth_m:.2f}m"
+                        )
         summaries.append(
             f"{sampled.identifier}: {len(sampled.frames)} samples from {relative}, "
             f"{metadata.display_size_px[0]}x{metadata.display_size_px[1]} display, "
@@ -164,13 +204,32 @@ def reconstruct_video(
             ),
             warning_code="insufficient_overlap",
         )
+    if geometry_rejections:
+        raise ReconstructionError(
+            (
+                "Calibrated video evidence did not support a complete room: "
+                f"{'; '.join(geometry_rejections)}. Floor, ceiling, and two "
+                "camera-bracketing wall pairs are required; partial planes are "
+                "not converted to dimensions."
+            ),
+            warning_code="low_confidence",
+        )
+    if len(reconstructions) == len(media):
+        world_frames = {item.world_frame_id for item in reconstructions}
+        if len(world_frames) != 1 or "" in world_frames:
+            raise ReconstructionError(
+                "Calibrated multi-video sidecars must declare the same non-empty "
+                "world_frame_id; unrelated room coordinates will not be overlaid.",
+                warning_code="disconnected_rooms",
+            )
+        return build_video_floorplan(job, tuple(reconstructions))
     raise ReconstructionError(
         (
             f"Sampled {len(media)} room walkthrough(s) at {config.sample_fps:g} Hz "
             f"({'; '.join(summaries)}).{sidecar_warning} "
-            "Video FloorPlan conversion is not implemented yet; centimetres "
-            "will not be emitted until calibrated triangulation and accepted "
-            "room geometry both succeed."
+            "Video FloorPlan conversion requires v1.2 calibrated pose sidecars "
+            "and complete camera-bracketing room surfaces. Centimetres will not "
+            "be inferred from native Camera-app video alone."
         ),
         warning_code="unsupported_tier",
     )
@@ -192,4 +251,27 @@ def _format_alignment_rejections(
     return (
         "|".join(f"{reason}:{count}" for reason, count in sorted(counts.items()))
         or "none"
+    )
+
+
+def _accepted_camera_positions(
+    video: SampledVideo,
+    trajectory: VideoTrajectoryDiagnostics,
+    segments: tuple[MetricSegmentAlignment, ...],
+    sidecar: MetricPoseSidecar,
+) -> np.ndarray:
+    accepted_ids = {item.segment_id for item in segments if item.accepted}
+    source_indices = {
+        video.source_frame_indices[pose.frame_index]
+        for segment in trajectory.segments
+        if segment.segment_id in accepted_ids
+        for pose in segment.poses
+    }
+    return np.asarray(
+        [
+            pose.position_m
+            for pose in sidecar.poses
+            if pose.source_frame_index in source_indices
+        ],
+        dtype=np.float64,
     )

@@ -98,3 +98,34 @@ class VideoSurfaceConfig:
 
 
 DEFAULT_VIDEO_SURFACES = VideoSurfaceConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class VideoRoomConfig:
+    """Conservative room-envelope qualification from sparse metric points."""
+
+    yaw_step_degrees: float = 1.0
+    camera_bracket_quantile: float = 0.10
+    camera_wall_margin_m: float = 0.05
+    camera_level_clearance_m: float = 0.45
+    minimum_room_span_m: float = 1.5
+    maximum_room_span_m: float = 12.0
+    minimum_ceiling_height_m: float = 2.0
+    maximum_ceiling_height_m: float = 4.5
+
+
+DEFAULT_VIDEO_ROOM = VideoRoomConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class VideoOutputConfig:
+    """Uncalibrated interval policy for accepted video room candidates."""
+
+    confidence: float = 0.70
+    minimum_length_half_width_cm: float = 8.0
+    length_relative_half_width: float = 0.05
+    minimum_ceiling_half_width_cm: float = 6.0
+    area_relative_half_width: float = 0.12
+
+
+DEFAULT_VIDEO_OUTPUT = VideoOutputConfig()

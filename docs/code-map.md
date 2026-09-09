@@ -20,7 +20,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/io/job.py` | Reads `manifest.yaml`, checks the tier-specific job directory, and produces immutable normalized job metadata. |
 | `src/cozmo_floorplan/io/photos.py` | Discovers stable per-room image sets, decodes every supported image, and records immutable path/dimension metadata. |
 | `src/cozmo_floorplan/io/video.py` | Discovers every MP4/MOV walkthrough, reads typed container/display metadata, disables backend auto-rotation, and returns bounded display-oriented RGB samples with stable video, source-frame, and timestamp identity. |
-| `src/cozmo_floorplan/io/video_poses.py` | Strictly parses versioned metric camera-to-world sidecars, including metre units, coordinate/timestamp conventions, increasing frame/time keys, finite positions, and unit quaternions. |
+| `src/cozmo_floorplan/io/video_poses.py` | Strictly parses versioned metric camera-to-world sidecars: v1.1 adds display intrinsics/camera axes and v1.2 adds scale source/shared world-frame identity, while all versions validate frame/time keys, positions, and quaternions. |
 | `src/cozmo_floorplan/io/record3d.py` | Validates `.r3d` ZIP members and metadata, indexes matched modalities, and decodes typed RGB/depth/confidence frames. |
 | `src/cozmo_floorplan/io/output.py` | Reusable atomic UTF-8 text and JSON persistence, plus the compatibility `floorplan.json` writer. |
 | `src/cozmo_floorplan/io/artifacts.py` | Validates once, renders in memory, and persists the paired `floorplan.json` and `floorplan.svg` run artifacts. |
@@ -60,15 +60,18 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/recon/photo_overlap.py` | Builds within-room connected components and conservative cross-room connector candidates with named pair-rejection evidence. |
 | `src/cozmo_floorplan/recon/photos.py` | Photo-tier adapter: validates folders, runs the overlap graph, returns actionable `insufficient_overlap`, and refuses metric output until SfM, adjacency, and scale exist. |
 | `docs/formats/photo-job.md` | Public per-room photo job layout and current metric-reconstruction boundary. |
-| `src/cozmo_floorplan/recon/video_config.py` | Sample/rotation/sidecar policy plus immutable feature-gate, scale-free trajectory, metric-pose validation, and alignment thresholds. |
+| `src/cozmo_floorplan/recon/video_config.py` | Immutable video ingest, tracking, trajectory, sidecar alignment, triangulation, surface, room-envelope, and candidate-output policies. |
 | `src/cozmo_floorplan/recon/video_features.py` | Shared bounded ORB extraction, Hamming ratio matching, and seeded fundamental-matrix correspondence utility used by tracking and pose recovery. |
 | `src/cozmo_floorplan/recon/video_tracks.py` | Converts shared correspondences into motion, homography-residual parallax, spatial-coverage, and named track rejection diagnostics. |
 | `src/cozmo_floorplan/recon/video_trajectory.py` | Recovers assumed-intrinsics essential-matrix poses, chains unitless camera steps, and explicitly splits/restarts trajectories across failed edges. |
 | `src/cozmo_floorplan/recon/video_pose_alignment.py` | Fits an orientation-preserving 3D similarity per local trajectory segment using exact source-frame/timestamp matches and rejects sparse, degenerate, or high-RMSE alignments. |
 | `src/cozmo_floorplan/recon/video_triangulation.py` | Triangulates robust correspondences only inside accepted metric segments using v1.1 calibrated projection matrices, then filters depth, reprojection error, ray angle, and voxel duplicates. |
-| `src/cozmo_floorplan/recon/video_surfaces.py` | Finds support-qualified horizontal and vertical coordinate bands in sparse y-up video points; these remain diagnostics until T7g room fitting. |
+| `src/cozmo_floorplan/recon/video_surfaces.py` | Finds support-qualified horizontal and vertical coordinate bands in sparse y-up video points. |
+| `src/cozmo_floorplan/recon/video_rooms.py` | Searches Manhattan yaw and requires floor, ceiling, and two camera-bracketing wall candidates on each planar axis before defining a room envelope. |
+| `src/cozmo_floorplan/recon/video_measurements.py` | Builds interval-bearing video lengths and areas with explicitly uncalibrated candidate-stage uncertainty. |
+| `src/cozmo_floorplan/recon/video_floorplan.py` | Converts accepted calibrated video room evidence into schema-valid partial FloorPlan rooms/walls while enforcing one shared sidecar world frame and inventing no openings. |
 | `src/cozmo_floorplan/utils/point_clouds.py` | Provides validated deterministic metric voxel centroids for sparse reconstruction outputs. |
-| `src/cozmo_floorplan/recon/video.py` | Video-tier adapter: samples every walkthrough, validates named metric sidecars, runs tracking/relative poses/alignment, reports audit diagnostics, and refuses geometry until metric evidence and surface extraction both succeed. |
+| `src/cozmo_floorplan/recon/video.py` | Video-tier adapter: samples every walkthrough, runs tracking/alignment/triangulation/room fitting, returns the shared IR only after every metric gate succeeds, and otherwise returns an actionable structured refusal. |
 | `docs/formats/video-job.md` | Public video job layout and metric boundary. |
 
 ## Stitching and drift correction
@@ -169,11 +172,13 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `tests/test_agent.py` | Tests fallback and mocked-live agents, metric ownership, rule validation, transactional rollback, and schema-valid claims output. |
 | `tests/test_agent_status_policy.py` | Unit-tests explicit versus automatic fallback status semantics and ensures fallback never upgrades an already-partial run. |
 | `tests/test_stitch.py` | Tests correction-on/off metadata, ablation artifacts, injected 20 cm opening-gap closure, and the drift eval gate. |
-| `tests/test_video.py` | Tests empty/short jobs, multi-video identity, per-video versus ambiguous sidecars, explicit display rotation, generated-MP4 sampling, and honest metric refusal. |
+| `tests/test_video.py` | Tests empty/short jobs, multi-video identity, per-video versus ambiguous sidecars, display rotation, generated-MP4 sampling, honest refusal, and the mocked calibrated adapter success path. |
 | `tests/test_video_tracks.py` | Tests accepted multi-depth motion, homography-dominant/pure-rotation rejection, and featureless-frame rejection without crashes. |
 | `tests/test_video_trajectory.py` | Tests two-view rotation/translation-direction recovery, explicit graph breaks and local segment restarts, unitless chaining, and the too-short boundary. |
 | `tests/test_video_pose_alignment.py` | Tests strict metric-sidecar parsing, units/frame/quaternion rejection, exact frame/time matching, similarity scale recovery, metric positions, and timestamp-mismatch refusal. |
 | `tests/test_video_triangulation.py` | Tests calibrated world-point recovery, reprojection rejection, v1 calibration and accepted-segment guards, and sparse floor/wall candidate support. |
+| `tests/test_video_rooms.py` | Tests rotated Manhattan room recovery and refusal when complete plane support is absent. |
+| `tests/test_video_floorplan.py` | Tests schema-valid video measurements, shared-world-frame enforcement, and successful video-result routing through the main pipeline. |
 | `tests/test_photo_overlap.py` | Tests connected transformed views, unrelated-room connector rejection, and featureless images remaining explicit disconnected components. |
 | `tests/test_capture_templates.py` | Loads every public handoff template through the production job loader and checks that tiers use separate job ids/directories. |
 | `tests/conftest.py` | Forces offline fallback during tests so local API keys are never used and tests never spend credits. |

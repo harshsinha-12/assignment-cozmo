@@ -120,17 +120,20 @@ thresholds, not the official ±3% wall gate. T7e alignment uses camera positions
 only.
 
 Schema `1.0.0` remains valid for position alignment, but it cannot authorize
-triangulation because it has no calibrated camera model. To enable T7f sparse
-metric triangulation, use schema `1.1.0` and add display-oriented intrinsics plus
-the explicit OpenCV camera-axis convention:
+triangulation because it has no calibrated camera model. Schema `1.1.0` adds
+display-oriented intrinsics and explicit OpenCV camera axes for T7f sparse
+triangulation. T7g FloorPlan output uses schema `1.2.0`, which also identifies
+the metric source and shared world frame:
 
 ```json
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "units": "m",
   "transform": "camera_to_world",
   "coordinate_system": "right_handed_y_up",
   "camera_axes": "x_right_y_down_z_forward",
+  "world_frame_id": "walkthrough-session-a",
+  "scale_source": "arkit_poses",
   "timestamp_origin": "video_start",
   "intrinsics": {
     "fx_px": 1060.2,
@@ -152,7 +155,10 @@ the explicit OpenCV camera-axis convention:
 
 `image_size_px` must match the normalized display frame after container
 rotation. Focal lengths must be positive and the principal point must lie in
-the image. Values must come from the capture API/export, not EXIF guesses.
+the image. `scale_source` must be `arkit_poses` or `arcore_poses`.
+In v1.2, `world_frame_id` identifies the uninterrupted exported tracking frame; every
+room in a multi-video job must name the same frame. Values must come from the
+capture API/export, not EXIF guesses.
 
 ## Sparse metric triangulation
 
@@ -163,9 +169,20 @@ world points, which are then filtered by positive 0.10–20 m depth in both
 cameras, at most 2 px reprojection error, at least 1.5° ray angle, and 3 cm
 voxelization.
 
-The resulting coordinate-band peaks are diagnostic floor/wall candidates only.
-They do not become wall lengths or FloorPlan rooms in T7f. T7g must establish
-complete, camera-bracketing room surfaces before any metric IR is emitted.
+## Conservative room conversion
+
+T7g searches Manhattan yaw and requires supported floor and ceiling bands plus
+two wall bands on each planar axis that bracket the accepted metric camera
+path. Room spans and ceiling height must remain within configured residential
+bounds. Only then does the adapter emit a four-wall room in the shared
+FloorPlan IR.
+
+Measurements include candidate-stage intervals and the output remains
+`partial`: those intervals are not calibrated without tape/laser truth, and the
+video path does not yet detect openings. Multiple video rooms may share their
+exported coordinates only when all sidecars name one `world_frame_id`; even
+then, adjacency and drift correction stay pending until a shared opening is
+proven.
 
 The two current native Camera-app MP4s do not have sidecars, so their diagnostic
 output says `metric_alignment=not-available` and stays structurally unsupported.

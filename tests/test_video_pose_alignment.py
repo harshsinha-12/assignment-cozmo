@@ -105,11 +105,13 @@ def test_metric_sidecar_parses_strict_versioned_camera_poses(tmp_path):
     assert sidecar.intrinsics is None
 
 
-def test_metric_sidecar_v11_requires_display_intrinsics_and_camera_axes(tmp_path):
+def test_metric_sidecar_v12_adds_shared_frame_and_scale_source(tmp_path):
     document = _sidecar_document([(0.0, 0.0, 0.0)] * 4)
     document.update(
-        schema_version="1.1.0",
+        schema_version="1.2.0",
         camera_axes="x_right_y_down_z_forward",
+        world_frame_id="walkthrough-session-a",
+        scale_source="arkit_poses",
         intrinsics={
             "fx_px": 600.0,
             "fy_px": 602.0,
@@ -123,8 +125,10 @@ def test_metric_sidecar_v11_requires_display_intrinsics_and_camera_axes(tmp_path
         _write_sidecar(tmp_path / "calibrated.poses.json", document)
     )
 
-    assert sidecar.schema_version == "1.1.0"
+    assert sidecar.schema_version == "1.2.0"
     assert sidecar.camera_axes == "x_right_y_down_z_forward"
+    assert sidecar.world_frame_id == "walkthrough-session-a"
+    assert sidecar.scale_source == "arkit_poses"
     assert sidecar.intrinsics is not None
     assert sidecar.intrinsics.image_size_px == (640, 480)
 
@@ -140,6 +144,29 @@ def test_metric_sidecar_v11_rejects_missing_intrinsics(tmp_path):
         load_metric_pose_sidecar(
             _write_sidecar(tmp_path / "uncalibrated.poses.json", document)
         )
+
+
+def test_metric_sidecar_v11_remains_valid_without_v12_output_fields(tmp_path):
+    document = _sidecar_document([(0.0, 0.0, 0.0)] * 4)
+    document.update(
+        schema_version="1.1.0",
+        camera_axes="x_right_y_down_z_forward",
+        intrinsics={
+            "fx_px": 600.0,
+            "fy_px": 602.0,
+            "cx_px": 320.0,
+            "cy_px": 240.0,
+            "image_size_px": [640, 480],
+        },
+    )
+
+    sidecar = load_metric_pose_sidecar(
+        _write_sidecar(tmp_path / "v11.poses.json", document)
+    )
+
+    assert sidecar.intrinsics is not None
+    assert sidecar.world_frame_id is None
+    assert sidecar.scale_source is None
 
 
 @pytest.mark.parametrize(

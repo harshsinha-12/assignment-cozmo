@@ -6,10 +6,27 @@ import numpy as np
 import pytest
 
 import cozmo_floorplan.io.video as video_module
+import cozmo_floorplan.recon.video as recon_video_module
 from cozmo_floorplan.errors import ReconstructionError
 from cozmo_floorplan.io.job import load_job
 from cozmo_floorplan.io.video import find_video_files, sample_video, sample_video_frames
+from cozmo_floorplan.io.video_poses import (
+    MetricCameraIntrinsics,
+    MetricCameraPose,
+    MetricPoseSidecar,
+)
 from cozmo_floorplan.pipeline import run_job
+from cozmo_floorplan.recon.video_pose_alignment import (
+    MetricSegmentAlignment,
+    MetricTrajectoryAlignment,
+)
+from cozmo_floorplan.recon.video_rooms import VideoRoomCandidate
+from cozmo_floorplan.recon.video_surfaces import VideoPlaneCandidate
+from cozmo_floorplan.recon.video_trajectory import (
+    RelativeCameraPose,
+    TrajectorySegment,
+    VideoTrajectoryDiagnostics,
+)
 from cozmo_floorplan.recon.video import reconstruct_video
 from cozmo_floorplan.recon.video_config import VideoIngestConfig
 from cozmo_floorplan.utils.images import rotate_quarter_turns_clockwise
@@ -212,6 +229,140 @@ def test_sample_video_applies_container_rotation_explicitly(monkeypatch, tmp_pat
 def test_quarter_turn_rotation_rejects_non_right_angle():
     with pytest.raises(ValueError, match="multiple of 90"):
         rotate_quarter_turns_clockwise(np.zeros((2, 3, 3), dtype=np.uint8), 45)
+
+
+def test_calibrated_supported_room_returns_video_floorplan(monkeypatch, tmp_path):
+    job_dir = tmp_path / "calibrated_video"
+    _write_manifest(job_dir)
+    source = job_dir / "video" / "room-a.mp4"
+    source.touch()
+    sidecar_path = job_dir / "video" / "room-a.poses.json"
+    sidecar_path.touch()
+    frame = np.zeros((48, 80, 3), dtype=np.uint8)
+    sampled = video_module.SampledVideo(
+        identifier="room-a",
+        metadata=video_module.VideoMetadata(
+            source=source,
+            native_size_px=(80, 48),
+            display_size_px=(80, 48),
+            native_fps=10.0,
+            frame_count=3,
+            duration_s=0.2,
+            rotation_degrees_clockwise=0,
+        ),
+        frames=(frame, frame, frame),
+        source_frame_indices=(0, 1, 2),
+        timestamps_s=(0.0, 0.1, 0.2),
+    )
+    relative_poses = tuple(
+        RelativeCameraPose(index, (float(index), 0.0, 0.0), tuple(np.eye(3).ravel()))
+        for index in range(3)
+    )
+    segment = TrajectorySegment(0, relative_poses)
+    trajectory = VideoTrajectoryDiagnostics(
+        identifier="room-a",
+        selected_frames=3,
+        attempted_edges=2,
+        accepted_edges=2,
+        segment_breaks=0,
+        segment_restarts=0,
+        assumed_focal_length_px=72.0,
+        intrinsics_source="test",
+        segments=(segment,),
+        edges=(),
+    )
+    positions = ((-0.3, 1.4, 0.0), (0.0, 1.4, 0.0), (0.3, 1.4, 0.0))
+    poses = tuple(
+        MetricCameraPose(index, index * 0.1, position, (0.0, 0.0, 0.0, 1.0))
+        for index, position in enumerate(positions)
+    )
+    sidecar = MetricPoseSidecar(
+        source=sidecar_path,
+        poses=poses,
+        schema_version="1.2.0",
+        intrinsics=MetricCameraIntrinsics(70.0, 70.0, 40.0, 24.0, (80, 48)),
+        camera_axes="x_right_y_down_z_forward",
+        world_frame_id="session-a",
+        scale_source="arkit_poses",
+    )
+    accepted = MetricSegmentAlignment(0, 3, 0, True, None, 0.3, 0.0, positions)
+    alignment = MetricTrajectoryAlignment(sidecar_path.name, 3, 1, (accepted,))
+    plane = VideoPlaneCandidate("wall", "x", -2.0, 50, 0.1)
+    room = VideoRoomCandidate(
+        floor=VideoPlaneCandidate("horizontal", "y", 0.0, 50, 0.1),
+        ceiling=VideoPlaneCandidate("horizontal", "y", 2.8, 50, 0.1),
+        walls=(plane, plane, plane, plane),
+        yaw_degrees=0.0,
+        polygon_xz_m=((-2.0, -1.5), (2.0, -1.5), (2.0, 1.5), (-2.0, 1.5)),
+        width_m=4.0,
+        depth_m=3.0,
+    )
+    tracks = type(
+        "Tracks",
+        (),
+        {
+            "accepted_for_relative_vo": True,
+            "eligible_pairs": 2,
+            "analyzed_pairs": 2,
+            "median_keypoints": 200.0,
+            "median_matches": 100.0,
+            "median_fundamental_inliers": 80.0,
+            "median_motion_px": 10.0,
+            "median_parallax_px": 2.0,
+            "median_coverage_fraction": 0.2,
+            "rejection_reason_counts": (),
+        },
+    )()
+    cloud = type(
+        "Cloud",
+        (),
+        {
+            "points_m": np.zeros((100, 3)),
+            "accepted_pairs": 2,
+            "attempted_pairs": 2,
+        },
+    )()
+    monkeypatch.setattr(recon_video_module, "find_video_files", lambda _path: [source])
+    monkeypatch.setattr(
+        recon_video_module, "sample_video", lambda *_args, **_kwargs: sampled
+    )
+    monkeypatch.setattr(
+        recon_video_module, "find_pose_sidecar", lambda *_args, **_kwargs: sidecar_path
+    )
+    monkeypatch.setattr(
+        recon_video_module, "load_metric_pose_sidecar", lambda _path: sidecar
+    )
+    monkeypatch.setattr(
+        recon_video_module, "analyze_video_tracks", lambda *_args, **_kwargs: tracks
+    )
+    monkeypatch.setattr(
+        recon_video_module,
+        "recover_scale_free_trajectory",
+        lambda *_args, **_kwargs: trajectory,
+    )
+    monkeypatch.setattr(
+        recon_video_module,
+        "align_trajectory_to_metric_poses",
+        lambda *_args, **_kwargs: alignment,
+    )
+    monkeypatch.setattr(
+        recon_video_module,
+        "triangulate_aligned_video_segments",
+        lambda *_args, **_kwargs: cloud,
+    )
+    monkeypatch.setattr(
+        recon_video_module, "fit_video_room_candidate", lambda *_args, **_kwargs: room
+    )
+
+    document = reconstruct_video(
+        load_job(job_dir),
+        config=VideoIngestConfig(min_frames=3),
+    )
+
+    assert document["status"] == "partial"
+    assert document["provenance"]["tier"] == "video"
+    assert document["rooms"][0]["id"] == "room-a"
+    assert len(document["walls"]) == 4
 
 
 def test_malformed_metric_pose_sidecar_fails_structurally(tmp_path):

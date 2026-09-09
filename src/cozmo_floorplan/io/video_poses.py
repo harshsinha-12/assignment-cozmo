@@ -45,6 +45,8 @@ class MetricPoseSidecar:
     schema_version: str = "1.0.0"
     intrinsics: MetricCameraIntrinsics | None = None
     camera_axes: str | None = None
+    world_frame_id: str | None = None
+    scale_source: str | None = None
     units: str = "m"
     transform: str = "camera_to_world"
     coordinate_system: str = "right_handed_y_up"
@@ -67,10 +69,10 @@ def load_metric_pose_sidecar(
     if not isinstance(document, dict):
         raise ValueError(f"Metric pose sidecar {path.name} must be a JSON object")
     schema_version = document.get("schema_version")
-    if schema_version not in {"1.0.0", "1.1.0"}:
+    if schema_version not in {"1.0.0", "1.1.0", "1.2.0"}:
         raise ValueError(
             f"Metric pose sidecar {path.name} requires schema_version='1.0.0' "
-            "or '1.1.0'"
+            "through '1.2.0'"
         )
     expected = {
         "units": "m",
@@ -105,26 +107,44 @@ def load_metric_pose_sidecar(
         )
     intrinsics = None
     camera_axes = None
-    if schema_version == "1.1.0":
+    world_frame_id = None
+    scale_source = None
+    if schema_version in {"1.1.0", "1.2.0"}:
         camera_axes = document.get("camera_axes")
         if camera_axes != "x_right_y_down_z_forward":
             raise ValueError(
                 f"Metric pose sidecar {path.name} requires "
-                "camera_axes='x_right_y_down_z_forward' for schema 1.1.0"
+                "camera_axes='x_right_y_down_z_forward' for schema 1.1.0+"
             )
         intrinsics = _parse_intrinsics(document.get("intrinsics"), path.name)
+    if schema_version == "1.2.0":
+        world_frame_id = document.get("world_frame_id")
+        if not isinstance(world_frame_id, str) or not world_frame_id.strip():
+            raise ValueError(
+                f"Metric pose sidecar {path.name} requires a non-empty "
+                "world_frame_id for schema 1.2.0"
+            )
+        world_frame_id = world_frame_id.strip()
+        scale_source = document.get("scale_source")
+        if scale_source not in {"arkit_poses", "arcore_poses"}:
+            raise ValueError(
+                f"Metric pose sidecar {path.name} requires scale_source="
+                "'arkit_poses' or 'arcore_poses' for schema 1.2.0"
+            )
     return MetricPoseSidecar(
         source=path,
         poses=poses,
         schema_version=schema_version,
         intrinsics=intrinsics,
         camera_axes=camera_axes,
+        world_frame_id=world_frame_id,
+        scale_source=scale_source,
     )
 
 
 def _parse_intrinsics(value: object, filename: str) -> MetricCameraIntrinsics:
     if not isinstance(value, dict):
-        raise ValueError(f"{filename} intrinsics must be an object for schema 1.1.0")
+        raise ValueError(f"{filename} intrinsics must be an object for schema 1.1.0+")
     fx = _finite_number(value.get("fx_px"), f"{filename} intrinsics.fx_px")
     fy = _finite_number(value.get("fy_px"), f"{filename} intrinsics.fy_px")
     cx = _finite_number(value.get("cx_px"), f"{filename} intrinsics.cx_px")

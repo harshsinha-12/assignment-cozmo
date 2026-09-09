@@ -45,7 +45,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 ## Current status
 
-**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, multi-video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, and one-command synthetic reproduction work. Video has tracked/segmented pose paths; photos now have deterministic within/cross-room overlap graphs; real Record3D emits partial metric geometry. Video/photo surface extraction, cross-scan registration, scale calibration, and scored accuracy remain.**
+**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, multi-video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, and one-command synthetic reproduction work. Calibrated video sidecars can produce conservative partial room geometry; photos have deterministic within/cross-room overlap graphs; real Record3D emits partial metric geometry. Video openings/shared constraints, photo SfM, cross-scan registration, calibration, and scored accuracy remain.**
 
 See [`roadmap.md`](roadmap.md).
 
@@ -87,7 +87,7 @@ The optional `damage_observations.json` contract supplies surface-mapped metric 
 
 Evaluate the pair with `python -m cozmo_floorplan eval --pred OUT/floorplan.json --truth TRUTH --ablation-off OUT/floorplan.ablation-off.json --out OUT`. Missing repeat, real-capture, and incumbent evidence stays visibly red.
 
-Video jobs: put one MP4/MOV per room in `video/` (`docs/formats/video-job.md`). The CLI samples every file, preserves source-frame/timestamp identity, evaluates geometric tracks, and recovers segmented unitless poses. A versioned per-video sidecar can provide validated metric camera positions through exact frame/time matching; native MP4s still exit structurally rather than guessing centimetres.
+Video jobs: put one MP4/MOV per room in `video/` (`docs/formats/video-job.md`). The CLI samples every file, preserves source-frame/timestamp identity, evaluates geometric tracks, and recovers segmented unitless poses. A calibrated v1.1 sidecar enables sparse metric points; v1.2 also identifies the metric/shared frame so complete floor/ceiling and camera-bracketing wall evidence can emit a conservative interval-bearing room. Native MP4s still exit structurally rather than guessing centimetres.
 
 Photo jobs: put 2–8 decodable images per room under `photos/<room_id>/` (`docs/formats/photo-job.md`). The CLI now measures mutual feature/geometric overlap, requires each room graph to connect, and reports cross-room connector candidates before SfM. Metric reconstruction and scale remain pending.
 

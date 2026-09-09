@@ -13,6 +13,32 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T7g conservative video FloorPlan complete
+
+- Added rotated Manhattan yaw search and strict room qualification: supported
+  floor and ceiling plus two wall bands on each planar axis must bracket the
+  accepted metric camera path. Missing surfaces fail `low_confidence` rather
+  than becoming dimensions.
+- Added backward-compatible calibrated sidecar v1.2 with an explicit `world_frame_id` and
+  `arkit_poses`/`arcore_poses` scale source. Multi-video rooms must share one
+  tracking frame; unrelated coordinates are refused.
+- Added separate room-fitting, video-measurement, and FloorPlan-conversion
+  modules. Accepted geometry emits schema-valid partial rooms/walls with
+  candidate-stage intervals, no invented openings, and full provenance.
+- Fixed main-pipeline video dispatch so a successful adapter document is
+  returned, drift-accounted, and agent-enriched instead of falling through to
+  the generic unsupported result.
+- Added rotated-room recovery, missing-ceiling refusal, backward-compatibility,
+  schema/interval,
+  coordinate-frame, adapter-success, and pipeline-routing tests. All 112 tests,
+  Ruff, touched-file formatting, compileall, synthetic reproduction, private
+  video smoke, and diff checks pass across 113 tests. Repository-wide format check still lists
+  34 untouched pre-existing files; they were intentionally not reformatted.
+- Current Camera-app MP4s remain `unsupported_tier` with zero rooms because
+  they contain no calibrated sidecars. No metric claim was manufactured.
+- Next: T20c one-command final evidence runner; T8c remains blocked on the
+  overlapping photo reshoot.
+
 ## 2026-09-09 — T7f calibrated video triangulation complete
 
 - Added pose-sidecar schema v1.1 with required display-oriented pinhole

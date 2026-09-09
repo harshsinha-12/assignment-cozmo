@@ -173,9 +173,11 @@ def test_segment_triangulation_requires_calibration_and_accepted_alignment(monke
     sidecar = MetricPoseSidecar(
         source=Path("room.poses.json"),
         poses=(LEFT_POSE, RIGHT_POSE),
-        schema_version="1.1.0",
+        schema_version="1.2.0",
         intrinsics=INTRINSICS,
         camera_axes="x_right_y_down_z_forward",
+        world_frame_id="walkthrough-session-a",
+        scale_source="arkit_poses",
     )
     features = FrameFeatures((), None, (640, 480))
     correspondences = PairCorrespondences(

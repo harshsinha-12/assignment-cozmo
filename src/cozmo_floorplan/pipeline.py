@@ -18,7 +18,9 @@ FloorPlan = dict[str, Any]
 def run_job(job_dir: str | Path, *, drift_correction: bool = True) -> FloorPlan:
     """Run one job and return the primary FloorPlan document."""
 
-    document, _ablation = run_job_with_ablation(job_dir, drift_correction=drift_correction)
+    document, _ablation = run_job_with_ablation(
+        job_dir, drift_correction=drift_correction
+    )
     return document
 
 
@@ -33,7 +35,9 @@ def run_job_with_ablation(
     return run_loaded_job(job, drift_correction=drift_correction)
 
 
-def run_loaded_job(job: Job, *, drift_correction: bool = True) -> tuple[FloorPlan, FloorPlan | None]:
+def run_loaded_job(
+    job: Job, *, drift_correction: bool = True
+) -> tuple[FloorPlan, FloorPlan | None]:
     """Dispatch a normalized job to its capture-tier adapter."""
 
     if job.tier == "lidar":
@@ -42,7 +46,11 @@ def run_loaded_job(job: Job, *, drift_correction: bool = True) -> tuple[FloorPla
         except ReconstructionError as exc:
             return _structured_failure(job, exc), None
         ablation_off = apply_drift_correction(raw, enabled=False)
-        corrected = apply_drift_correction(raw, enabled=True) if drift_correction else ablation_off
+        corrected = (
+            apply_drift_correction(raw, enabled=True)
+            if drift_correction
+            else ablation_off
+        )
         primary = enrich_floorplan(job, corrected)
         if drift_correction and corrected.get("stitch"):
             return primary, ablation_off
@@ -50,9 +58,19 @@ def run_loaded_job(job: Job, *, drift_correction: bool = True) -> tuple[FloorPla
 
     if job.tier == "video":
         try:
-            reconstruct_video(job)
+            raw = reconstruct_video(job)
         except ReconstructionError as exc:
             return _structured_failure(job, exc), None
+        ablation_off = apply_drift_correction(raw, enabled=False)
+        corrected = (
+            apply_drift_correction(raw, enabled=True)
+            if drift_correction
+            else ablation_off
+        )
+        primary = enrich_floorplan(job, corrected)
+        if drift_correction and corrected.get("stitch"):
+            return primary, ablation_off
+        return primary, None
 
     if job.tier == "photos":
         try:
