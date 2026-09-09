@@ -26,11 +26,25 @@ class MetricCameraPose:
 
 
 @dataclass(frozen=True, slots=True)
+class MetricCameraIntrinsics:
+    """Display-oriented pinhole calibration shared by one video sidecar."""
+
+    fx_px: float
+    fy_px: float
+    cx_px: float
+    cy_px: float
+    image_size_px: tuple[int, int]
+
+
+@dataclass(frozen=True, slots=True)
 class MetricPoseSidecar:
     """Validated metric camera poses in the documented coordinate contract."""
 
     source: Path
     poses: tuple[MetricCameraPose, ...]
+    schema_version: str = "1.0.0"
+    intrinsics: MetricCameraIntrinsics | None = None
+    camera_axes: str | None = None
     units: str = "m"
     transform: str = "camera_to_world"
     coordinate_system: str = "right_handed_y_up"
@@ -52,8 +66,13 @@ def load_metric_pose_sidecar(
         ) from exc
     if not isinstance(document, dict):
         raise ValueError(f"Metric pose sidecar {path.name} must be a JSON object")
+    schema_version = document.get("schema_version")
+    if schema_version not in {"1.0.0", "1.1.0"}:
+        raise ValueError(
+            f"Metric pose sidecar {path.name} requires schema_version='1.0.0' "
+            "or '1.1.0'"
+        )
     expected = {
-        "schema_version": "1.0.0",
         "units": "m",
         "transform": "camera_to_world",
         "coordinate_system": "right_handed_y_up",
@@ -84,7 +103,48 @@ def load_metric_pose_sidecar(
         raise ValueError(
             f"Metric pose sidecar {path.name} timestamps must be unique and increasing"
         )
-    return MetricPoseSidecar(source=path, poses=poses)
+    intrinsics = None
+    camera_axes = None
+    if schema_version == "1.1.0":
+        camera_axes = document.get("camera_axes")
+        if camera_axes != "x_right_y_down_z_forward":
+            raise ValueError(
+                f"Metric pose sidecar {path.name} requires "
+                "camera_axes='x_right_y_down_z_forward' for schema 1.1.0"
+            )
+        intrinsics = _parse_intrinsics(document.get("intrinsics"), path.name)
+    return MetricPoseSidecar(
+        source=path,
+        poses=poses,
+        schema_version=schema_version,
+        intrinsics=intrinsics,
+        camera_axes=camera_axes,
+    )
+
+
+def _parse_intrinsics(value: object, filename: str) -> MetricCameraIntrinsics:
+    if not isinstance(value, dict):
+        raise ValueError(f"{filename} intrinsics must be an object for schema 1.1.0")
+    fx = _finite_number(value.get("fx_px"), f"{filename} intrinsics.fx_px")
+    fy = _finite_number(value.get("fy_px"), f"{filename} intrinsics.fy_px")
+    cx = _finite_number(value.get("cx_px"), f"{filename} intrinsics.cx_px")
+    cy = _finite_number(value.get("cy_px"), f"{filename} intrinsics.cy_px")
+    raw_size = value.get("image_size_px")
+    if (
+        not isinstance(raw_size, list)
+        or len(raw_size) != 2
+        or any(isinstance(item, bool) or not isinstance(item, int) for item in raw_size)
+        or any(item <= 0 for item in raw_size)
+    ):
+        raise ValueError(f"{filename} intrinsics.image_size_px must be [width, height]")
+    width, height = raw_size
+    if fx <= 0 or fy <= 0:
+        raise ValueError(f"{filename} intrinsics focal lengths must be positive")
+    if not 0 <= cx <= width or not 0 <= cy <= height:
+        raise ValueError(
+            f"{filename} intrinsics principal point must lie within image_size_px"
+        )
+    return MetricCameraIntrinsics(fx, fy, cx, cy, (width, height))
 
 
 def _parse_pose(

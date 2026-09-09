@@ -68,3 +68,33 @@ class VideoMetricPoseConfig:
 
 
 DEFAULT_VIDEO_METRIC_POSE = VideoMetricPoseConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class VideoTriangulationConfig:
+    """Geometric acceptance policy for calibrated metric video points."""
+
+    timestamp_tolerance_s: float = 0.025
+    minimum_pair_inliers: int = 12
+    maximum_reprojection_error_px: float = 2.0
+    minimum_triangulation_angle_degrees: float = 1.5
+    minimum_depth_m: float = 0.10
+    maximum_depth_m: float = 20.0
+    voxel_size_m: float = 0.03
+
+
+DEFAULT_VIDEO_TRIANGULATION = VideoTriangulationConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class VideoSurfaceConfig:
+    """Support thresholds for sparse axis-aligned plane diagnostics."""
+
+    coordinate_bin_m: float = 0.08
+    minimum_support_points: int = 8
+    minimum_support_fraction: float = 0.04
+    maximum_candidates_per_axis: int = 4
+    minimum_candidate_separation_m: float = 0.35
+
+
+DEFAULT_VIDEO_SURFACES = VideoSurfaceConfig()

@@ -90,6 +90,10 @@ LiDAR JSON → IR → SVG → eval. Everything else reuses extract + stitch.
 
 **Current implementation:** portable RoomPlan JSON v1 → FloorPlan works against `data/fixtures/roomplan_two_room`. T9 plane-anchors shared openings (shared walls stay with the first owner room) and writes a poses-as-is ablation. See `docs/formats/roomplan-json.md`. T6a validates and decodes real Record3D archives; T6b1 builds deterministic metric world clouds; T6b2 detects floor/ceiling levels and four conservative Manhattan wall candidates; T6b3 adds evidence-gated openings and partial FloorPlan conversion (`docs/formats/record3d.md`). Separate archives are not called registered or accurate without connector and tape evidence. USDZ remains unsupported.
 
-Video: frames are sampled from `video/*.mp4` (`docs/formats/video-job.md`). Scale-free segmented VO and strict optional metric-pose alignment are implemented, but room extraction is not; uncalibrated walkthroughs do not emit centimetres.
+Video: frames are sampled from `video/*.mp4` (`docs/formats/video-job.md`).
+Scale-free segmented VO and strict optional metric-pose alignment are
+implemented. A calibrated sidecar v1.1 can now produce filtered sparse metric
+points and diagnostic plane bands only inside accepted aligned segments, but
+room extraction is not; uncalibrated walkthroughs do not emit centimetres.
 
 Photos: per-room folders and 2–8 decodable images per room are validated, and geometric overlap connectivity is measured (`docs/formats/photo-job.md`). The current capture fails that gate; metric SfM, adjacency inference, and calibrated scale remain. No invented centimetres are emitted.

@@ -116,8 +116,56 @@ requires the frame index to exist and its timestamp to agree within 25 ms.
 Each local VO segment needs at least three matched poses and two-dimensional
 trajectory spread. An orientation-preserving 3D similarity is accepted only at
 ≤0.15 m matched-position RMSE. These are conservative internal eligibility
-thresholds, not the official ±3% wall gate. The sidecar rotations are validated
-for the next triangulation stage; T7e alignment uses camera positions only.
+thresholds, not the official ±3% wall gate. T7e alignment uses camera positions
+only.
+
+Schema `1.0.0` remains valid for position alignment, but it cannot authorize
+triangulation because it has no calibrated camera model. To enable T7f sparse
+metric triangulation, use schema `1.1.0` and add display-oriented intrinsics plus
+the explicit OpenCV camera-axis convention:
+
+```json
+{
+  "schema_version": "1.1.0",
+  "units": "m",
+  "transform": "camera_to_world",
+  "coordinate_system": "right_handed_y_up",
+  "camera_axes": "x_right_y_down_z_forward",
+  "timestamp_origin": "video_start",
+  "intrinsics": {
+    "fx_px": 1060.2,
+    "fy_px": 1058.9,
+    "cx_px": 359.5,
+    "cy_px": 639.5,
+    "image_size_px": [720, 1280]
+  },
+  "poses": [
+    {
+      "source_frame_index": 0,
+      "timestamp_s": 0.0,
+      "position_m": [0.0, 1.45, 0.0],
+      "rotation_xyzw": [0.0, 0.0, 0.0, 1.0]
+    }
+  ]
+}
+```
+
+`image_size_px` must match the normalized display frame after container
+rotation. Focal lengths must be positive and the principal point must lie in
+the image. Values must come from the capture API/export, not EXIF guesses.
+
+## Sparse metric triangulation
+
+T7f reuses robust fundamental-matrix inliers only inside a trajectory segment
+whose metric alignment was accepted. Each adjacent frame must also have an
+exact source-frame/timestamp pose. Calibrated projection matrices triangulate
+world points, which are then filtered by positive 0.10–20 m depth in both
+cameras, at most 2 px reprojection error, at least 1.5° ray angle, and 3 cm
+voxelization.
+
+The resulting coordinate-band peaks are diagnostic floor/wall candidates only.
+They do not become wall lengths or FloorPlan rooms in T7f. T7g must establish
+complete, camera-bracketing room surfaces before any metric IR is emitted.
 
 The two current native Camera-app MP4s do not have sidecars, so their diagnostic
 output says `metric_alignment=not-available` and stays structurally unsupported.

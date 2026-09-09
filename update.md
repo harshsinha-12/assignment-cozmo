@@ -13,6 +13,29 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T7f calibrated video triangulation complete
+
+- Added pose-sidecar schema v1.1 with required display-oriented pinhole
+  intrinsics and explicit `x_right_y_down_z_forward` camera axes. Existing v1.0
+  sidecars remain valid for position alignment but cannot authorize metric
+  triangulation.
+- Added calibrated projection/triangulation only inside accepted metric-aligned
+  trajectory segments. Exact source-frame/timestamp poses, positive bounded
+  depth in both cameras, ≤2 px reprojection error, ≥1.5° ray angle, and 3 cm
+  voxelization guard every output point.
+- Added separate sparse surface diagnostics for supported y-up horizontal and
+  vertical coordinate bands. They remain plane evidence, not wall dimensions
+  or FloorPlan rooms.
+- Added synthetic recovery, reprojection-outlier, calibration/accepted-segment,
+  and floor/wall-support regressions. All 106 tests, Ruff, touched formatting,
+  compileall, synthetic reproduction, private two-video smoke, and
+  `git diff --check` pass. The private Camera-app MP4s still report
+  `metric_alignment=not-available`; no centimetres were emitted.
+- Locked the pre-upload sequence in `TASKS.md`: T7g, T8c, T8d, T8e, then T20c.
+  Real accuracy, calibration, and evidence-driven fixes remain dependent on
+  final media and ground truth.
+- Next: stop for review, then T7g conservative video room/FloorPlan conversion.
+
 ## 2026-09-09 — T8b photo overlap graph complete
 
 - Added separate immutable photo-overlap policy, reusable ORB/mutual-match

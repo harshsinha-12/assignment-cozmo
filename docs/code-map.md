@@ -65,6 +65,9 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/recon/video_tracks.py` | Converts shared correspondences into motion, homography-residual parallax, spatial-coverage, and named track rejection diagnostics. |
 | `src/cozmo_floorplan/recon/video_trajectory.py` | Recovers assumed-intrinsics essential-matrix poses, chains unitless camera steps, and explicitly splits/restarts trajectories across failed edges. |
 | `src/cozmo_floorplan/recon/video_pose_alignment.py` | Fits an orientation-preserving 3D similarity per local trajectory segment using exact source-frame/timestamp matches and rejects sparse, degenerate, or high-RMSE alignments. |
+| `src/cozmo_floorplan/recon/video_triangulation.py` | Triangulates robust correspondences only inside accepted metric segments using v1.1 calibrated projection matrices, then filters depth, reprojection error, ray angle, and voxel duplicates. |
+| `src/cozmo_floorplan/recon/video_surfaces.py` | Finds support-qualified horizontal and vertical coordinate bands in sparse y-up video points; these remain diagnostics until T7g room fitting. |
+| `src/cozmo_floorplan/utils/point_clouds.py` | Provides validated deterministic metric voxel centroids for sparse reconstruction outputs. |
 | `src/cozmo_floorplan/recon/video.py` | Video-tier adapter: samples every walkthrough, validates named metric sidecars, runs tracking/relative poses/alignment, reports audit diagnostics, and refuses geometry until metric evidence and surface extraction both succeed. |
 | `docs/formats/video-job.md` | Public video job layout and metric boundary. |
 
@@ -170,6 +173,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `tests/test_video_tracks.py` | Tests accepted multi-depth motion, homography-dominant/pure-rotation rejection, and featureless-frame rejection without crashes. |
 | `tests/test_video_trajectory.py` | Tests two-view rotation/translation-direction recovery, explicit graph breaks and local segment restarts, unitless chaining, and the too-short boundary. |
 | `tests/test_video_pose_alignment.py` | Tests strict metric-sidecar parsing, units/frame/quaternion rejection, exact frame/time matching, similarity scale recovery, metric positions, and timestamp-mismatch refusal. |
+| `tests/test_video_triangulation.py` | Tests calibrated world-point recovery, reprojection rejection, v1 calibration and accepted-segment guards, and sparse floor/wall candidate support. |
 | `tests/test_photo_overlap.py` | Tests connected transformed views, unrelated-room connector rejection, and featureless images remaining explicit disconnected components. |
 | `tests/test_capture_templates.py` | Loads every public handoff template through the production job loader and checks that tiers use separate job ids/directories. |
 | `tests/conftest.py` | Forces offline fallback during tests so local API keys are never used and tests never spend credits. |

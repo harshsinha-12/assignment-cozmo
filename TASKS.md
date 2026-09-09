@@ -76,15 +76,40 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-**T7f:** triangulate sparse metric points only for accepted, sidecar-aligned
-segments, then add diagnostic floor/wall-plane candidates. T8c SfM is now
+**T7g:** convert only sufficiently supported calibrated video planes into
+conservative room geometry and the shared FloorPlan IR. T8c SfM is still
 explicitly blocked on an overlapping photo reshoot; do not loosen T8b thresholds
 to force the current evidence to pass.
+
+### Media-ready freeze sequence
+
+These are the remaining code stages that can be prepared before the final
+benchmark upload. Complete them one reviewable stage at a time; real accuracy
+claims, threshold calibration, and final evidence still wait on T3 media and
+ground truth.
+
+1. **T7f (done)** — Calibrated sidecar-backed sparse metric triangulation and
+   diagnostic floor/wall candidates.
+2. **T7g (todo)** — Convert accepted video surface evidence into conservative
+   room geometry and the shared FloorPlan IR.
+3. **T8c (blocked on photo reshoot)** — Incremental per-room photo SfM after
+   every overlap graph connects.
+4. **T8d (blocked on T8c + scale evidence)** — Photo Manhattan layout, metric
+   scale, and calibrated uncertainty.
+5. **T8e (blocked on connector evidence)** — Cross-room photo registration and
+   connected whole-property stitch.
+6. **T20c (todo)** — One-command final benchmark/evidence runner with explicit
+   pending results when required capture or ground truth is absent.
+
+After these stages, remaining work is expected to be media ingestion, measured
+evaluation/calibration, and evidence-driven fixes rather than planned feature
+scaffolding. Minor fixes after real captures remain normal and allowed.
 
 ---
 
 ## Done
 
+- **2026-09-09 T7f calibrated video triangulation** — Sidecar v1.1 display intrinsics and camera-axis contract, accepted-segment/exact-pose guards, calibrated two-view metric triangulation, depth/reprojection/ray-angle filters, voxelization, sparse floor/wall support diagnostics, and synthetic metric regressions. Schema v1.0 and current native MP4s remain uncalibrated; no wall dimensions emitted.
 - **2026-09-09 T8b photo overlap graph** — Bounded ORB features, mutual matching, seeded homography/fundamental support, spatial-coverage gates, within-room components, conservative cross-room candidates, synthetic graph tests, and measured real-capture refusal. Current rooms have 4/6/6 components and no connector candidate; no metric claim.
 - **2026-09-09 T7e metric pose sidecar/alignment** — Exact sampled source-frame/timestamp identity, strict versioned metre/camera-to-world sidecars, unit-quaternion validation, per-segment 3D similarity alignment, degeneracy/RMSE rejection, and synthetic metric recovery tests. Current MP4s remain unitless because no sidecars exist.
 - **2026-09-09 T7d scale-free video trajectory** — Shared ORB/fundamental correspondences, assumed-intrinsics essential poses, unit-normalized translation directions, explicit segment breaks/restarts, two-view and graph-break tests, and real two-video diagnostics. No metric claim.

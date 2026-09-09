@@ -17,6 +17,10 @@ from cozmo_floorplan.recon.video_pose_alignment import (
     align_trajectory_to_metric_poses,
 )
 from cozmo_floorplan.recon.video_trajectory import recover_scale_free_trajectory
+from cozmo_floorplan.recon.video_triangulation import (
+    triangulate_aligned_video_segments,
+)
+from cozmo_floorplan.recon.video_surfaces import diagnose_video_planes
 
 
 def reconstruct_video(
@@ -104,6 +108,22 @@ def reconstruct_video(
                     f"{len(alignment.segments)} segments, "
                     f"alignment_rejects={rejected_alignments}"
                 )
+                cloud = triangulate_aligned_video_segments(
+                    sampled,
+                    trajectory,
+                    alignment,
+                    metric_sidecar,
+                    tracking_config=tracking_config,
+                )
+                if cloud is None:
+                    alignment_note += ", triangulation=not-calibrated"
+                else:
+                    planes = diagnose_video_planes(cloud.points_m)
+                    alignment_note += (
+                        f", triangulation={len(cloud.points_m)} voxels/"
+                        f"{cloud.accepted_pairs}/{cloud.attempted_pairs} pairs, "
+                        f"plane_candidates={len(planes)}"
+                    )
         summaries.append(
             f"{sampled.identifier}: {len(sampled.frames)} samples from {relative}, "
             f"{metadata.display_size_px[0]}x{metadata.display_size_px[1]} display, "
@@ -148,9 +168,9 @@ def reconstruct_video(
         (
             f"Sampled {len(media)} room walkthrough(s) at {config.sample_fps:g} Hz "
             f"({'; '.join(summaries)}).{sidecar_warning} "
-            "Video room-surface extraction is not implemented yet; centimetres "
-            "will not be emitted until metric pose alignment and geometry both "
-            "succeed."
+            "Video FloorPlan conversion is not implemented yet; centimetres "
+            "will not be emitted until calibrated triangulation and accepted "
+            "room geometry both succeed."
         ),
         warning_code="unsupported_tier",
     )
