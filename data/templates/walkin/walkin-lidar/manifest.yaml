@@ -1,0 +1,8 @@
+job_id: walkin-lidar-holdout
+tier: lidar
+device: replace-me-exact-iphone-pro-model
+capture_tool: Record3D
+capture_format: replace-me-export-format
+rooms:
+  - holdout-room
+notes: Complete original Record3D export of the holdout room, including depth, poses, and intrinsics. Do not mix with data/private/benchmark-lidar or Route 1 RoomPlan jobs.

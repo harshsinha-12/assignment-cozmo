@@ -1,6 +1,6 @@
 # Capture protocol (our benchmark — max score)
 
-This is what **Harsh** shoots for the submission. The walk-in follows `docs/capture-route.md` (stricter, shorter). Shoot richer than the walk-in so eval can pass gates; the pipeline must still work on the walk-in budget (2–8 photos).
+This is what **Harsh** shoots for the submission. The walk-in follows `docs/capture-route.md` (stricter, shorter). Shoot richer than the walk-in so eval can pass gates; the pipeline must still work on the walk-in budget (2–8 photos). A rehearsal on a room **not** in this benchmark lives under `data/private/walkin/` (`docs/walk-in.md`).
 
 Hardware: **iPhone 17 Pro** (LiDAR). Tape or laser everything.
 
@@ -29,7 +29,7 @@ Per room, 8 frames:
 7. Ceiling–wall junction on the longest wall
 8. Damage close-up if this is the staged room; otherwise a second corner/overlap shot
 
-Also keep a **2-photo subset** listed in the manifest so we can crash-test the walk-in floor (2 stills).
+Also keep a **2-photo subset** listed in the manifest so we can crash-test the walk-in floor (2 stills). `make walkin` now builds that subset automatically from the first two stills in the holdout photo job.
 
 ## Video
 

@@ -44,7 +44,7 @@ def fit_video_room_candidate(
     config: VideoRoomConfig = DEFAULT_VIDEO_ROOM,
     surface_config: VideoSurfaceConfig = DEFAULT_VIDEO_SURFACES,
 ) -> VideoRoomCandidate:
-    """Require floor, ceiling, and two camera-bracketing walls on each axis."""
+    """Require floor, ceiling, and walls on both sides of the median camera path."""
 
     _validate(points_m, camera_positions_m, config)
     camera_y = float(np.median(camera_positions_m[:, 1]))
@@ -145,19 +145,16 @@ def _bracketing_pair(
     config: VideoRoomConfig,
 ) -> tuple[VideoPlaneCandidate, VideoPlaneCandidate]:
     candidates = [item for item in planes if item.axis == axis]
-    camera_low, camera_high = np.quantile(
-        camera_values,
-        [config.camera_bracket_quantile, 1.0 - config.camera_bracket_quantile],
-    )
+    camera_center = float(np.median(camera_values))
     low = [
         item
         for item in candidates
-        if item.coordinate_m <= camera_low - config.camera_wall_margin_m
+        if item.coordinate_m <= camera_center - config.camera_wall_margin_m
     ]
     high = [
         item
         for item in candidates
-        if item.coordinate_m >= camera_high + config.camera_wall_margin_m
+        if item.coordinate_m >= camera_center + config.camera_wall_margin_m
     ]
     return _strongest(low, f"{axis}-low wall"), _strongest(high, f"{axis}-high wall")
 

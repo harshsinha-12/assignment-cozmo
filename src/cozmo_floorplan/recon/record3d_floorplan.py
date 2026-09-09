@@ -19,6 +19,7 @@ from cozmo_floorplan.recon.record3d_measurements import (
 )
 from cozmo_floorplan.recon.record3d_openings import Record3DOpeningCandidate
 from cozmo_floorplan.recon.record3d_planes import ManhattanRoomCandidate
+from cozmo_floorplan.recon.record3d_register import OpeningAssociation, connected_room_ids
 from cozmo_floorplan.recon.record3d_uncertainty import Record3DUncertainty
 
 FloorPlan = dict[str, Any]
@@ -41,15 +42,18 @@ def build_record3d_floorplan(
     job: Job,
     reconstructions: tuple[Record3DRoomReconstruction, ...],
     *,
+    associations: tuple[OpeningAssociation, ...] = (),
     config: Record3DOutputConfig = DEFAULT_RECORD3D_OUTPUT,
 ) -> FloorPlan:
-    """Build partial metric geometry without inventing cross-archive adjacency."""
+    """Build partial metric geometry; pair openings only when world-frame evidence exists."""
 
     rooms: list[dict[str, Any]] = []
     walls: list[dict[str, Any]] = []
     openings: list[dict[str, Any]] = []
     evidence_refs: list[str] = []
     audit_notes: list[str] = []
+    room_ids = tuple(reconstruction.source.stem for reconstruction in reconstructions)
+    partners = _opening_partners(room_ids, associations)
     for reconstruction in reconstructions:
         evidence_ref = reconstruction.source.relative_to(job.root).as_posix()
         evidence_refs.append(evidence_ref)
@@ -108,6 +112,7 @@ def build_record3d_floorplan(
                 room_walls,
                 evidence_ref,
                 config,
+                partners=partners.get(room_id, {}),
             )
         )
         audit_notes.append(
@@ -134,17 +139,34 @@ def build_record3d_floorplan(
         }
     ]
     if len(reconstructions) > 1:
-        warnings.append(
-            {
-                "code": "disconnected_rooms",
-                "message": (
-                    "Separate Record3D archives retain their exported world-pose "
-                    "coordinates, but no shared opening association was proven; "
-                    "cross-archive registration remains unverified."
-                ),
-                "refs": evidence_refs,
-            }
-        )
+        isolated = sum(1 for component in connected_room_ids(room_ids, associations) if len(component) == 1)
+        if not associations:
+            warnings.append(
+                {
+                    "code": "disconnected_rooms",
+                    "message": (
+                        "Separate Record3D archives retain their exported world-pose "
+                        "coordinates, but no shared opening association was proven; "
+                        "cross-archive registration remains unverified."
+                    ),
+                    "refs": evidence_refs,
+                }
+            )
+        elif isolated:
+            warnings.append(
+                {
+                    "code": "disconnected_rooms",
+                    "message": (
+                        f"{len(associations)} shared-world opening pair(s) associated "
+                        f"without inventing a new frame; {isolated} room(s) remain unregistered."
+                    ),
+                    "refs": evidence_refs,
+                }
+            )
+        else:
+            audit_notes.append(
+                f"{len(associations)} shared-world opening pair(s) associated without inventing a new frame"
+            )
     return {
         "version": FLOORPLAN_SCHEMA_VERSION,
         "units": "cm",
@@ -207,10 +229,17 @@ def _build_openings(
     walls: list[dict[str, Any]],
     evidence_ref: str,
     config: Record3DOutputConfig,
+    *,
+    partners: dict[int, str] | None = None,
 ) -> list[dict[str, Any]]:
     openings: list[dict[str, Any]] = []
+    linked = partners or {}
     for index, candidate in enumerate(candidates):
         candidate_ref = f"{evidence_ref}#opening-candidate:{index + 1}"
+        connected = [room_id]
+        partner = linked.get(index)
+        if partner and partner not in connected:
+            connected.append(partner)
         openings.append(
             {
                 "id": f"{room_id}-opening-{index + 1}",
@@ -234,11 +263,24 @@ def _build_openings(
                     half_width_cm=config.opening_width_half_width_cm,
                     config=config,
                 ),
-                "connects_room_ids": [room_id],
+                "connects_room_ids": connected,
                 "confidence": config.opening_confidence,
             }
         )
     return openings
+
+
+def _opening_partners(
+    room_ids: tuple[str, ...],
+    associations: tuple[OpeningAssociation, ...],
+) -> dict[str, dict[int, str]]:
+    partners: dict[str, dict[int, str]] = {room_id: {} for room_id in room_ids}
+    for association in associations:
+        left_id = room_ids[association.left_room_index]
+        right_id = room_ids[association.right_room_index]
+        partners[left_id][association.left_opening_index] = right_id
+        partners[right_id][association.right_opening_index] = left_id
+    return partners
 
 
 def _clean(value: float) -> float:

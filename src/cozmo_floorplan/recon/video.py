@@ -35,6 +35,7 @@ from cozmo_floorplan.recon.video_pose_alignment import (
 )
 from cozmo_floorplan.recon.video_trajectory import recover_scale_free_trajectory
 from cozmo_floorplan.recon.video_trajectory import VideoTrajectoryDiagnostics
+from cozmo_floorplan.recon.video_openings import detect_video_openings
 from cozmo_floorplan.recon.video_rooms import fit_video_room_candidate
 from cozmo_floorplan.recon.video_triangulation import (
     triangulate_aligned_video_segments,
@@ -206,6 +207,7 @@ def reconstruct_video(
                             else:
                                 alignment_note += ", room=not-supported"
                         else:
+                            openings = detect_video_openings(points, room)
                             reconstructions.append(
                                 VideoRoomReconstruction(
                                     source=source,
@@ -221,15 +223,18 @@ def reconstruct_video(
                                     sampled_frames=len(sampled.frames),
                                     metric_voxel_count=len(points),
                                     accepted_pair_count=cloud.accepted_pairs,
+                                    openings=openings,
                                 )
                             )
                             alignment_note += (
-                                f", room={room.width_m:.2f}x{room.depth_m:.2f}m"
+                                f", room={room.width_m:.2f}x{room.depth_m:.2f}m, "
+                                f"openings={len(openings)}"
                                 if "native_scale=" in alignment_note
                                 else (
                                     f", triangulation={len(points)} voxels/"
                                     f"{cloud.accepted_pairs}/{cloud.attempted_pairs} pairs, "
-                                    f"room={room.width_m:.2f}x{room.depth_m:.2f}m"
+                                    f"room={room.width_m:.2f}x{room.depth_m:.2f}m, "
+                                    f"openings={len(openings)}"
                                 )
                             )
             elif trajectory.segments:
@@ -266,28 +271,11 @@ def reconstruct_video(
         if ambiguous_sidecar
         else ""
     )
-    if rejected:
-        raise ReconstructionError(
-            (
-                f"Feature-track diagnostics rejected {len(rejected)} room "
-                f"walkthrough(s): {', '.join(rejected)} "
-                f"({'; '.join(summaries)}). Re-walk with slower translation, "
-                f"visible texture, and less motion blur before relative VO."
-                f"{sidecar_warning} Centimetres will not be guessed."
-            ),
-            warning_code="insufficient_overlap",
-        )
-    if geometry_rejections:
-        raise ReconstructionError(
-            (
-                "Metric video evidence did not support every complete room: "
-                f"{'; '.join(geometry_rejections)}. Floor, ceiling, and two "
-                "camera-bracketing wall pairs are required; partial planes are "
-                f"not converted to dimensions. Diagnostics: {'; '.join(summaries)}"
-            ),
-            warning_code="low_confidence",
-        )
-    if len(reconstructions) == len(media):
+    incomplete = tuple(
+        [f"{identifier}: feature-track rejected" for identifier in rejected]
+        + geometry_rejections
+    )
+    if reconstructions:
         scale_sources = {item.scale_source for item in reconstructions}
         world_frames = {item.world_frame_id for item in reconstructions}
         if scale_sources <= {"arkit_poses", "arcore_poses"}:
@@ -303,7 +291,32 @@ def reconstruct_video(
                 "ARKit/native priors will not be overlaid.",
                 warning_code="disconnected_rooms",
             )
-        return build_video_floorplan(job, tuple(reconstructions))
+        return build_video_floorplan(
+            job,
+            tuple(reconstructions),
+            incomplete_rooms=incomplete,
+        )
+    if rejected:
+        raise ReconstructionError(
+            (
+                f"Feature-track diagnostics rejected {len(rejected)} room "
+                f"walkthrough(s): {', '.join(rejected)} "
+                f"({'; '.join(summaries)}). Re-walk with slower translation, "
+                f"visible texture, and less motion blur before relative VO."
+                f"{sidecar_warning} Centimetres will not be guessed."
+            ),
+            warning_code="insufficient_overlap",
+        )
+    if geometry_rejections:
+        raise ReconstructionError(
+            (
+                "Metric video evidence did not support a complete room: "
+                f"{'; '.join(geometry_rejections)}. Floor, ceiling, and two "
+                "camera-bracketing wall pairs are required; partial planes are "
+                f"not converted to dimensions. Diagnostics: {'; '.join(summaries)}"
+            ),
+            warning_code="low_confidence",
+        )
     raise ReconstructionError(
         (
             f"Sampled {len(media)} room walkthrough(s) at {config.sample_fps:g} Hz "

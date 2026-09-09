@@ -1,0 +1,13 @@
+schema_version: "1.0.0"
+walkin_id: holdout-room-01
+room_id: holdout-room
+forbidden_room_ids:
+  - drawing-room
+  - my-room
+  - pooja-room
+  - connector
+jobs:
+  photos: walkin-photos
+  video: walkin-video
+  lidar: walkin-lidar
+ground_truth: ground_truth.json

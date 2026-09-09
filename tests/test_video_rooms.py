@@ -67,3 +67,25 @@ def test_incomplete_plane_support_is_rejected_instead_of_dimensioned():
         fit_video_room_candidate(points, cameras)
 
     assert raised.value.warning_code == "low_confidence"
+
+
+def test_cameras_near_one_wall_still_bracket_from_median_path():
+    points, _cameras = _rotated_room(0.0)
+    cameras = np.asarray(
+        [[-0.5, 1.4, 0.0], [0.0, 1.4, 0.0], [1.96, 1.4, 0.0]]
+    )
+
+    room = fit_video_room_candidate(
+        points,
+        cameras,
+        surface_config=VideoSurfaceConfig(
+            coordinate_bin_m=0.08,
+            minimum_support_points=20,
+            minimum_support_fraction=0.01,
+            maximum_candidates_per_axis=6,
+            minimum_candidate_separation_m=0.3,
+        ),
+    )
+
+    assert room.width_m == pytest.approx(4.0, abs=0.15)
+    assert room.depth_m == pytest.approx(3.0, abs=0.15)

@@ -8,7 +8,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | --- | --- |
 | `pyproject.toml` | Installable Python package metadata and the optional `cozmo-floorplan` console command. |
 | `src/cozmo_floorplan/__main__.py` | Entry point for the required `python -m cozmo_floorplan ...` command. |
-| `src/cozmo_floorplan/cli.py` | CLI arguments, exit codes, and the outer error boundary; accepts a job directory or Cozmo Capture ZIP; writes the normal artifacts plus a regenerable correction-off JSON when stitching applies. |
+| `src/cozmo_floorplan/cli.py` | CLI arguments, exit codes, and the outer error boundary; accepts a job directory or Cozmo Capture ZIP; `run`, `eval`, `benchmark`, and `walkin` subcommands; writes the normal artifacts plus a regenerable correction-off JSON when stitching applies. |
 | `src/cozmo_floorplan/pipeline.py` | Application orchestration boundary. Unpacks a Cozmo Capture ZIP when needed, then dispatches LiDAR reconstruction + drift correction/ablation, then claims enrichment; video jobs go through T7 ingest and fail structurally until metric VO exists. |
 | `src/cozmo_floorplan/config.py` | Shared artifact filenames (including the drift-ablation filename), schema version, supported tiers, directory conventions, and exit-code constants. |
 | `src/cozmo_floorplan/errors.py` | Expected domain exception types. Keeps error classification out of command and I/O code. |
@@ -41,7 +41,9 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `ios/CozmoCapture/CozmoCapture/Views/CaptureView.swift` | Room naming, scanned-room list, LiDAR frame count, scan/export/share-ZIP controls, and merge-failure fallback. |
 | `ios/CozmoCapture/CozmoCapture/Info.plist` | Camera purpose string, display name, launch metadata, and portrait orientation. |
 | `ios/CozmoCapture/CozmoCaptureTests/PortableRoomPlanTests.swift` | Compiled contract tests for format metadata, multi-room `rooms[]`, shared-wall association, and unique labels. |
-| `ios/CozmoCapture/README.md` | Build, first-flight iPhone install, multi-room capture, and job-ZIP CLI ingest. |
+| `ios/CozmoCapture/README.md` | Build, first-flight iPhone install, and pointer to the T21h cable-install card. |
+| `docs/capture-route-route1.md` | Optional Route 1 walk-in card: 10-minute Personal-Team cable install, no TestFlight. |
+| `scripts/install-cozmo-capture.sh` | One-command signed iPhoneOS build + `devicectl` install; `--dry-run` / `--build-only`. |
 
 ## Contract and I/O
 
@@ -201,6 +203,20 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `data/templates/benchmark.yaml` | Joins separate tier, truth, repeat, and incumbent inputs through safe capture-root-relative paths. |
 | `data/templates/photos-repeat/manifest.yaml` | Declares the primary job and repeated room ids needed to prove an independent same-tier repeat. |
 | `tests/test_benchmark.py` | Tests pending roots, path containment, any-tier repeat linkage, semantic evidence readiness, complete mocked orchestration, and pending-audit CLI behavior. |
+
+## Walk-in rehearsal
+
+| File | Responsibility |
+| --- | --- |
+| `src/cozmo_floorplan/walkin/config.py` | Stable walk-in manifest/report names, tier order, default holdout paths, and benchmark room ids that must not be reused. |
+| `src/cozmo_floorplan/walkin/manifest.py` | Loads path-only `walkin.yaml`, unions extra forbidden rooms with the defaults, and prevents paths escaping the capture root. |
+| `src/cozmo_floorplan/walkin/rooms.py` | Collects declared and photo-folder room ids and reports collisions with the scored benchmark. |
+| `src/cozmo_floorplan/walkin/subset.py` | Copies a photo job down to the official two-still floor without inventing images. |
+| `src/cozmo_floorplan/walkin/report.py` | Renders the machine-readable walk-in result as a concise Markdown checklist. |
+| `src/cozmo_floorplan/walkin/runner.py` | Times present tiers, crash-tests two stills, evaluates against holdout tape, and refuses benchmark-room reuse. |
+| `data/templates/walkin/` | Holdout job templates, measurements sheet, and `walkin.yaml`. |
+| `docs/walk-in.md` | Rehearsal card: new room, Route 2 drop paths, `make walkin`. |
+| `tests/test_walkin.py` | Tests pending roots, path containment, forbidden-room refusal, timed mocked orchestration, two-still materialization, templates, and CLI exits. |
 
 ## Tests and fixtures
 

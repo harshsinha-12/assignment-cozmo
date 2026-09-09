@@ -367,6 +367,166 @@ def test_calibrated_supported_room_returns_video_floorplan(monkeypatch, tmp_path
     assert len(document["walls"]) == 4
 
 
+def test_partial_job_keeps_successful_room_when_another_fails(monkeypatch, tmp_path):
+    job_dir = tmp_path / "partial_video"
+    _write_manifest(job_dir)
+    first = job_dir / "video" / "room-a.mp4"
+    second = job_dir / "video" / "room-b.mp4"
+    first.touch()
+    second.touch()
+    sidecar_a = job_dir / "video" / "room-a.poses.json"
+    sidecar_b = job_dir / "video" / "room-b.poses.json"
+    sidecar_a.touch()
+    sidecar_b.touch()
+
+    def _sampled(source):
+        identifier = source.stem
+        frame = np.zeros((48, 80, 3), dtype=np.uint8)
+        return video_module.SampledVideo(
+            identifier=identifier,
+            metadata=video_module.VideoMetadata(
+                source=source,
+                native_size_px=(80, 48),
+                display_size_px=(80, 48),
+                native_fps=10.0,
+                frame_count=3,
+                duration_s=0.2,
+                rotation_degrees_clockwise=0,
+            ),
+            frames=(frame, frame, frame),
+            source_frame_indices=(0, 1, 2),
+            timestamps_s=(0.0, 0.1, 0.2),
+        )
+
+    relative_poses = tuple(
+        RelativeCameraPose(index, (float(index), 0.0, 0.0), tuple(np.eye(3).ravel()))
+        for index in range(3)
+    )
+    trajectory = VideoTrajectoryDiagnostics(
+        identifier="room",
+        selected_frames=3,
+        attempted_edges=2,
+        accepted_edges=2,
+        segment_breaks=0,
+        segment_restarts=0,
+        assumed_focal_length_px=72.0,
+        intrinsics_source="test",
+        segments=(TrajectorySegment(0, relative_poses),),
+        edges=(),
+    )
+    positions = ((-0.3, 1.4, 0.0), (0.0, 1.4, 0.0), (0.3, 1.4, 0.0))
+    poses = tuple(
+        MetricCameraPose(index, index * 0.1, position, (0.0, 0.0, 0.0, 1.0))
+        for index, position in enumerate(positions)
+    )
+
+    def _sidecar(path):
+        return MetricPoseSidecar(
+            source=path,
+            poses=poses,
+            schema_version="1.2.0",
+            intrinsics=MetricCameraIntrinsics(70.0, 70.0, 40.0, 24.0, (80, 48)),
+            camera_axes="x_right_y_down_z_forward",
+            world_frame_id="session-a",
+            scale_source="arkit_poses",
+        )
+
+    accepted = MetricSegmentAlignment(0, 3, 0, True, None, 0.3, 0.0, positions)
+    alignment = MetricTrajectoryAlignment("sidecar", 3, 1, (accepted,))
+    plane = VideoPlaneCandidate("wall", "x", -2.0, 50, 0.1)
+    room = VideoRoomCandidate(
+        floor=VideoPlaneCandidate("horizontal", "y", 0.0, 50, 0.1),
+        ceiling=VideoPlaneCandidate("horizontal", "y", 2.8, 50, 0.1),
+        walls=(plane, plane, plane, plane),
+        yaw_degrees=0.0,
+        polygon_xz_m=((-2.0, -1.5), (2.0, -1.5), (2.0, 1.5), (-2.0, 1.5)),
+        width_m=4.0,
+        depth_m=3.0,
+    )
+    tracks = type(
+        "Tracks",
+        (),
+        {
+            "accepted_for_relative_vo": True,
+            "eligible_pairs": 2,
+            "analyzed_pairs": 2,
+            "median_keypoints": 200.0,
+            "median_matches": 100.0,
+            "median_fundamental_inliers": 80.0,
+            "median_motion_px": 10.0,
+            "median_parallax_px": 2.0,
+            "median_coverage_fraction": 0.2,
+            "rejection_reason_counts": (),
+        },
+    )()
+    cloud = type(
+        "Cloud",
+        (),
+        {
+            "points_m": np.zeros((100, 3)),
+            "accepted_pairs": 2,
+            "attempted_pairs": 2,
+        },
+    )()
+
+    def _fit(points, cameras, **_kwargs):
+        if getattr(_fit, "calls", 0) == 0:
+            _fit.calls = 1
+            return room
+        raise ReconstructionError(
+            "Sparse video points do not support a camera-bracketing x-high wall candidate.",
+            warning_code="low_confidence",
+        )
+
+    monkeypatch.setattr(
+        recon_video_module, "find_video_files", lambda _path: [first, second]
+    )
+    monkeypatch.setattr(
+        recon_video_module, "sample_video", lambda source, **_kwargs: _sampled(source)
+    )
+    monkeypatch.setattr(
+        recon_video_module,
+        "find_pose_sidecar",
+        lambda _dir, video_stem=None, allow_global=True: (
+            sidecar_a if video_stem == "room-a" else sidecar_b
+        ),
+    )
+    monkeypatch.setattr(
+        recon_video_module, "load_metric_pose_sidecar", lambda path: _sidecar(path)
+    )
+    monkeypatch.setattr(
+        recon_video_module, "analyze_video_tracks", lambda *_args, **_kwargs: tracks
+    )
+    monkeypatch.setattr(
+        recon_video_module,
+        "recover_scale_free_trajectory",
+        lambda *_args, **_kwargs: trajectory,
+    )
+    monkeypatch.setattr(
+        recon_video_module,
+        "align_trajectory_to_metric_poses",
+        lambda *_args, **_kwargs: alignment,
+    )
+    monkeypatch.setattr(
+        recon_video_module,
+        "triangulate_aligned_video_segments",
+        lambda *_args, **_kwargs: cloud,
+    )
+    monkeypatch.setattr(recon_video_module, "fit_video_room_candidate", _fit)
+    monkeypatch.setattr(
+        recon_video_module, "detect_video_openings", lambda *_args, **_kwargs: ()
+    )
+
+    document = reconstruct_video(
+        load_job(job_dir),
+        config=VideoIngestConfig(min_frames=3),
+    )
+
+    assert document["status"] == "partial"
+    assert [room["id"] for room in document["rooms"]] == ["room-a"]
+    assert any("room-b" in warning["message"] for warning in document["warnings"])
+
+
 def test_malformed_metric_pose_sidecar_fails_structurally(tmp_path):
     job_dir = tmp_path / "malformed_sidecar"
     _write_manifest(job_dir)

@@ -4,6 +4,53 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-10 — Walk-in rehearsal is a holdout folder, not the benchmark
+
+**Context:** T11 is a cold rehearsal of the 30% defense: a room they have never
+scored, all three tiers, one public `run` command, tape while it runs. The
+Route 2 card previously told the operator to copy into `data/private/benchmark-*`
+and run `make benchmark`, which would mix the walk-in with the author's
+property.
+
+**Decision:** Keep Route 2 as the scored capture protocol. Walk-in media goes in
+`data/private/walkin/` from `data/templates/walkin`. `make walkin` times each
+tier, crash-tests the official 2-still photo floor, and refuses room ids in
+`drawing-room` / `my-room` / `pooja-room` / `connector`. The defense command
+stays `python -m cozmo_floorplan run JOB --out OUT`. Route 1 remains optional
+until a timed cable install on their phone (`docs/capture-route-route1.md`).
+
+**Why:** The prompt scores systems that only work on the author's data. A
+holdout folder plus an explicit collision check is the rehearsal of that exam.
+
+**Consequence:** T11 is not done until holdout photos, video, LiDAR, and tape
+exist. The harness can stay `pending_inputs` without treating that as a score.
+
+---
+
+## 2026-09-10 — T21h is a cable Personal-Team install, not TestFlight
+
+**Context:** Route 1 must install on Cozmo's walk-in phone in under 10
+minutes. TestFlight needs a paid Apple Developer Program team ($99/year).
+The current `DEVELOPMENT_TEAM` `PH4KQ4LY92` is a free Personal Team and cannot
+upload to App Store Connect. Harsh declined that fee. The app already runs on
+Harsh's iPhone 17 Pro (T21g).
+
+**Decision:** Use the official prompt's other option: a **dev build installed
+by cable in under 10 minutes**. The walk-in card is
+`docs/capture-route-route1.md`; the command is
+`./scripts/install-cozmo-capture.sh`. Do not enroll in the paid program. Do
+not switch the scored capture route to Route 1 until that same install is
+timed on **their** phone. Developer Mode restart, a non-Mac laptop, or a
+failed `ppq.apple.com` trust check aborts to Route 2.
+
+**Why:** The prompt names TestFlight and a 10-minute cable install as equals.
+A Personal Team is enough for Xcode/`devicectl` install. Paying $99 does not
+change geometry quality.
+
+**Consequence:** Personal-team apps expire after seven days. A new device must
+be plugged in so Xcode can register its UDID. Route 2 (`docs/capture-route.md`)
+stays the submitted walk-in protocol.
+
 ## 2026-09-09 — Version calibrated video output separately from triangulation
 
 **Context:** Sidecar v1.1 already enables calibrated sparse triangulation, but

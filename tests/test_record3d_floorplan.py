@@ -111,6 +111,30 @@ def test_multiple_archives_remain_explicitly_unregistered(tmp_path):
     )
 
 
+def test_shared_world_opening_pairs_annotate_both_rooms(tmp_path):
+    from cozmo_floorplan.recon.record3d_register import OpeningAssociation
+
+    first = _reconstruction(tmp_path, "room-a")
+    second = _reconstruction(tmp_path, "room-b")
+    association = OpeningAssociation(
+        left_room_index=0,
+        left_opening_index=0,
+        right_room_index=1,
+        right_opening_index=0,
+        center_distance_m=0.12,
+        width_delta_m=0.0,
+    )
+
+    document = build_record3d_floorplan(
+        _job(tmp_path), (first, second), associations=(association,)
+    )
+
+    assert document["openings"][0]["connects_room_ids"] == ["room-a", "room-b"]
+    assert document["openings"][1]["connects_room_ids"] == ["room-b", "room-a"]
+    assert not any(warning["code"] == "disconnected_rooms" for warning in document["warnings"])
+    assert "opening pair" in document["provenance"]["notes"]
+
+
 def test_support_conditioned_intervals_reach_floorplan_measurements(tmp_path):
     uncertainty = Record3DUncertainty(
         x_span_half_width_cm=10.0,

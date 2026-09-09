@@ -116,8 +116,8 @@ def _horizontal_levels(
         raise ReconstructionError(
             "Record3D points do not contain floor and ceiling candidates on opposite sides of the camera path."
         )
-    floor_seed = _peak_seed(centers, dense_counts, smoothed, floor_mask, config)
-    ceiling_seed = _peak_seed(centers, dense_counts, smoothed, ceiling_mask, config)
+    floor_seed = _peak_seed(centers, dense_counts, smoothed, floor_mask, config, preference="lowest")
+    ceiling_seed = _peak_seed(centers, dense_counts, smoothed, ceiling_mask, config, preference="highest")
     floor_y, floor_support = _refine_level(point_y, floor_seed, config)
     ceiling_y, ceiling_support = _refine_level(point_y, ceiling_seed, config)
     height = ceiling_y - floor_y
@@ -141,11 +141,22 @@ def _peak_seed(
     smoothed: np.ndarray,
     eligible: np.ndarray,
     config: Record3DPlaneConfig,
+    *,
+    preference: str,
 ) -> float:
     eligible_indices = np.flatnonzero(eligible)
-    smooth_peak = int(eligible_indices[np.argmax(smoothed[eligible])])
+    peak_smooth = float(np.max(smoothed[eligible]))
+    significant = eligible_indices[
+        smoothed[eligible] >= peak_smooth * config.horizontal_envelope_ratio
+    ]
+    if preference == "lowest":
+        chosen = int(significant[np.argmin(centers[significant])])
+    elif preference == "highest":
+        chosen = int(significant[np.argmax(centers[significant])])
+    else:
+        raise ValueError(f"Unsupported horizontal peak preference {preference!r}")
     radius = config.horizontal_smoothing_bins // 2
-    neighborhood = eligible_indices[np.abs(eligible_indices - smooth_peak) <= radius]
+    neighborhood = eligible_indices[np.abs(eligible_indices - chosen) <= radius]
     raw_peak = int(neighborhood[np.argmax(counts[neighborhood])])
     return float(centers[raw_peak])
 
@@ -236,8 +247,8 @@ def _bracketing_wall_pair(
         raise ReconstructionError(
             "Record3D wall candidates do not bracket the observed camera trajectory."
         )
-    low_index = int(low_candidates[np.argmax(counts[low_candidates])])
-    high_index = int(high_candidates[np.argmax(counts[high_candidates])])
+    low_index = _outer_supported_peak(coordinates, counts, low_candidates, "low", config)
+    high_index = _outer_supported_peak(coordinates, counts, high_candidates, "high", config)
     span = float(coordinates[high_index] - coordinates[low_index])
     if not config.minimum_room_span_m <= span <= config.maximum_room_span_m:
         raise ReconstructionError(
@@ -255,7 +266,25 @@ def _bracketing_wall_pair(
             coordinate_m=float(coordinates[high_index]),
             support_columns=int(counts[high_index]),
         ),
-    )
+        )
+
+
+def _outer_supported_peak(
+    coordinates: np.ndarray,
+    counts: np.ndarray,
+    candidates: np.ndarray,
+    side: str,
+    config: Record3DPlaneConfig,
+) -> int:
+    """Prefer the architectural envelope over a denser inward clutter plane."""
+
+    peak_support = float(np.max(counts[candidates]))
+    significant = candidates[counts[candidates] >= peak_support * config.outer_wall_support_ratio]
+    if side == "low":
+        return int(significant[np.argmin(coordinates[significant])])
+    if side == "high":
+        return int(significant[np.argmax(coordinates[significant])])
+    raise ValueError(f"Unsupported wall side {side!r}")
 
 
 def _planar_rotation(yaw_degrees: float) -> np.ndarray:
@@ -288,3 +317,7 @@ def _validate_inputs(
         raise ValueError("camera_bracket_quantile must be between zero and one half")
     if not 0 < config.yaw_step_degrees < 90:
         raise ValueError("yaw_step_degrees must be between zero and 90")
+    if not 0 < config.outer_wall_support_ratio <= 1:
+        raise ValueError("outer_wall_support_ratio must be in (0, 1]")
+    if not 0 < config.horizontal_envelope_ratio <= 1:
+        raise ValueError("horizontal_envelope_ratio must be in (0, 1]")

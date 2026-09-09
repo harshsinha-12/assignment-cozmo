@@ -1,0 +1,14 @@
+# Tape the holdout room while the CLI runs. Convert to ground_truth.json
+# before scoring. Do not reuse drawing-room / my-room / pooja-room / connector.
+
+room_id: holdout-room
+device:
+tape_or_laser:
+wall_a_cm:
+wall_b_cm:
+wall_c_cm:
+wall_d_cm:
+ceiling_cm:
+door_width_cm:
+diagonal_cm:
+notes:

@@ -51,3 +51,15 @@ Add:
 - Link to eval table
 - One failure you are proud of (a job you refused to metric-scale)
 - One thing you’d build in week one (probably LiDAR ingest in the real capture stack they already have)
+
+## Walk-in live (30%)
+
+They pick the tier that day and follow `docs/capture-route.md`. You run:
+
+```bash
+python -m cozmo_floorplan run path/to/job --out path/to/out
+```
+
+Do not point `make benchmark` at their folder. If they recapture our benchmark rooms, `make walkin` / `walkin` refuses with `invalid_holdout`. Photos may return `insufficient_overlap` or `unsupported_tier`; say that out loud and show the interval/warning rather than inventing centimetres. LiDAR should emit a partial metric plan from Record3D or RoomPlan JSON. Video without a pose sidecar stays structurally honest.
+
+Our rehearsal harness is `make walkin` on a **new** room (`docs/walk-in.md`). It times each tier and crash-tests the 2-still photo floor. It is not scored until holdout media and tape exist.

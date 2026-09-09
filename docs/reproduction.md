@@ -68,4 +68,5 @@ LiDAR, normalized incumbent output, and staged damage observations.
 - Repeat the README from a fresh clone on a second clean machine.
 - Add raw benchmark captures, tape truth, repeat runs, and incumbent exports.
 - Re-run `make benchmark` to regenerate real evals after those inputs exist.
-- Time the cold walk-in command without a warmed environment.
+- Time the cold walk-in command without a warmed environment (`make walkin`
+  after holdout media exists; the harness is shipped, the room is not).

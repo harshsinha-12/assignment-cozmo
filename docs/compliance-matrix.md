@@ -6,7 +6,7 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 
 | ID | Requirement | File / command | Artifact | Status |
 | --- | --- | --- | --- | --- |
-| R1 | Choose one capture route | `docs/capture-route.md` + `data/templates/` | Route 2 operator card plus loader-checked per-tier handoff templates | partial (walk-in untested) |
+| R1 | Choose one capture route | `docs/capture-route.md` + `docs/capture-route-route1.md` + `data/templates/walkin/` + `walkin` CLI | Route 2 is the scored operator card. Route 1 is a cable Personal-Team install. Timed holdout rehearsal refuses benchmark-room reuse | partial (holdout media pending) |
 | R2 | Device matrix | `docs/device-matrix.md` | Hardware eligibility separated from accepted runtime formats and measured accuracy | partial (measurements pending) |
 | R3 | Photos tier, 2–8 stills, no depth/poses, per-room folders, whole-property stitch | `io/photos.py` + `recon/photo_overlap.py` + `recon/photos.py` | ingest and geometric overlap graph work; current rooms are disconnected with no connector candidates, so metric SfM/whole-property output remain pending | partial |
 | R4 | Video tier, handheld walkthrough | `recon/video.py` + `recon/video_triangulation.py` + `recon/video_rooms.py` + `recon/video_floorplan.py` | Calibrated v1.1 sidecars yield guarded sparse points; v1.2 can produce conservative partial FloorPlan rooms synthetically. Current MP4s lack sidecars, while openings, adjacency, calibration, and real ±3% evidence remain | partial |

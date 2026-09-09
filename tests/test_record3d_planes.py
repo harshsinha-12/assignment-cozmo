@@ -115,6 +115,39 @@ def test_low_furniture_does_not_replace_room_walls():
     )
 
 
+def test_tall_inward_wardrobe_does_not_replace_outer_wall():
+    points, cameras = _rectangular_room(width_m=5.0, depth_m=3.5, yaw_degrees=0.0)
+    y_values = np.arange(0.1, 1.8, 0.05)
+    z_values = np.arange(-1.6, 1.61, 0.04)
+    wardrobe = np.column_stack(
+        (
+            np.full(len(y_values) * len(z_values), 2.20),
+            np.repeat(y_values, len(z_values)),
+            np.tile(z_values, len(y_values)),
+        )
+    )
+    candidate = extract_manhattan_room_candidate(
+        np.concatenate([points, wardrobe]), cameras
+    )
+
+    assert sorted((candidate.width_m, candidate.depth_m)) == pytest.approx(
+        [3.5, 5.0], abs=0.12
+    )
+
+
+def test_dense_mid_height_slab_does_not_replace_true_ceiling():
+    points, cameras = _rectangular_room(height_m=2.9, yaw_degrees=0.0)
+    x_values = np.arange(-2.4, 2.41, 0.05)
+    z_values = np.arange(-1.6, 1.61, 0.05)
+    xx, zz = np.meshgrid(x_values, z_values)
+    slab = np.column_stack(
+        (xx.ravel(), np.full(xx.size, 2.45), zz.ravel())
+    )
+    candidate = extract_manhattan_room_candidate(np.concatenate([points, slab]), cameras)
+
+    assert candidate.levels.ceiling_height_m == pytest.approx(2.9, abs=0.08)
+
+
 def test_rejects_capture_without_a_ceiling_candidate():
     points, cameras = _rectangular_room(include_ceiling=False)
     points = points[points[:, 1] < 1.9]

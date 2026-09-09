@@ -1,0 +1,7 @@
+job_id: walkin-video-holdout
+tier: video
+device: replace-me-exact-iphone-model
+capture_tool: iPhone Camera
+rooms:
+  - holdout-room
+notes: One continuous 1080p rear-camera walk of the holdout room only. Native Camera video supports tracking diagnostics; metric FloorPlan output additionally requires the calibrated pose sidecar documented in docs/formats/video-job.md.

@@ -127,6 +127,9 @@ class VideoOutputConfig:
     length_relative_half_width: float = 0.05
     minimum_ceiling_half_width_cm: float = 6.0
     area_relative_half_width: float = 0.12
+    opening_confidence: float = 0.55
+    opening_width_half_width_cm: float = 12.0
+    opening_height_half_width_cm: float = 18.0
     method: str = "calibrated_video_sparse_manhattan_uncalibrated_interval"
 
 
@@ -137,6 +140,9 @@ HANDHELD_VIDEO_OUTPUT = VideoOutputConfig(
     length_relative_half_width=0.22,
     minimum_ceiling_half_width_cm=20.0,
     area_relative_half_width=0.35,
+    opening_confidence=0.40,
+    opening_width_half_width_cm=20.0,
+    opening_height_half_width_cm=30.0,
     method="handheld_height_prior_uncalibrated_interval",
 )
 

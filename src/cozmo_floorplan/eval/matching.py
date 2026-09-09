@@ -106,7 +106,11 @@ def opening_cost(
     mapped_wall_id = predicted_to_truth_wall_ids.get(
         str(prediction["wall_id"]), str(prediction["wall_id"])
     )
-    wall_penalty = 0.0 if mapped_wall_id == truth["wall_id"] else 1_000.0
+    truth_wall_id = str(truth["wall_id"])
+    wall_unlocated = truth_wall_id in {"unlocated", "unknown"} or truth_wall_id.endswith(
+        "-unlocated"
+    )
+    wall_penalty = 0.0 if wall_unlocated or mapped_wall_id == truth_wall_id else 1_000.0
     width_distance = abs(
         float(prediction["width"]["value"]) - float(truth["width"]["value"])
     )

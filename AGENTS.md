@@ -50,7 +50,7 @@ Task → file:
 - Official prompt just arrived → `docs/prompts/ingest-takehome.md` then `docs/open-questions.md`
 - Setup / Cloud Agent env → `SETUP.md`, `.cursor/environment.json`
 - What we are building / how they test → `docs/product.md`
-- Capture on a phone → `docs/capture-protocol.md`, walk-in protocol → `docs/capture-route.md`
+- Capture on a phone → `docs/capture-protocol.md`, walk-in protocol → `docs/capture-route.md`, holdout rehearsal → `docs/walk-in.md`
 - Cuts (tomorrow night only) → `docs/cut-later.md`
 - Schema / API contract → `docs/schemas/floorplan.schema.json`, `docs/architecture.md`
 - Algorithm work → `docs/capture-tiers.md`, `docs/research.md`, `docs/eval-and-accuracy.md`

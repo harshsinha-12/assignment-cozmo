@@ -5,6 +5,7 @@ import jsonschema
 
 import cozmo_floorplan.pipeline as pipeline_module
 from cozmo_floorplan.io.job import Job
+from cozmo_floorplan.recon.record3d_openings import Record3DOpeningCandidate
 from cozmo_floorplan.recon.video_floorplan import (
     VideoRoomReconstruction,
     build_video_floorplan,
@@ -140,3 +141,82 @@ def test_native_height_rooms_can_be_independently_placed(tmp_path):
     assert document["rooms"][0]["ceiling_height"]["interval"]["confidence"] == 0.55
     assert document["rooms"][1]["polygon"][0][0] > document["rooms"][0]["polygon"][1][0]
     assert document["warnings"][1]["code"] == "disconnected_rooms"
+
+
+def test_occupancy_openings_are_emitted_without_claiming_three_percent(tmp_path):
+    reconstruction = _reconstruction(tmp_path)
+    reconstruction = VideoRoomReconstruction(
+        source=reconstruction.source,
+        pose_sidecar=reconstruction.pose_sidecar,
+        world_frame_id=reconstruction.world_frame_id,
+        scale_source=reconstruction.scale_source,
+        room=reconstruction.room,
+        sampled_frames=reconstruction.sampled_frames,
+        metric_voxel_count=reconstruction.metric_voxel_count,
+        accepted_pair_count=reconstruction.accepted_pair_count,
+        openings=(
+            Record3DOpeningCandidate(0, "door", 1.2, 0.9, 2.1, 8, 12),
+        ),
+    )
+
+    document = build_video_floorplan(
+        _job(tmp_path),
+        (reconstruction,),
+        incomplete_rooms=("pooja-room: missing x-high wall",),
+    )
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    jsonschema.validate(instance=document, schema=schema)
+
+    assert document["openings"][0]["kind"] == "door"
+    assert document["openings"][0]["width"]["value"] == 90
+    assert document["openings"][0]["connects_room_ids"] == ["room-a"]
+    assert "±3%" in document["warnings"][0]["message"]
+    assert document["warnings"][1]["message"].startswith("Some walkthroughs")
+
+
+def test_shared_world_openings_can_constrain_stitch(tmp_path):
+    first = _reconstruction(tmp_path, "room-a")
+    second = _reconstruction(tmp_path, "room-b")
+    second = VideoRoomReconstruction(
+        source=second.source,
+        pose_sidecar=second.pose_sidecar,
+        world_frame_id=first.world_frame_id,
+        scale_source=first.scale_source,
+        room=VideoRoomCandidate(
+            floor=second.room.floor,
+            ceiling=second.room.ceiling,
+            walls=second.room.walls,
+            yaw_degrees=0.0,
+            polygon_xz_m=((2.0, -1.5), (6.0, -1.5), (6.0, 1.5), (2.0, 1.5)),
+            width_m=4.0,
+            depth_m=3.0,
+        ),
+        sampled_frames=second.sampled_frames,
+        metric_voxel_count=second.metric_voxel_count,
+        accepted_pair_count=second.accepted_pair_count,
+        openings=(
+            Record3DOpeningCandidate(3, "door", 1.1, 0.9, 2.1, 6, 10),
+        ),
+    )
+    first = VideoRoomReconstruction(
+        source=first.source,
+        pose_sidecar=first.pose_sidecar,
+        world_frame_id=first.world_frame_id,
+        scale_source=first.scale_source,
+        room=first.room,
+        sampled_frames=first.sampled_frames,
+        metric_voxel_count=first.metric_voxel_count,
+        accepted_pair_count=first.accepted_pair_count,
+        openings=(
+            Record3DOpeningCandidate(1, "door", 1.1, 0.9, 2.1, 6, 10),
+        ),
+    )
+
+    document = build_video_floorplan(_job(tmp_path), (first, second))
+
+    assert {tuple(item["connects_room_ids"]) for item in document["openings"]} == {
+        ("room-a", "room-b")
+    }
+    assert all(
+        warning["code"] != "disconnected_rooms" for warning in document["warnings"]
+    )

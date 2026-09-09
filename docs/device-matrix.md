@@ -6,7 +6,7 @@ Hardware eligibility and runtime support are different claims. “Capture” mea
 | --- | --- | --- | --- | --- | --- |
 | iPhone 15 / 16 non-Pro | yes | yes | no | JPEG; MOV/MP4 ingest | not measured |
 | iPhone Pro / Pro Max with LiDAR | yes | yes | yes | JPEG; MOV/MP4 ingest; T21e exports a job ZIP with RoomPlan JSON plus Record3D-compatible `.r3d` from ARKit depth; `.r3d` emits partial metric IR | see tested iPhone row only |
-| Harsh's iPhone 17 Pro | yes | yes | yes | Three real `.r3d` room captures produce partial rooms/walls/opening candidates; photos/video partial; T21g device install pending | LiDAR walls: 2.5 cm median / 30 cm p95 over 12; intervals cover 16/18 at 80% declared confidence |
+| Harsh's iPhone 17 Pro | yes | yes | yes | Cozmo Capture installed (T21g). CLI accepts the job ZIP (RoomPlan JSON + `.r3d`). Route 2 Record3D rooms also produce partial IR | LiDAR walls: 2.5 cm median / 30 cm p95 over 12; intervals cover 16/18 at 80% declared confidence |
 | LiDAR iPad Pro | possible, out of walk-in scope | possible, out of walk-in scope | possible | RoomPlan JSON only | not measured |
 | Android | not claimed | not claimed | not claimed | out of scope | not measured |
 
@@ -24,4 +24,4 @@ Replace the TBD cells. Intervals are part of the score; do not tighten them to l
 
 ## Walk-in
 
-They choose the tier on the day on **their** iPhone 15 or newer. A non-Pro phone supports photos/video, not LiDAR. Protocol: `docs/capture-route.md`; copyable manifests: `data/templates/`.
+They choose the tier on the day on **their** iPhone 15 or newer. A non-Pro phone supports photos/video, not LiDAR. Scored protocol: `docs/capture-route.md`. Optional Route 1 cable install: `docs/capture-route-route1.md` (no paid Apple team). Copyable manifests: `data/templates/`.

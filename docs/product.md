@@ -2,7 +2,7 @@
 
 This is not a website, not a hosted app, and not a magicplan clone with accounts. Round 2 is a **local capture-to-plan pipeline** plus a **one-page phone protocol**. Cozmo runs it on their laptop at the defense.
 
-Canonical prompt: `docs/takehome.md`. **Score policy:** pass every official row. Cut only tomorrow night (`docs/cut-later.md`). Capture: Route 2 protocol always ready; Route 1 app in parallel (`TASKS.md` T21).
+Canonical prompt: `docs/takehome.md`. **Score policy:** pass every official row. Cut only tomorrow night (`docs/cut-later.md`). Capture: Route 2 protocol is the scored walk-in; Route 1 is a cable Personal-Team install (`docs/capture-route-route1.md`), not TestFlight.
 
 ---
 
@@ -93,7 +93,7 @@ They do **not** grade a URL. They grade a command, a JSON, a drawing, and a live
 | Stage two damage classes in one furnished room | Detect / rule-flag damage and emit scope lines |
 | Recapture one room at the same tier | Repeatability table |
 | Export Polycam or magicplan on two rooms | Head-to-head table |
-| Write the one-page protocol they will follow | Survive their walk-in capture |
+| Write the one-page protocol they will follow (Route 2; Route 1 only if the cable install hits 10:00 on their phone) | Survive their walk-in capture |
 | Commit as you go | Stay regenerable |
 
 ---

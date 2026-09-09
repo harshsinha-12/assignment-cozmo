@@ -88,6 +88,21 @@ def test_phantom_opening_is_added_to_detection_denominator():
     assert gate.metrics["success_rate"] == 0.5
 
 
+def test_unlocated_truth_openings_match_by_kind_and_width():
+    truth = _truth()
+    truth["openings"][0]["wall_id"] = "unlocated"
+    del truth["openings"][0]["offset_along_wall"]
+    prediction = deepcopy(truth)
+    prediction["openings"][0]["id"] = "predicted-door"
+    prediction["openings"][0]["wall_id"] = "some-other-wall"
+
+    gate = _gate(evaluate_floorplans(prediction, truth), "opening_widths")
+
+    assert gate.status == "pass"
+    assert gate.metrics["matched_count"] == 1
+    assert gate.metrics["median_error_cm"] == 0
+
+
 def test_photo_stitch_and_wall_gates_pass_on_exact_geometry():
     truth = _truth()
     prediction = deepcopy(truth)

@@ -46,6 +46,23 @@ def video_area(
     )
 
 
+def video_opening_length(
+    value_cm: float,
+    evidence_ref: str,
+    *,
+    half_width_cm: float,
+    config: VideoOutputConfig = DEFAULT_VIDEO_OUTPUT,
+) -> dict[str, Any]:
+    return _measurement(
+        value_cm,
+        "cm",
+        half_width_cm,
+        evidence_ref,
+        config.opening_confidence,
+        config.method,
+    )
+
+
 def _measurement(
     value: float,
     unit: str,

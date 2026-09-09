@@ -36,6 +36,7 @@ from cozmo_floorplan.recon.record3d_floorplan import (
 from cozmo_floorplan.recon.record3d_openings import detect_record3d_openings
 from cozmo_floorplan.recon.record3d_planes import extract_manhattan_room_candidate
 from cozmo_floorplan.recon.record3d_points import build_metric_point_cloud
+from cozmo_floorplan.recon.record3d_register import associate_record3d_openings
 from cozmo_floorplan.recon.record3d_uncertainty import estimate_record3d_uncertainty
 from cozmo_floorplan.recon.record3d_validation import validate_record3d_capture
 
@@ -75,7 +76,13 @@ def reconstruct_lidar(job: Job) -> FloorPlan:
                     uncertainty=uncertainty,
                 )
             )
-        return build_record3d_floorplan(job, tuple(reconstructions))
+        associations = associate_record3d_openings(
+            tuple(item.room for item in reconstructions),
+            tuple(item.openings for item in reconstructions),
+        )
+        return build_record3d_floorplan(
+            job, tuple(reconstructions), associations=associations
+        )
 
     _raise_missing_lidar_source(lidar_dir)
 

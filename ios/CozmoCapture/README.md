@@ -7,8 +7,10 @@ shares one CLI-ready job ZIP (`docs/formats/cozmo-capture-job.md`).
 This is an **iPhone app**, not a Mac app. The Simulator can compile and show
 the UI, but RoomPlan/LiDAR and a real camera need the iPhone 17 Pro.
 
-Route 2 (Camera + Record3D) remains the scored walk-in protocol until a
-signed install on their phone is under 10 minutes.
+Walk-in install (T21h): [`docs/capture-route-route1.md`](../../docs/capture-route-route1.md)
+and `./scripts/install-cozmo-capture.sh`. A free Personal Team is enough. Do
+not pay for the Apple Developer Program. Route 2 remains the scored protocol
+until that cable install is timed on **their** phone.
 
 ## Compile on the Mac (no phone)
 
@@ -77,32 +79,12 @@ you do not need a paid Apple Developer Program membership for this install.
 This app still does not replace the scored Route 2 capture protocol
 (`docs/capture-route.md`) until a 10-minute install works on their phone.
 
-## TestFlight (other people's phones)
+## TestFlight is not used
 
-A **free Personal Team** (`PH4KQ4LY92` in this project) can install on Harsh's
-iPhone via Xcode. It **cannot** upload to App Store Connect or TestFlight.
+The official prompt allows a TestFlight build **or** a cable dev build in
+under 10 minutes. This submission uses the cable path so nobody pays $99.
+A Personal Team cannot upload to App Store Connect anyway.
 
-1. Enroll in the [Apple Developer Program](https://developer.apple.com/programs/)
-   ($99/year) with the same Apple ID. Identity review often takes 24–48 hours.
-2. In Xcode → CozmoCapture target → **Signing & Capabilities**, switch **Team**
-   from the Personal Team to the paid team. Leave the bundle id
-   `dev.harshsinha.assignmentcozmo.CozmoCapture`.
-3. At [App Store Connect](https://appstoreconnect.apple.com) → **Apps** → **+**
-   → New App: iOS, name `Cozmo Capture`, bundle id as above, SKU any unique
-   string (for example `cozmo-capture-t21`).
-4. In Xcode, pick destination **Any iOS Device (arm64)** (not a simulator).
-   **Product → Archive**. When Organizer opens: **Distribute App** →
-   **App Store Connect** → **Upload**.
-5. Wait until the build is **Ready to Test** (often 10–30 minutes) under
-   TestFlight. Bump `CURRENT_PROJECT_VERSION` (the build number) for every
-   new upload; Apple rejects duplicate build numbers.
-6. **Cozmo / anyone not on your Apple team** needs **External Testing**, not
-   Internal. Create an External group, add their emails or a public link, and
-   submit the first build for **Beta App Review**. After that approval, new
-   builds in the same group usually skip review.
-7. Testers install Apple's **TestFlight** app, redeem the invite, and install
-   Cozmo Capture. LiDAR still needs an iPhone Pro.
-
-Do not use TestFlight as the scored walk-in path until that install is
-rehearsed in under 10 minutes on **their** phone. The official prompt also
-accepts a cable Xcode install; Route 2 (Camera + Record3D) stays the fallback.
+Print [`docs/capture-route-route1.md`](../../docs/capture-route-route1.md) for
+the walk-in. If that install misses 10:00 or the defense laptop is not a Mac
+with Xcode, follow [`docs/capture-route.md`](../../docs/capture-route.md).

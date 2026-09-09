@@ -34,7 +34,7 @@ Every scalar measurement travels as a value, unit, interval, confidence, method,
 
 ## 2. Capture tiers and device coverage
 
-Route 2 is the scored capture route until the optional iOS exporter installs in under ten minutes. A non-engineer uses the native Camera app for photos/video and Record3D on LiDAR-equipped Pro devices; the exact walk and hand-off layout are in `docs/capture-route.md`.
+Route 2 is the scored capture route. Route 1 is a free Personal-Team cable install (`docs/capture-route-route1.md`); TestFlight is not used. Switch the scored route only if that install is timed under ten minutes on Cozmo's phone. Until then a non-engineer uses the native Camera app for photos/video and Record3D on LiDAR-equipped Pro devices; the exact walk and hand-off layout are in `docs/capture-route.md`.
 
 | Tier | Devices | Evidence and scale | Current implementation | Remaining proof |
 | --- | --- | --- | --- | --- |
@@ -110,4 +110,4 @@ The shipped fix loop targeted a real evaluator failure in the synthetic pipeline
 - **Disconnected or cyclic properties:** return partial connectivity when the opening graph is insufficient; use real ablations to justify any global optimizer.
 - **API/key failure:** deterministic tool fallback completes claims without affecting classical geometry; provider-triggered degradation remains visible.
 
-The final submission cannot claim readiness until the human benchmark supplies raw photos, video, LiDAR, tape/laser truth, repeated rooms, staged damage, and a named Polycam or magicplan export. Those files unlock metric video/photo work, measured intervals, the device matrix, the head-to-head table, and a timed unseen-room rehearsal. The current system is production-shaped plumbing with honest boundaries; the remaining risk is reconstruction quality on real consumer capture, not JSON presentation.
+The final submission cannot claim readiness until the human benchmark supplies raw photos, video, LiDAR, tape/laser truth, repeated rooms, staged damage, and a named Polycam or magicplan export, **and** a holdout room not in that set is timed through `make walkin`. Those files unlock metric video/photo work, measured intervals, the device matrix, the head-to-head table, and a timed unseen-room rehearsal. The current system is production-shaped plumbing with honest boundaries; the remaining risk is reconstruction quality on real consumer capture, not JSON presentation.

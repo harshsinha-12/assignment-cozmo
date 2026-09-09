@@ -9,7 +9,8 @@ Read `AGENTS.md` first, not this folder.
 | `agent-layer.md` | LLM tools for damage/scope |
 | `cut-later.md` | Tomorrow-night defer list only |
 | `takehome.md` | Official Round 2 prompt |
-| `capture-route.md` | Walk-in protocol (Route 2) |
+| `capture-route.md` | Walk-in protocol (Route 2, scored) |
+| `capture-route-route1.md` | Optional Route 1: 10-minute cable install (not TestFlight) |
 | `capture-protocol.md` | Our benchmark shoot (max-score) |
 | `compliance-matrix.md` | Requirement coverage |
 | `device-matrix.md` | Hardware × tier |

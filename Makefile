@@ -1,4 +1,4 @@
-.PHONY: setup test reproduce-synthetic benchmark fmt
+.PHONY: setup test reproduce-synthetic benchmark walkin fmt install-capture-app
 
 PYTHON ?= python3
 VENV ?= .venv
@@ -7,6 +7,9 @@ REPRO_OUT ?= out/reproduction
 BENCHMARK_ROOT ?= data/private
 BENCHMARK_OUT ?= out/benchmark
 BENCHMARK_AGENT_MODE ?= auto
+WALKIN_ROOT ?= data/private/walkin
+WALKIN_OUT ?= out/walkin
+WALKIN_AGENT_MODE ?= auto
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -35,5 +38,15 @@ benchmark:
 		PYTHONPATH=src COZMO_AGENT_MODE=$(BENCHMARK_AGENT_MODE) $(PYTHON) -m cozmo_floorplan benchmark $(BENCHMARK_ROOT) --out $(BENCHMARK_OUT); \
 	fi
 
+walkin:
+	@if [ -x $(BIN)/python ]; then \
+		COZMO_AGENT_MODE=$(WALKIN_AGENT_MODE) $(BIN)/python -m cozmo_floorplan walkin $(WALKIN_ROOT) --out $(WALKIN_OUT); \
+	else \
+		PYTHONPATH=src COZMO_AGENT_MODE=$(WALKIN_AGENT_MODE) $(PYTHON) -m cozmo_floorplan walkin $(WALKIN_ROOT) --out $(WALKIN_OUT); \
+	fi
+
 fmt:
 	@echo "No formatter pinned yet."
+
+install-capture-app:
+	./scripts/install-cozmo-capture.sh

@@ -45,6 +45,8 @@ class Record3DPlaneConfig:
     yaw_peak_count: int = 4
     camera_bracket_quantile: float = 0.10
     camera_wall_margin_m: float = 0.05
+    outer_wall_support_ratio: float = 0.35
+    horizontal_envelope_ratio: float = 0.30
     minimum_room_span_m: float = 1.50
     maximum_room_span_m: float = 12.0
     minimum_ceiling_height_m: float = 2.0
@@ -86,6 +88,8 @@ class Record3DOpeningConfig:
     maximum_interruption_bins: int = 1
     minimum_door_width_m: float = 0.55
     maximum_door_width_m: float = 1.40
+    minimum_cased_opening_width_m: float = 1.40
+    maximum_cased_opening_width_m: float = 2.40
     minimum_window_width_m: float = 0.40
     maximum_window_width_m: float = 2.40
     minimum_opening_height_m: float = 1.75
@@ -111,3 +115,15 @@ class Record3DOutputConfig:
 
 
 DEFAULT_RECORD3D_OUTPUT = Record3DOutputConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class Record3DRegisterConfig:
+    """Shared-world opening pairing without inventing a new pose frame."""
+
+    maximum_center_distance_m: float = 1.25
+    maximum_width_delta_m: float = 0.25
+    maximum_height_delta_m: float = 0.40
+
+
+DEFAULT_RECORD3D_REGISTER = Record3DRegisterConfig()

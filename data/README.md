@@ -44,3 +44,7 @@ data/private/benchmark/
 ```
 
 Video contract: `docs/formats/video-job.md`. Photo contract: `docs/formats/photo-job.md`; capture instructions remain in `docs/capture-protocol.md` and `docs/capture-route.md`. LiDAR inputs: `docs/formats/roomplan-json.md` and `docs/formats/record3d.md`.
+
+A cold walk-in uses a separate gitignored tree. Copy `data/templates/walkin` to
+`data/private/walkin` and follow `docs/walk-in.md`. Do not put holdout media in
+the benchmark jobs.

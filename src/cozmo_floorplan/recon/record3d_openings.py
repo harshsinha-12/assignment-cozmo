@@ -35,10 +35,29 @@ def detect_record3d_openings(
 ) -> tuple[Record3DOpeningCandidate, ...]:
     """Find wall gaps only when floor/sill and lintel evidence disambiguate them."""
 
+    return detect_occupancy_openings(
+        points_m,
+        room.polygon_xz_m,
+        room.levels.floor_y_m,
+        room.levels.ceiling_height_m,
+        config=config,
+    )
+
+
+def detect_occupancy_openings(
+    points_m: np.ndarray,
+    polygon_xz_m: tuple[tuple[float, float], ...],
+    floor_y_m: float,
+    ceiling_height_m: float,
+    *,
+    config: Record3DOpeningConfig = DEFAULT_RECORD3D_OPENINGS,
+) -> tuple[Record3DOpeningCandidate, ...]:
+    """Find occupancy-supported door/window gaps on a metric Manhattan polygon."""
+
     _validate_config(config)
     openings: list[Record3DOpeningCandidate] = []
-    polygon = room.polygon_xz_m
-    relative_y = points_m[:, 1] - room.levels.floor_y_m
+    polygon = polygon_xz_m
+    relative_y = points_m[:, 1] - floor_y_m
     for wall_index, start in enumerate(polygon):
         end = polygon[(wall_index + 1) % len(polygon)]
         along, normal, wall_length = point_segment_coordinates(
@@ -55,7 +74,7 @@ def detect_record3d_openings(
                 along[on_wall],
                 relative_y[on_wall],
                 wall_length,
-                room.levels.ceiling_height_m,
+                ceiling_height_m,
                 config,
             )
         )
@@ -128,6 +147,21 @@ def _wall_openings(
         config.maximum_door_width_m,
         ceiling_height_m,
         config,
+    )
+    openings.extend(
+        _opening_runs(
+            wall_index,
+            "cased_opening",
+            door_mask,
+            edges,
+            along_m,
+            relative_y_m,
+            lintel_counts,
+            config.minimum_cased_opening_width_m,
+            config.maximum_cased_opening_width_m,
+            ceiling_height_m,
+            config,
+        )
     )
     openings.extend(
         _opening_runs(
@@ -315,5 +349,7 @@ def _validate_config(config: Record3DOpeningConfig) -> None:
         raise ValueError("Record3D opening thresholds must be positive")
     if config.minimum_door_width_m > config.maximum_door_width_m:
         raise ValueError("Record3D door width bounds must be increasing")
+    if config.minimum_cased_opening_width_m > config.maximum_cased_opening_width_m:
+        raise ValueError("Record3D cased-opening width bounds must be increasing")
     if config.minimum_window_width_m > config.maximum_window_width_m:
         raise ValueError("Record3D window width bounds must be increasing")

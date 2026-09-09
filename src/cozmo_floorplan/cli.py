@@ -7,6 +7,7 @@ from pathlib import Path
 
 from cozmo_floorplan.config import ABLATION_OFF_FILENAME, ExitCode
 from cozmo_floorplan.benchmark import run_benchmark
+from cozmo_floorplan.walkin import run_walkin
 from cozmo_floorplan.errors import CozmoFloorPlanError, JobLoadError
 from cozmo_floorplan.eval.evaluator import evaluate_floorplans
 from cozmo_floorplan.eval.io import load_floorplan, write_evaluation
@@ -73,6 +74,21 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         help="Directory for tier artifacts and benchmark status files.",
     )
+    walkin_parser = subparsers.add_parser(
+        "walkin",
+        help="Time a cold holdout room on all three capture tiers.",
+    )
+    walkin_parser.add_argument(
+        "capture_root",
+        type=Path,
+        help="Directory containing walkin.yaml and per-tier holdout jobs.",
+    )
+    walkin_parser.add_argument(
+        "--out",
+        type=Path,
+        required=True,
+        help="Directory for timed tier artifacts and walk-in status files.",
+    )
     return parser
 
 
@@ -93,6 +109,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
     if args.command == "benchmark":
         return _benchmark_command(args.capture_root, args.out)
+    if args.command == "walkin":
+        return _walkin_command(args.capture_root, args.out)
     return int(ExitCode.INTERNAL_ERROR)
 
 
@@ -169,6 +187,22 @@ def _benchmark_command(capture_root: Path, out_dir: Path) -> int:
         f"status={report['status']} pending={len(report['pending_inputs'])} "
         f"output={(out_dir.resolve() / 'benchmark-status.json')}"
     )
+    return int(ExitCode.OK)
+
+
+def _walkin_command(capture_root: Path, out_dir: Path) -> int:
+    try:
+        report = run_walkin(capture_root, out_dir)
+    except (CozmoFloorPlanError, OSError, ValueError) as exc:
+        print(f"walkin_error={exc}", file=sys.stderr)
+        return int(ExitCode.INTERNAL_ERROR)
+    output = out_dir.resolve() / "walkin-status.json"
+    print(
+        f"status={report['status']} pending={len(report['pending_inputs'])} "
+        f"output={output}"
+    )
+    if report["status"] == "invalid_holdout":
+        return int(ExitCode.STRUCTURED_FAILURE)
     return int(ExitCode.OK)
 
 

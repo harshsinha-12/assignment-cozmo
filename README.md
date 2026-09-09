@@ -35,7 +35,8 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 | `docs/agent-layer.md` | LLM tool calling (damage/scope) |
 | `docs/cut-later.md` | Tomorrow-night defer list only |
 | `docs/takehome.md` | Official case study |
-| `docs/capture-route.md` | Walk-in protocol (Route 2) |
+| `docs/capture-route.md` | Walk-in protocol (Route 2, scored) |
+| `docs/capture-route-route1.md` | Optional 10-minute cable install of Cozmo Capture |
 | `docs/compliance-matrix.md` | Scored coverage table |
 | `docs/device-matrix.md` | Hardware × tier |
 | `docs/writeup.md` | Six-page-cap technical report draft and evidence tables |
@@ -46,7 +47,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 ## Current status
 
-**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, multi-video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, one-command synthetic reproduction, and the T21e iOS RoomPlan plus ARKit `.r3d` job-ZIP exporter work. Calibrated video sidecars can produce conservative partial room geometry; photos have deterministic within/cross-room overlap graphs; real Record3D emits partial metric geometry. Video openings/shared constraints, photo SfM, cross-scan registration, calibration, scored accuracy, and the signed T21 install remain.**
+**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, multi-video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, one-command synthetic reproduction, and the T21 iOS RoomPlan plus ARKit `.r3d` job-ZIP exporter work. Cozmo Capture is installed on Harsh's iPhone 17 Pro. Walk-in install is a cable Personal-Team command, not TestFlight; the scored route stays Route 2 until that install is timed on Cozmo's phone. Calibrated video sidecars can produce conservative partial room geometry; photos have deterministic within/cross-room overlap graphs; real Record3D emits partial metric geometry. Video openings/shared constraints, photo SfM, cross-scan registration, calibration, and scored accuracy remain.**
 
 See [`roadmap.md`](roadmap.md).
 
@@ -87,6 +88,18 @@ silently skipped. The target defaults to `COZMO_AGENT_MODE=auto`, so the final
 run uses the configured `.env` key and retains the normal fallback if the API
 is unavailable. Use `make benchmark BENCHMARK_AGENT_MODE=fallback` for an
 explicit offline rehearsal.
+
+A cold holdout room is a separate command. Copy `data/templates/walkin` into
+`data/private/walkin`, shoot a room that is **not** `drawing-room` /
+`my-room` / `pooja-room` / `connector`, then:
+
+```bash
+make walkin
+```
+
+Review `out/walkin/walkin-summary.md`. Missing holdout media stays `pending`.
+Reusing a benchmark room exits `invalid_holdout`. The defense command remains
+`python -m cozmo_floorplan run JOB --out OUT` (`docs/walk-in.md`).
 
 For live claims enrichment, copy `.env.example` to the ignored `.env` and set `OPENAI_API_KEY`. The default `COZMO_AGENT_MODE=auto` uses OpenAI when the key exists and the same deterministic tools otherwise. Set `COZMO_AGENT_MODE=fallback` to force an offline run. Never commit `.env`.
 

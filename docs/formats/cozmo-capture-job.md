@@ -50,4 +50,6 @@ Incomplete archives (wrong/missing `manifest.yaml`, missing tier files, empty
 RoomPlan `rooms[]`, or photo counts outside 2–8) are rejected before
 reconstruction.
 
-This does not replace the scored Route 2 capture protocol.
+This does not replace the scored Route 2 capture protocol. The optional
+Route 1 walk-in card is `docs/capture-route-route1.md` (cable install, no
+TestFlight).

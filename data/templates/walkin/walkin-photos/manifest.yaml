@@ -1,0 +1,7 @@
+job_id: walkin-photos-holdout
+tier: photos
+device: replace-me-exact-iphone-model
+capture_tool: iPhone Camera
+rooms:
+  - holdout-room
+notes: Cold walk-in stills. Eight JPEGs in photos/holdout-room/. Do not reuse drawing-room, my-room, pooja-room, or connector.
