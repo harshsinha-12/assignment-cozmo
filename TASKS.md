@@ -48,7 +48,7 @@ Do **not** invent centimetres.
 | T8 | doing | Photos path, 2–8 stills, folder stitch | — | present | T8a–T8b3 done. T8c SfM still blocked until post-EXIF overlap is measured and connected |
 | T21 | doing | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | no | T21a–T21g done on Harsh's iPhone 17 Pro. T21h cable card+script done; Harsh device copy **~18 s**. TestFlight declined. Scored route stays Route 2 until the same install is timed on *their* phone |
 | T17 | done | Device matrix + capture-route polish | T3 | measured | 2026-09-10 measured harsh-home-01 intervals in `docs/device-matrix.md` |
-| T18 | doing | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | evidence present | Magicplan 2026.35.0; my-room AABB + 6 pooja traced walls. Latest `make benchmark` LiDAR **81.7%**, fail vs ≥70% |
+| T18 | doing | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | evidence present | Magicplan 2026.35.0; my-room AABB + 6 pooja traced walls. Latest `make benchmark` LiDAR **81.7%**, pass vs ≥70% |
 | T10 | done | Technical report ≤ 6 pages + benchmark tables | T19 | no | 2026-09-10: 1,889-word report with regenerable gate table |
 | T20 | done | README 15 min + reproduction bundle + compliance matrix | T10 | no | 2026-09-10 submission README refreshed with run formats, scoring status, both routes, and conservative GitHub cleanup |
 | T11 | doing | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | Harness shipped (`make walkin`, `docs/walk-in.md`). Media still needed: eight JPEGs, one MP4, Record3D `.r3d`, tape. Forbidden rooms: drawing-room, my-room, pooja-room, connector |
