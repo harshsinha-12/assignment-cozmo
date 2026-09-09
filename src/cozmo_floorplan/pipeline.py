@@ -8,6 +8,7 @@ from cozmo_floorplan.floorplan import build_failed_floorplan
 from cozmo_floorplan.errors import ReconstructionError
 from cozmo_floorplan.io.job import Job, load_job
 from cozmo_floorplan.recon.lidar import reconstruct_lidar
+from cozmo_floorplan.recon.photos import reconstruct_photos
 from cozmo_floorplan.recon.video import reconstruct_video
 from cozmo_floorplan.stitch import apply_drift_correction
 
@@ -50,6 +51,12 @@ def run_loaded_job(job: Job, *, drift_correction: bool = True) -> tuple[FloorPla
     if job.tier == "video":
         try:
             reconstruct_video(job)
+        except ReconstructionError as exc:
+            return _structured_failure(job, exc), None
+
+    if job.tier == "photos":
+        try:
+            reconstruct_photos(job)
         except ReconstructionError as exc:
             return _structured_failure(job, exc), None
 

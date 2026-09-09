@@ -33,4 +33,4 @@ data/private/benchmark/
     tape.jpg                    # photo of laser/tape on a wall
 ```
 
-Video contract: `docs/formats/video-job.md`. Photo folders: `docs/capture-protocol.md` and `docs/capture-route.md`. LiDAR JSON: `docs/formats/roomplan-json.md`.
+Video contract: `docs/formats/video-job.md`. Photo contract: `docs/formats/photo-job.md`; capture instructions remain in `docs/capture-protocol.md` and `docs/capture-route.md`. LiDAR JSON: `docs/formats/roomplan-json.md`.

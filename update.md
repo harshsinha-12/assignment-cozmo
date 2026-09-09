@@ -13,6 +13,20 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — TASKS: what can ship without media
+
+- Added a **Without media** section and a **Needs media?** column so agents do not wait on T3 for T19 / T21 / writeup draft.
+- Next without uploads: T19 freeze fix-loop before on the synthetic RoomPlan job. T6/T7 VO/T8 SfM/T17/T18/T11 stay blocked on `data/private/`.
+
+## 2026-09-09 — T8a photo-folder ingest complete
+
+- Added separate photo ingest config, immutable I/O records, reconstruction boundary, generated-JPEG tests, and a public job-format document.
+- The loader discovers room folders deterministically, enforces 2–8 images per room, decodes each supported file, rejects corrupt/undersized evidence, and records pixel dimensions.
+- Multi-room photo evidence now reaches a structured `unsupported_tier` boundary that states exactly what was validated. It does not invent centimetres before SfM, adjacency, and a declared scale source exist.
+- Updated `docs/code-map.md`, compliance, README, capture-tier notes, data drop instructions, and `TASKS.md`. T8a is done; full T8 remains blocked on real T3 media for metric reconstruction and calibrated intervals.
+- Verified 50 tests, `ruff check .`, compileall, and the combined diff against HEAD. No commit was made.
+- Next media-independent stage: T19 freeze the regenerable fix-loop “before” bundle.
+
 ## 2026-09-08 — T9 shared-wall fix + T7 video ingest
 
 - Context: Harsh adds photos/video/LiDAR tomorrow. Tonight: finish work that does not need those files. T9’s injected 20 cm gap was not actually closing.

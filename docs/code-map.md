@@ -18,6 +18,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | File | Responsibility |
 | --- | --- |
 | `src/cozmo_floorplan/io/job.py` | Reads `manifest.yaml`, checks the tier-specific job directory, and produces immutable normalized job metadata. |
+| `src/cozmo_floorplan/io/photos.py` | Discovers stable per-room image sets, decodes every supported image, and records immutable path/dimension metadata. |
 | `src/cozmo_floorplan/io/video.py` | Discovers MP4/MOV walkthroughs and samples RGB frames with OpenCV at a bounded rate. |
 | `src/cozmo_floorplan/io/output.py` | Reusable atomic UTF-8 text and JSON persistence, plus the compatibility `floorplan.json` writer. |
 | `src/cozmo_floorplan/io/artifacts.py` | Validates once, renders in memory, and persists the paired `floorplan.json` and `floorplan.svg` run artifacts. |
@@ -39,6 +40,9 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/recon/measurements.py` | Builds interval-bearing LiDAR and derived diagnostic measurements without treating transforms as exact. |
 | `src/cozmo_floorplan/recon/lidar.py` | Converts RoomPlan rooms, walls, openings, and adjacency into FloorPlan v0.2; detects unsupported Record3D/USDZ inputs. |
 | `docs/formats/roomplan-json.md` | Public input contract for the tested RoomPlan JSON adapter. |
+| `src/cozmo_floorplan/recon/photos_config.py` | Official 2–8 photo count, accepted extensions, and minimum image-size settings. |
+| `src/cozmo_floorplan/recon/photos.py` | Photo-tier boundary: validates every room folder and refuses metric output until SfM, adjacency, and scale exist. |
+| `docs/formats/photo-job.md` | Public per-room photo job layout and current metric-reconstruction boundary. |
 | `src/cozmo_floorplan/recon/video_config.py` | Sample rate, frame caps, extensions, and pose-sidecar filenames. |
 | `src/cozmo_floorplan/recon/video.py` | Video-tier adapter: samples a walkthrough, detects pose sidecars, refuses uncalibrated centimetres. |
 | `docs/formats/video-job.md` | Public video job layout and metric boundary. |
@@ -104,6 +108,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `data/fixtures/roomplan_two_room/` | Synthetic RoomPlan-format LiDAR job that reconstructs the same metric room dimensions. |
 | `tests/test_lidar.py` | Tests single/multi-room discovery, RoomPlan conversion, intervals, metric gates, CLI output, and honest unsupported fallbacks. |
 | `tests/test_render.py` | Tests parseable whole-property SVG, dimensions, openings, deterministic output, XML escaping, and failed-run placeholders. |
+| `tests/test_photos.py` | Tests room discovery, the official 2–8 count, corrupt-image rejection, multi-room ordering, and honest metric refusal using generated JPEGs. |
 | `tests/test_agent.py` | Tests fallback and mocked-live agents, metric ownership, rule validation, transactional rollback, and schema-valid claims output. |
 | `tests/test_stitch.py` | Tests correction-on/off metadata, ablation artifacts, injected 20 cm opening-gap closure, and the drift eval gate. |
 | `tests/test_video.py` | Tests empty video jobs, generated-mp4 frame sampling, pose-sidecar mention, and honest metric refusal. |
@@ -113,7 +118,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 
 Later tasks add real modules only when they contain working behavior:
 
-- `recon/photos.py` — photo-folder adapter and scale/CIs.
+- Metric SfM, Manhattan regularization, scale, and calibrated intervals inside `recon/photos.py` once real capture evidence exists.
 - Metric visual odometry inside `recon/video.py` once a real walkthrough exists.
 - Additional `geom/` modules — point-cloud and plane operations as required.
 

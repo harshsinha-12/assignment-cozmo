@@ -8,26 +8,43 @@ Product: local CLI + **disclosed LLM tool-calling agent**. Score policy: max eve
 
 ---
 
+## Without media (do these while T3 is empty)
+
+Harsh’s photos / video / LiDAR are **not** required for the rows below. Use generated fixtures and the RoomPlan two-room job. Do **not** invent centimetres or mark a scored gate pass without eval numbers.
+
+| ID | Can finish now? | What to do without uploads |
+| --- | --- | --- |
+| **T19** | **Yes — next** | Freeze the regenerable fix-loop **before** bundle on the synthetic RoomPlan run (`docs/fix-loop.md` does not exist yet). Declaration + `eval.json` + ablation-off. The **after** / fail→pass ship waits until a real failing gate exists (usually after T3). |
+| **T21** | Yes, if Xcode.app | Thin iOS RoomPlan exporter. Blocked on full Xcode, **not** on captures. Command Line Tools only → skip. |
+| **T10** | Draft only | Architecture, tier design, drift write-up, error-budget narrative in `docs/writeup.md`. Leave numbered benchmark tables blank until T3 eval. |
+| **T20** | Partial | Clean-machine README command, compliance-matrix file paths, synthetic reproduction. Do not fill measured device intervals. |
+| T8 remainder | Ingest only (done) | Folder discovery / 2–8 JPEG checks already ship. Metric SfM, scale, adjacency, ±8% walls need T3 photos. |
+| T7 remainder | Ingest only (done) | Frame sampling already ships. Metric VO / ±3% walls need T3 walkthrough. |
+
+**Do not start without media:** T3 itself, T6 raw Record3D/USDZ, T7 VO, T8 SfM, T17 measured intervals, T18 Polycam/magicplan, T11 walk-in.
+
+---
+
 ## Now
 
-| ID | Status | Task | Blocked-by | Notes |
-| --- | --- | --- | --- | --- |
-| T0 | done | Orchestration kit | — | 2026-09-07 |
-| T1 | done | Official prompt in `docs/takehome.md` | human | 2026-09-08 |
-| T2 | done | Synthetic two-room fixture | — | 2026-09-07 |
-| T4 | done | Reconcile plan with official prompt | T1 | 2026-09-08 ingest |
-| T3 | todo | Human benchmark capture | human + Pro phone | See Unblocked; parallel with engineering |
-| T6 | blocked | LiDAR export → FloorPlan | T3 real Record3D export | RoomPlan JSON works; raw Record3D/USDZ must be hardened on captured files |
-| T9 | done | Stitch + drift correction + on/off ablation | T6 | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
-| T7 | todo | Video path | T6 | Ingest+sampling shipped; metric VO / ±3% still needs T3 walkthrough |
-| T8 | todo | Photos path, 2–8 stills, folder stitch | T9 | Unblocked. Target ±8% walls **and** opening/ceiling/detection gates |
-| T21 | todo | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | Parallel. Scored route stays Route 2 until install works |
-| T17 | todo | Device matrix + capture-route polish | T3 | Fill measured intervals after eval |
-| T18 | todo | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | Beat/tie ≥ 70% shared dims |
-| T19 | todo | Fix loop bundle | T14 | Freeze **before** as soon as eval runs; ship fail→pass |
-| T10 | todo | Technical report ≤ 6 pages + benchmark tables | T19 | `docs/writeup.md` |
-| T20 | todo | README 15 min + reproduction bundle + compliance matrix | T10 | 100% contract coverage |
-| T11 | todo | Walk-in rehearsal on a new room, all three tiers | T20 | Follow submitted capture route |
+| ID | Status | Task | Blocked-by | Needs media? | Notes |
+| --- | --- | --- | --- | --- | --- |
+| T0 | done | Orchestration kit | — | no | 2026-09-07 |
+| T1 | done | Official prompt in `docs/takehome.md` | human | no | 2026-09-08 |
+| T2 | done | Synthetic two-room fixture | — | no | 2026-09-07 |
+| T4 | done | Reconcile plan with official prompt | T1 | no | 2026-09-08 ingest |
+| T3 | todo | Human benchmark capture | human + Pro phone | **yes — this is the upload** | See Unblocked |
+| T6 | blocked | LiDAR export → FloorPlan | T3 real Record3D export | **yes** (raw Record3D/USDZ) | RoomPlan JSON path already works on the synthetic fixture |
+| T9 | done | Stitch + drift correction + on/off ablation | T6 | no | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
+| T7 | todo | Video path | T6 | ingest **no**; metric VO **yes** | Sampling shipped; ±3% walls need T3 walkthrough |
+| T8 | todo | Photos path, 2–8 stills, folder stitch | T3 media | ingest **no**; SfM/scale **yes** | T8a ingest done. Target ±8% walls plus opening/ceiling/detection gates |
+| T21 | todo | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | Xcode.app | no | Parallel. Scored route stays Route 2 until install works |
+| T17 | todo | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | Protocol text can be edited now; numbers wait on eval |
+| T18 | todo | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | **yes** | Beat/tie ≥ 70% shared dims |
+| T19 | todo | Fix loop bundle | T14 | **before: no**; after: usually yes | Freeze **before** on synthetic now; ship fail→pass after a real miss |
+| T10 | todo | Technical report ≤ 6 pages + benchmark tables | T19 | draft **no**; tables **yes** | `docs/writeup.md` |
+| T20 | todo | README 15 min + reproduction bundle + compliance matrix | T10 | partial **no**; measured rows **yes** | 100% contract coverage |
+| T11 | todo | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | Follow submitted capture route |
 
 ---
 
@@ -53,12 +70,13 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-If T3 files are not in the repo yet: **T8 photo ingest** (mirror the video sampler: per-room JPEGs, no invented centimetres) or freeze **T19** “before”. Metric **T7 VO** starts as soon as a walkthrough exists. **T21** only if full Xcode.app is installed. T6 raw Record3D remains blocked on human **T3**.
+See **Without media** above. Next fully unblocked: **T19** (freeze fix-loop before on the synthetic RoomPlan job). **T21** if Xcode.app exists. Do not start T6 raw Record3D, T7 VO, T8 SfM, T17 numbers, T18, or T11 until files are in `data/private/`.
 
 ---
 
 ## Done
 
+- **2026-09-09 T8a ingest** — Stable per-room photo discovery, official 2–8 count enforcement, real decode/size validation, generated-JPEG tests, and structured refusal until metric SfM/scale/adjacency exist.
 - **2026-09-08 T7 ingest** — Video job sampling (OpenCV, ~2 Hz) and pose-sidecar detection. Structured failure until metric VO; no guessed centimetres. Generated mp4 tests, no private capture required.
 - **2026-09-09 T9** — Plane-anchored shared-opening drift correction, SE(2) constraint graph, correction-on/poses-as-is CLI artifacts, residual metadata, eval wiring, and synthetic 20 cm drift regression. Shared walls stay with the originating room so the gap actually closes.
 - **2026-09-08 T16** — Live OpenAI Responses tool-calling agent plus transactional deterministic fallback; strict damage, concealed-rule, and scope tools; metric observation contract; live synthetic smoke test.

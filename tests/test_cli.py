@@ -28,7 +28,7 @@ def _read_and_validate(output_path: Path) -> dict:
     return document
 
 
-def test_run_writes_schema_valid_structured_adapter_failure(tmp_path):
+def test_run_writes_schema_valid_structured_ingest_failure(tmp_path):
     job_dir = tmp_path / "job"
     out_dir = tmp_path / "out"
     _write_manifest(job_dir)
@@ -43,7 +43,8 @@ def test_run_writes_schema_valid_structured_adapter_failure(tmp_path):
     assert document["status"] == "failed"
     assert document["provenance"]["tier"] == "photos"
     assert document["provenance"]["inputs"] == ["manifest.yaml", "photos/room_a_01.jpg"]
-    assert document["warnings"][0]["code"] == "unsupported_tier"
+    assert document["warnings"][0]["code"] == "incomplete_scan"
+    assert "room folders" in document["warnings"][0]["message"]
     svg_path = out_dir / "floorplan.svg"
     assert svg_path.exists()
     assert "No geometry available" in svg_path.read_text(encoding="utf-8")

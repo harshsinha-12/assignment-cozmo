@@ -18,7 +18,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 **Human (tomorrow):** capture the benchmark — [`docs/capture-protocol.md`](docs/capture-protocol.md). Drop files in gitignored `data/private/` ([`data/README.md`](data/README.md)). Short list: [`START-TOMORROW.md`](START-TOMORROW.md).
 
-**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). T9 stitch works. Next without captures: **T8 photo ingest**. T6 raw Record3D and T7 metric VO wait on tomorrow’s files.
+**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). T9 stitch and T8a photo ingest work. Next without captures: **T19 fix-loop before bundle**. Metric adapters wait on tomorrow’s files.
 
 ## Repo map
 
@@ -43,7 +43,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 ## Current status
 
-**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, T7 video ingest, paired JSON/SVG, and T16 claims agent/tools work. Metric video/photos and raw Record3D await capture.**
+**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, video/photo ingest, paired JSON/SVG, and T16 claims agent/tools work. Metric video/photos and raw Record3D await capture.**
 
 See [`roadmap.md`](roadmap.md).
 
@@ -73,6 +73,8 @@ The optional `damage_observations.json` contract supplies surface-mapped metric 
 Evaluate the pair with `python -m cozmo_floorplan eval --pred OUT/floorplan.json --truth TRUTH --ablation-off OUT/floorplan.ablation-off.json --out OUT/eval.json`. Missing repeat, real-capture, and incumbent evidence stays visibly red.
 
 Video jobs: put one MP4/MOV in `video/` (`docs/formats/video-job.md`). The CLI samples frames and currently exits with a structured failure rather than guessing centimetres.
+
+Photo jobs: put 2–8 decodable images per room under `photos/<room_id>/` (`docs/formats/photo-job.md`). Ingest is ready; metric SfM, adjacency, and scale remain capture-dependent.
 
 ## Design in one paragraph
 

@@ -64,3 +64,5 @@ LiDAR JSON → IR → SVG → eval. Everything else reuses extract + stitch.
 **Current implementation:** portable RoomPlan JSON v1 → FloorPlan works against `data/fixtures/roomplan_two_room`. T9 plane-anchors shared openings (shared walls stay with the first owner room) and writes a poses-as-is ablation. See `docs/formats/roomplan-json.md`. Raw Record3D depth/pose fusion and USDZ remain pending a real exported fixture; the CLI detects them and fails structurally rather than inventing geometry.
 
 Video: frames are sampled from `video/*.mp4` (`docs/formats/video-job.md`). Metric VO is not implemented; uncalibrated walkthroughs do not emit centimetres.
+
+Photos: per-room folders and 2–8 decodable images per room are validated (`docs/formats/photo-job.md`). Metric SfM, adjacency inference, and calibrated scale still wait on real captures; ingest does not emit invented centimetres.
