@@ -104,48 +104,69 @@ def recover_scale_free_trajectory(
     segments: list[TrajectorySegment] = []
     active_poses: list[RelativeCameraPose] = []
     segment_breaks = 0
+    selected = tuple(indices)
+    position = 0
 
-    for left_index, right_index in zip(indices, indices[1:], strict=False):
-        left = features[left_index]
-        right = features[right_index]
-        correspondences = match_frame_features(left, right, tracking_config)
-        track = analyze_feature_pair(
-            left_index,
-            left,
-            right,
-            tracking_config,
-            correspondences,
-        )
-        estimate, pose_reasons = (
-            _recover_relative_pose(
+    while position < len(selected) - 1:
+        found = False
+        for span in range(1, trajectory_config.maximum_edge_span + 1):
+            target = position + span
+            if target >= len(selected):
+                break
+            left_index = selected[position]
+            right_index = selected[target]
+            left = features[left_index]
+            right = features[right_index]
+            correspondences = match_frame_features(left, right, tracking_config)
+            track = analyze_feature_pair(
+                left_index,
+                left,
+                right,
+                tracking_config,
                 correspondences,
-                intrinsic_matrix,
-                trajectory_config,
             )
-            if track.eligible
-            else (None, track.rejection_reasons)
-        )
-        accepted = estimate is not None
-        edges.append(
-            PoseEdgeDiagnostics(
-                left_index=left_index,
-                right_index=right_index,
-                accepted=accepted,
-                pose_inliers=estimate.pose_inliers if estimate else 0,
-                cheirality_ratio=estimate.cheirality_ratio if estimate else 0.0,
-                rejection_reasons=pose_reasons,
+            estimate, pose_reasons = (
+                _recover_relative_pose(
+                    correspondences,
+                    intrinsic_matrix,
+                    trajectory_config,
+                )
+                if track.eligible
+                else (None, track.rejection_reasons)
             )
-        )
-        if not accepted:
-            if active_poses:
-                _append_segment(segments, active_poses, trajectory_config)
-                active_poses = []
-                segment_breaks += 1
+            accepted = estimate is not None
+            edges.append(
+                PoseEdgeDiagnostics(
+                    left_index=left_index,
+                    right_index=right_index,
+                    accepted=accepted,
+                    pose_inliers=estimate.pose_inliers if estimate else 0,
+                    cheirality_ratio=estimate.cheirality_ratio if estimate else 0.0,
+                    rejection_reasons=pose_reasons,
+                )
+            )
+            if not accepted:
+                continue
+            if not active_poses:
+                active_poses = [_identity_pose(left_index)]
+            active_poses.append(
+                _compose_pose(
+                    active_poses[-1],
+                    right_index,
+                    estimate,
+                    step_length=float(span),
+                )
+            )
+            position = target
+            found = True
+            break
+        if found:
             continue
-
-        if not active_poses:
-            active_poses = [_identity_pose(left_index)]
-        active_poses.append(_compose_pose(active_poses[-1], right_index, estimate))
+        if active_poses:
+            _append_segment(segments, active_poses, trajectory_config)
+            active_poses = []
+            segment_breaks += 1
+        position += 1
 
     if active_poses:
         _append_segment(segments, active_poses, trajectory_config)
@@ -249,11 +270,14 @@ def _compose_pose(
     previous: RelativeCameraPose,
     frame_index: int,
     estimate: RelativePoseEstimate,
+    *,
+    step_length: float = 1.0,
 ) -> RelativeCameraPose:
     previous_rotation = np.asarray(previous.rotation_camera_to_segment).reshape(3, 3)
     relative_rotation = estimate.rotation_left_to_right
     camera_step_left = (
-        -relative_rotation.T @ estimate.translation_direction_left_to_right
+        -relative_rotation.T
+        @ (estimate.translation_direction_left_to_right * step_length)
     )
     position = (
         np.asarray(previous.position_unitless) + previous_rotation @ camera_step_left
@@ -321,3 +345,5 @@ def _validate_config(config: VideoTrajectoryConfig) -> None:
         raise ValueError("video trajectory cheirality ratio must be in (0, 1]")
     if config.minimum_segment_pose_count < 2:
         raise ValueError("video trajectory segments must contain at least two poses")
+    if config.maximum_edge_span < 1:
+        raise ValueError("video trajectory edge span must be at least one")

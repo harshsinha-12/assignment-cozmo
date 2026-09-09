@@ -13,6 +13,56 @@ Format:
 - Next
 ```
 
+## 2026-09-10 — T7/T8/T18 native video, EXIF photos, denser Magicplan
+
+- Context: User asked to work T7 (no metric poses on native MP4s), T8
+  (disconnected photo graphs), and T18 (Magicplan comparison only two
+  ceilings). Session was interrupted once; this entry is the landed code.
+- Done: Photo ingest/features apply EXIF display orientation. Video trajectories
+  may use a real skip-span pose when an adjacent pair fails. Native MP4s can
+  attempt a disclosed 1.45 m handheld-height scale (`imu_vo`) after unitless
+  triangulation finds a floor. Magicplan my-room 4.20×3.29 m is encoded as
+  four AABB walls; head-to-head also compares floor area. Pooja-room walls
+  remain absent. Focused tests: 53 passed. Full pytest and `make benchmark`
+  were not completed. No commit.
+- Learned: `cv2.imread` ignores EXIF; several iPhone stills are orientation 6
+  (doorway/through-door vs wall shots). Do not treat pre-EXIF 2/2/5/3
+  component counts as current. Skip-span is a measured i→i+2 essential pose
+  with step length = span, not interpolation across a rejected edge. Native
+  rooms do not share a world frame; overlaying them would be a lie. Magicplan
+  pooja-room perimeter+area is not a rectangle (negative discriminant); do not
+  invent its walls. Pytest needs `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1`.
+- Next: Run the test suite, remasure real photo overlap and native video,
+  patch format/code-map/ADR docs, then `make benchmark` for the denser
+  T18 table. T8c still waits on a connected graph. T21h is unchanged.
+
+## 2026-09-10 — TestFlight path (blocked on paid team)
+
+- Context: Harsh asked how others can install Cozmo Capture via TestFlight.
+- Done: Documented the App Store Connect / External Testing flow in
+  `ios/CozmoCapture/README.md`. Set `ITSAppUsesNonExemptEncryption` to false
+  so the first archive is not held on the export-compliance questionnaire.
+- Learned: The current `DEVELOPMENT_TEAM` `PH4KQ4LY92` is a free Personal
+  Team. It can Xcode-install on Harsh's phone and cannot upload to TestFlight.
+  Cozmo testers are not on this App Store Connect account, so they need
+  External Testing + Beta App Review, not Internal Testing.
+- Next: Enroll in the Apple Developer Program, switch the Xcode team, create
+  the app record, Archive, then invite testers. Keep Route 2 scored until that
+  install is under 10 minutes on their phone.
+
+## 2026-09-10 — T21g first Route 1 capture ingested
+
+- Context: Harsh installed the app and shared `cozmo-capture-20260909-190805`.
+- Done: Copied the job to `data/private/route1-roomplan/`. CLI reconstructed
+  centimetres from RoomPlan JSON (`status=partial`). `.r3d` has 40 valid
+  RGB-D frames. Track the AirDrop dump at repo-root `cozmo-capture/` (do not
+  gitignore it).
+- Learned: Wall loop was open (`incomplete_scan` / convex hull). Trajectory
+  extent is ~0.4 m, so the scan was mostly in-place. Do not mix with Route 2
+  Record3D under `data/private/benchmark-lidar/`.
+- Next: Recapture walking the perimeter; then more rooms. T21h TestFlight or
+  timed install on Cozmo's phone.
+
 ## 2026-09-09 — T21f CLI ZIP ingest
 
 - Context: T21e packed a job ZIP but the CLI still required a directory.
@@ -755,3 +805,12 @@ See `README.md` for the map. Do not delete the original PDF even though the file
 - Review this stage. Remaining T6 work requires opening truth and cross-room
   connector evidence. T7 native video and T8 photo SfM remain the next code
   tracks that can materially advance without inventing LiDAR geometry.
+
+---
+
+## 2026-09-10 — T7 video measurement config fix
+
+- Fixed `video_measurements._measurement` so callers pass the configured method
+  string explicitly instead of referencing an undefined `config` variable.
+- Ruff and 12 focused video adapter/FloorPlan tests pass.
+- Broader T7 native-scale work remains active in the shared worktree.

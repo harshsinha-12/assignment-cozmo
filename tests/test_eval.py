@@ -129,7 +129,7 @@ def test_lidar_head_to_head_reports_wins_against_incumbent():
     gate = _gate(report, "head_to_head")
 
     assert gate.status == "pass"
-    assert gate.metrics["shared_dimensions"] == 11
+    assert gate.metrics["shared_dimensions"] == 13
     assert gate.metrics["win_rate"] == 1
 
 

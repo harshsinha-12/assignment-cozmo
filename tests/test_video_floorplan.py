@@ -103,3 +103,40 @@ def test_pipeline_returns_successful_video_adapter_document(monkeypatch, tmp_pat
     assert document["provenance"]["tier"] == "video"
     assert document["rooms"][0]["id"] == "room-a"
     assert ablation is None
+
+
+def test_native_height_rooms_can_be_independently_placed(tmp_path):
+    first = _reconstruction(tmp_path, "room-a")
+    second = _reconstruction(tmp_path, "room-b")
+    first = VideoRoomReconstruction(
+        source=first.source,
+        pose_sidecar=first.pose_sidecar,
+        world_frame_id="native-video-assumed-up:room-a",
+        scale_source="known_length",
+        room=first.room,
+        sampled_frames=first.sampled_frames,
+        metric_voxel_count=first.metric_voxel_count,
+        accepted_pair_count=first.accepted_pair_count,
+        gravity_source="assumed",
+    )
+    second = VideoRoomReconstruction(
+        source=second.source,
+        pose_sidecar=second.pose_sidecar,
+        world_frame_id="native-video-assumed-up:room-b",
+        scale_source="known_length",
+        room=second.room,
+        sampled_frames=second.sampled_frames,
+        metric_voxel_count=second.metric_voxel_count,
+        accepted_pair_count=second.accepted_pair_count,
+        gravity_source="assumed",
+    )
+
+    document = build_video_floorplan(_job(tmp_path), (first, second))
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    jsonschema.validate(instance=document, schema=schema)
+
+    assert document["provenance"]["scale_source"] == "known_length"
+    assert document["provenance"]["gravity_source"] == "assumed"
+    assert document["rooms"][0]["ceiling_height"]["interval"]["confidence"] == 0.55
+    assert document["rooms"][1]["polygon"][0][0] > document["rooms"][0]["polygon"][1][0]
+    assert document["warnings"][1]["code"] == "disconnected_rooms"

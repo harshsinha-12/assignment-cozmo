@@ -125,7 +125,7 @@ def test_failed_feature_edge_breaks_and_restarts_trajectory(monkeypatch):
 
     result = recover_scale_free_trajectory(
         _blank_video(5),
-        trajectory_config=VideoTrajectoryConfig(maximum_frame_count=5),
+        trajectory_config=VideoTrajectoryConfig(maximum_frame_count=5, maximum_edge_span=1),
     )
 
     assert result.accepted_edges == 3
@@ -139,6 +139,72 @@ def test_failed_feature_edge_breaks_and_restarts_trajectory(monkeypatch):
     ]
     assert result.segments[0].poses[1].position_unitless == (-1.0, 0.0, 0.0)
     assert result.intrinsics_source == "image_size_focal_prior_unvalidated"
+
+
+def test_skip_span_pose_uses_real_pair_instead_of_interpolating(monkeypatch):
+    def fake_extract(_frame, _config):
+        marker = fake_extract.index
+        fake_extract.index += 1
+        return FrameFeatures((), np.array([[marker]], dtype=np.uint8), (320, 240))
+
+    fake_extract.index = 0
+
+    def fake_match(left, _right, _config):
+        marker = int(left.descriptors[0, 0])
+        points = np.full((12, 2), marker, dtype=np.float32)
+        return PairCorrespondences(points, points, np.eye(3), np.ones(12, dtype=bool))
+
+    def fake_track(_index, left, right, _config, _correspondences):
+        left_marker = int(left.descriptors[0, 0])
+        right_marker = int(right.descriptors[0, 0])
+        eligible = not (left_marker == 1 and right_marker == 2)
+        return PairTrackDiagnostics(
+            left_marker,
+            right_marker,
+            100,
+            100,
+            40,
+            30,
+            0.75,
+            8.0,
+            2.0,
+            0.2,
+            eligible,
+            () if eligible else ("poor_frame_coverage",),
+        )
+
+    estimate = RelativePoseEstimate(
+        rotation_left_to_right=np.eye(3),
+        translation_direction_left_to_right=np.array([1.0, 0.0, 0.0]),
+        pose_inliers=24,
+        cheirality_ratio=0.9,
+    )
+
+    monkeypatch.setattr(trajectory_module, "extract_frame_features", fake_extract)
+    monkeypatch.setattr(trajectory_module, "match_frame_features", fake_match)
+    monkeypatch.setattr(trajectory_module, "analyze_feature_pair", fake_track)
+    monkeypatch.setattr(
+        trajectory_module,
+        "_recover_relative_pose",
+        lambda *_args: (estimate, ()),
+    )
+
+    result = recover_scale_free_trajectory(
+        _blank_video(5),
+        trajectory_config=VideoTrajectoryConfig(maximum_frame_count=5, maximum_edge_span=2),
+    )
+
+    assert [(edge.left_index, edge.right_index, edge.accepted) for edge in result.edges] == [
+        (0, 1, True),
+        (1, 2, False),
+        (1, 3, True),
+        (3, 4, True),
+    ]
+    assert result.segment_breaks == 0
+    assert [tuple(pose.frame_index for pose in segment.poses) for segment in result.segments] == [
+        (0, 1, 3, 4)
+    ]
+    assert result.segments[0].poses[2].position_unitless == (-3.0, 0.0, 0.0)
 
 
 def test_single_frame_returns_no_metric_or_pose_claim():

@@ -301,7 +301,9 @@ def test_calibrated_supported_room_returns_video_floorplan(monkeypatch, tmp_path
         "Tracks",
         (),
         {
-            "accepted_for_relative_vo": True,
+            # A low aggregate ratio is diagnostic only when locally connected,
+            # individually gated pose edges still form a usable segment.
+            "accepted_for_relative_vo": False,
             "eligible_pairs": 2,
             "analyzed_pairs": 2,
             "median_keypoints": 200.0,

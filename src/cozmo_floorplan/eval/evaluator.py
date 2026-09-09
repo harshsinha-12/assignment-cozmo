@@ -398,7 +398,7 @@ def _head_to_head_gate(
         status="pass" if passed else "fail",
         threshold=threshold,
         metrics={"shared_dimensions": len(shared), "wins_or_ties": wins, "win_rate": win_rate},
-        detail="Shared dimensions include wall lengths, opening widths, and ceiling heights.",
+        detail="Shared dimensions include wall lengths, opening widths, ceiling heights, and floor areas.",
     )
 
 
@@ -501,6 +501,9 @@ def _dimension_errors_by_truth_key(document: FloorPlan, truth: FloorPlan) -> dic
     for prediction_room, truth_room in room_matches.pairs:
         errors[f"room:{truth_room['id']}:ceiling_height"] = abs(
             value(prediction_room["ceiling_height"]) - value(truth_room["ceiling_height"])
+        )
+        errors[f"room:{truth_room['id']}:area"] = abs(
+            value(prediction_room["area"]) - value(truth_room["area"])
         )
     for prediction_opening, truth_opening in opening_matches.pairs:
         errors[f"opening:{truth_opening['id']}:width"] = abs(

@@ -23,6 +23,12 @@ from cozmo_floorplan.recon.video_floorplan import (
     VideoRoomReconstruction,
     build_video_floorplan,
 )
+from cozmo_floorplan.recon.video_native_scale import (
+    NATIVE_SCALE_SOURCE,
+    apply_handheld_height_scale,
+    build_native_unit_sidecar,
+    estimate_handheld_height_scale,
+)
 from cozmo_floorplan.recon.video_pose_alignment import (
     MetricSegmentAlignment,
     align_trajectory_to_metric_poses,
@@ -89,7 +95,10 @@ def reconstruct_video(
         )
         metadata = sampled.metadata
         tracks = analyze_video_tracks(sampled, config=tracking_config)
-        if not tracks.accepted_for_relative_vo:
+        # The aggregate ratio is a capture-health signal, not a reconstruction
+        # veto. A locally connected, pair-gated trajectory can still be valid
+        # when long pans make most sampled pairs homography-dominant.
+        if tracks.eligible_pairs == 0:
             rejected.append(sampled.identifier)
             trajectory_note = "trajectory=not-attempted"
             alignment_note = "metric_alignment=not-attempted"
@@ -109,19 +118,34 @@ def reconstruct_video(
                 f"focal_prior={trajectory.assumed_focal_length_px:.1f}px"
             )
             if metric_sidecar is None:
-                alignment_note = "metric_alignment=not-available"
+                metric_sidecar = build_native_unit_sidecar(sampled, trajectory)
+                native_scale = metric_sidecar is not None
+                alignment_note = (
+                    "metric_alignment=native-height-prior"
+                    if native_scale
+                    else "metric_alignment=not-available"
+                )
             else:
+                native_scale = False
+            if metric_sidecar is not None:
                 alignment = align_trajectory_to_metric_poses(
                     sampled,
                     trajectory,
                     metric_sidecar,
                 )
                 rejected_alignments = _format_alignment_rejections(alignment.segments)
-                alignment_note = (
-                    f"metric_alignment={alignment.aligned_segment_count}/"
-                    f"{len(alignment.segments)} segments, "
-                    f"alignment_rejects={rejected_alignments}"
-                )
+                if not native_scale:
+                    alignment_note = (
+                        f"metric_alignment={alignment.aligned_segment_count}/"
+                        f"{len(alignment.segments)} segments, "
+                        f"alignment_rejects={rejected_alignments}"
+                    )
+                else:
+                    alignment_note += (
+                        f", segments={alignment.aligned_segment_count}/"
+                        f"{len(alignment.segments)}, "
+                        f"alignment_rejects={rejected_alignments}"
+                    )
                 cloud = triangulate_aligned_video_segments(
                     sampled,
                     trajectory,
@@ -131,39 +155,88 @@ def reconstruct_video(
                 )
                 if cloud is None:
                     alignment_note += ", triangulation=not-calibrated"
+                    geometry_rejections.append(
+                        f"{sampled.identifier}: calibrated triangulation was unavailable"
+                    )
                 else:
                     camera_positions = _accepted_camera_positions(
                         sampled, trajectory, alignment.segments, metric_sidecar
                     )
-                    try:
-                        room = fit_video_room_candidate(
-                            cloud.points_m, camera_positions
+                    points = cloud.points_m
+                    if native_scale:
+                        height_scale = estimate_handheld_height_scale(
+                            camera_positions, points
                         )
-                    except ReconstructionError as exc:
-                        geometry_rejections.append(f"{sampled.identifier}: {exc}")
-                        alignment_note += (
-                            f", triangulation={len(cloud.points_m)} voxels/"
-                            f"{cloud.accepted_pairs}/{cloud.attempted_pairs} pairs, "
-                            "room=not-supported"
-                        )
-                    else:
-                        reconstructions.append(
-                            VideoRoomReconstruction(
-                                source=source,
-                                pose_sidecar=metric_sidecar.source,
-                                world_frame_id=metric_sidecar.world_frame_id or "",
-                                scale_source=metric_sidecar.scale_source or "",
-                                room=room,
-                                sampled_frames=len(sampled.frames),
-                                metric_voxel_count=len(cloud.points_m),
-                                accepted_pair_count=cloud.accepted_pairs,
+                        if height_scale is None:
+                            alignment_note += (
+                                f", triangulation={len(cloud.points_m)} voxels/"
+                                f"{cloud.accepted_pairs}/{cloud.attempted_pairs} pairs, "
+                                "native_scale=no-floor"
                             )
-                        )
-                        alignment_note += (
-                            f", triangulation={len(cloud.points_m)} voxels/"
-                            f"{cloud.accepted_pairs}/{cloud.attempted_pairs} pairs, "
-                            f"room={room.width_m:.2f}x{room.depth_m:.2f}m"
-                        )
+                            camera_positions = np.empty((0, 3))
+                            points = None
+                            geometry_rejections.append(
+                                f"{sampled.identifier}: triangulated points did not "
+                                "support a floor-relative camera-height scale"
+                            )
+                        else:
+                            metric_sidecar, points = apply_handheld_height_scale(
+                                metric_sidecar, points, height_scale
+                            )
+                            camera_positions = np.asarray(
+                                [pose.position_m for pose in metric_sidecar.poses],
+                                dtype=np.float64,
+                            )
+                            alignment_note += (
+                                f", triangulation={len(points)} voxels/"
+                                f"{cloud.accepted_pairs}/{cloud.attempted_pairs} pairs, "
+                                f"native_scale={height_scale.scale_m_per_unit:.3f}m/unit"
+                            )
+                    if points is not None and len(camera_positions):
+                        try:
+                            room = fit_video_room_candidate(points, camera_positions)
+                        except ReconstructionError as exc:
+                            geometry_rejections.append(f"{sampled.identifier}: {exc}")
+                            if "native_scale=" not in alignment_note:
+                                alignment_note += (
+                                    f", triangulation={len(points)} voxels/"
+                                    f"{cloud.accepted_pairs}/{cloud.attempted_pairs} pairs, "
+                                    "room=not-supported"
+                                )
+                            else:
+                                alignment_note += ", room=not-supported"
+                        else:
+                            reconstructions.append(
+                                VideoRoomReconstruction(
+                                    source=source,
+                                    pose_sidecar=metric_sidecar.source,
+                                    world_frame_id=metric_sidecar.world_frame_id or "",
+                                    scale_source=metric_sidecar.scale_source or "",
+                                    gravity_source=(
+                                        "assumed"
+                                        if metric_sidecar.scale_source == NATIVE_SCALE_SOURCE
+                                        else "device"
+                                    ),
+                                    room=room,
+                                    sampled_frames=len(sampled.frames),
+                                    metric_voxel_count=len(points),
+                                    accepted_pair_count=cloud.accepted_pairs,
+                                )
+                            )
+                            alignment_note += (
+                                f", room={room.width_m:.2f}x{room.depth_m:.2f}m"
+                                if "native_scale=" in alignment_note
+                                else (
+                                    f", triangulation={len(points)} voxels/"
+                                    f"{cloud.accepted_pairs}/{cloud.attempted_pairs} pairs, "
+                                    f"room={room.width_m:.2f}x{room.depth_m:.2f}m"
+                                )
+                            )
+            elif trajectory.segments:
+                geometry_rejections.append(
+                    f"{sampled.identifier}: no connected trajectory segment retained "
+                    "at least three poses for native scale"
+                )
         summaries.append(
             f"{sampled.identifier}: {len(sampled.frames)} samples from {relative}, "
             f"{metadata.display_size_px[0]}x{metadata.display_size_px[1]} display, "
@@ -207,19 +280,27 @@ def reconstruct_video(
     if geometry_rejections:
         raise ReconstructionError(
             (
-                "Calibrated video evidence did not support a complete room: "
+                "Metric video evidence did not support every complete room: "
                 f"{'; '.join(geometry_rejections)}. Floor, ceiling, and two "
                 "camera-bracketing wall pairs are required; partial planes are "
-                "not converted to dimensions."
+                f"not converted to dimensions. Diagnostics: {'; '.join(summaries)}"
             ),
             warning_code="low_confidence",
         )
     if len(reconstructions) == len(media):
+        scale_sources = {item.scale_source for item in reconstructions}
         world_frames = {item.world_frame_id for item in reconstructions}
-        if len(world_frames) != 1 or "" in world_frames:
+        if scale_sources <= {"arkit_poses", "arcore_poses"}:
+            if len(world_frames) != 1 or "" in world_frames:
+                raise ReconstructionError(
+                    "Calibrated multi-video sidecars must declare the same non-empty "
+                    "world_frame_id; unrelated room coordinates will not be overlaid.",
+                    warning_code="disconnected_rooms",
+                )
+        elif scale_sources != {NATIVE_SCALE_SOURCE}:
             raise ReconstructionError(
-                "Calibrated multi-video sidecars must declare the same non-empty "
-                "world_frame_id; unrelated room coordinates will not be overlaid.",
+                "Video rooms must share one supported metric scale_source; mixed "
+                "ARKit/native priors will not be overlaid.",
                 warning_code="disconnected_rooms",
             )
         return build_video_floorplan(job, tuple(reconstructions))
@@ -228,8 +309,9 @@ def reconstruct_video(
             f"Sampled {len(media)} room walkthrough(s) at {config.sample_fps:g} Hz "
             f"({'; '.join(summaries)}).{sidecar_warning} "
             "Video FloorPlan conversion requires v1.2 calibrated pose sidecars "
-            "and complete camera-bracketing room surfaces. Centimetres will not "
-            "be inferred from native Camera-app video alone."
+            "or a floor-supported handheld-height prior, plus complete "
+            "camera-bracketing room surfaces. Centimetres will not be inferred "
+            "from native Camera-app video without that evidence."
         ),
         warning_code="unsupported_tier",
     )

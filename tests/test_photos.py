@@ -97,8 +97,8 @@ def test_exif_orientation_is_applied_before_photo_ingest(tmp_path):
     bottom_bgr = oriented[-12:].mean(axis=(0, 1))
     assert top_bgr[1] > top_bgr[0] + 100
     assert top_bgr[1] > top_bgr[2] + 100
-    assert bottom_bgr[0] > bottom_bgr[1] + 100
-    assert bottom_bgr[0] > bottom_bgr[2] + 100
+    assert bottom_bgr[2] > bottom_bgr[0] + 100
+    assert bottom_bgr[2] > bottom_bgr[1] + 100
 
 
 def test_corrupt_photo_is_rejected_before_reconstruction(tmp_path):

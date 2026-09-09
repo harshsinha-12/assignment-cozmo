@@ -26,6 +26,7 @@ def video_length(
         max(minimum, relative),
         evidence_ref,
         config.confidence,
+        config.method,
     )
 
 
@@ -41,6 +42,7 @@ def video_area(
         value_cm2 * config.area_relative_half_width,
         evidence_ref,
         config.confidence,
+        config.method,
     )
 
 
@@ -50,6 +52,7 @@ def _measurement(
     half_width: float,
     evidence_ref: str,
     confidence: float,
+    method: str,
 ) -> dict[str, Any]:
     return {
         "value": _clean(value),
@@ -59,7 +62,7 @@ def _measurement(
             "high": _clean(value + half_width),
             "confidence": confidence,
         },
-        "method": "calibrated_video_sparse_manhattan_uncalibrated_interval",
+        "method": method,
         "evidence_refs": [evidence_ref],
     }
 

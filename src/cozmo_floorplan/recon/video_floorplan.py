@@ -9,8 +9,13 @@ from typing import Any
 
 from cozmo_floorplan.config import FLOORPLAN_SCHEMA_VERSION
 from cozmo_floorplan.io.job import Job
-from cozmo_floorplan.recon.video_config import DEFAULT_VIDEO_OUTPUT, VideoOutputConfig
+from cozmo_floorplan.recon.video_config import (
+    DEFAULT_VIDEO_OUTPUT,
+    HANDHELD_VIDEO_OUTPUT,
+    VideoOutputConfig,
+)
 from cozmo_floorplan.recon.video_measurements import video_area, video_length
+from cozmo_floorplan.recon.video_native_scale import NATIVE_SCALE_SOURCE
 from cozmo_floorplan.recon.video_rooms import VideoRoomCandidate
 
 FloorPlan = dict[str, Any]
@@ -28,31 +33,49 @@ class VideoRoomReconstruction:
     sampled_frames: int
     metric_voxel_count: int
     accepted_pair_count: int
+    gravity_source: str = "device"
 
 
 def build_video_floorplan(
     job: Job,
     reconstructions: tuple[VideoRoomReconstruction, ...],
     *,
-    config: VideoOutputConfig = DEFAULT_VIDEO_OUTPUT,
+    config: VideoOutputConfig | None = None,
 ) -> FloorPlan:
-    """Build partial rooms only when every sidecar names one shared world frame."""
+    """Build partial rooms from one sidecar world or independently scaled native rooms."""
 
     if not reconstructions:
         raise ValueError("video FloorPlan conversion requires at least one room")
-    world_frames = {item.world_frame_id for item in reconstructions}
-    if len(world_frames) != 1:
-        raise ValueError("video room sidecars must share one world_frame_id")
     scale_sources = {item.scale_source for item in reconstructions}
-    if len(scale_sources) != 1 or not scale_sources <= {
-        "arkit_poses",
-        "arcore_poses",
-    }:
+    world_frames = {item.world_frame_id for item in reconstructions}
+    sidecar_scales = {"arkit_poses", "arcore_poses"}
+    independent = False
+    if scale_sources <= sidecar_scales:
+        if len(world_frames) != 1:
+            raise ValueError("video room sidecars must share one world_frame_id")
+        output = config or DEFAULT_VIDEO_OUTPUT
+        gravity_source = "device"
+        origin_frame = f"video-world:{next(iter(world_frames))}"
+        placement_note = (
+            f"All rooms declare shared world frame {next(iter(world_frames))!r}."
+        )
+    elif scale_sources == {NATIVE_SCALE_SOURCE}:
+        independent = True
+        output = config or HANDHELD_VIDEO_OUTPUT
+        gravity_source = "assumed"
+        origin_frame = "native-video-independent-bookkeeping"
+        placement_note = (
+            "Native rooms use a disclosed handheld-height prior and independent "
+            "bookkeeping placement; they are not cross-registered."
+        )
+    else:
         raise ValueError("video rooms must share one supported metric scale_source")
 
     rooms: list[dict[str, Any]] = []
     walls: list[dict[str, Any]] = []
     audit: list[str] = []
+    cursor_x = 0.0
+    gap_cm = 200.0
     for reconstruction in reconstructions:
         video_ref = reconstruction.source.relative_to(job.root).as_posix()
         sidecar_ref = reconstruction.pose_sidecar.relative_to(job.root).as_posix()
@@ -62,6 +85,12 @@ def build_video_floorplan(
             [_clean(x_m * 100.0), _clean(z_m * 100.0)]
             for x_m, z_m in reconstruction.room.polygon_xz_m
         ]
+        if independent:
+            min_x = min(point[0] for point in polygon_cm)
+            max_x = max(point[0] for point in polygon_cm)
+            shift = cursor_x - min_x
+            polygon_cm = [[point[0] + shift, point[1]] for point in polygon_cm]
+            cursor_x += max_x - min_x + gap_cm
         rooms.append(
             {
                 "id": room_id,
@@ -71,19 +100,19 @@ def build_video_floorplan(
                     reconstruction.room.ceiling_height_m * 100.0,
                     f"{evidence_ref}:floor-ceiling",
                     ceiling=True,
-                    config=config,
+                    config=output,
                 ),
                 "area": video_area(
                     reconstruction.room.width_m
                     * reconstruction.room.depth_m
                     * 10_000.0,
                     f"{evidence_ref}:polygon",
-                    config=config,
+                    config=output,
                 ),
-                "confidence": config.confidence,
+                "confidence": output.confidence,
             }
         )
-        walls.extend(_build_walls(room_id, polygon_cm, evidence_ref, config))
+        walls.extend(_build_walls(room_id, polygon_cm, evidence_ref, output))
         audit.append(
             f"{reconstruction.source.name}: {reconstruction.sampled_frames} samples, "
             f"{reconstruction.accepted_pair_count} triangulated pairs, "
@@ -108,8 +137,13 @@ def build_video_floorplan(
             {
                 "code": "disconnected_rooms",
                 "message": (
-                    "Video rooms share an exported world frame, but no common opening "
-                    "association proves adjacency or drift correction yet."
+                    "Video rooms are not opening-registered; adjacency and drift "
+                    "correction are not claimed."
+                    if independent
+                    else (
+                        "Video rooms share an exported world frame, but no common "
+                        "opening association proves adjacency or drift correction yet."
+                    )
                 ),
                 "refs": [
                     item.pose_sidecar.relative_to(job.root).as_posix()
@@ -117,7 +151,6 @@ def build_video_floorplan(
                 ],
             }
         )
-    world_frame_id = next(iter(world_frames))
     scale_source = next(iter(scale_sources))
     return {
         "version": FLOORPLAN_SCHEMA_VERSION,
@@ -125,7 +158,7 @@ def build_video_floorplan(
         "status": "partial",
         "warnings": warnings,
         "floor_id": job.job_id,
-        "origin": {"frame": f"video-world:{world_frame_id}", "up": [0, 1, 0]},
+        "origin": {"frame": origin_frame, "up": [0, 1, 0]},
         "rooms": rooms,
         "walls": walls,
         "openings": [],
@@ -135,12 +168,15 @@ def build_video_floorplan(
         "provenance": {
             "tier": "video",
             "scale_source": scale_source,
-            "gravity_source": "device",
-            "pipeline": "cozmo-floorplan/video-calibrated-sparse-manhattan-v1",
+            "gravity_source": gravity_source,
+            "pipeline": (
+                "cozmo-floorplan/video-handheld-height-sparse-manhattan-v1"
+                if independent
+                else "cozmo-floorplan/video-calibrated-sparse-manhattan-v1"
+            ),
             "inputs": list(job.input_refs),
             "notes": (
-                f"All rooms declare shared world frame {world_frame_id!r}. "
-                "No openings or cross-room constraints were invented. "
+                f"{placement_note} No openings or cross-room constraints were invented. "
                 + "; ".join(audit)
             ),
         },

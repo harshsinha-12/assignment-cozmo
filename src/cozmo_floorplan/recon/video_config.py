@@ -51,6 +51,7 @@ class VideoTrajectoryConfig:
     minimum_pose_inliers: int = 12
     minimum_cheirality_ratio: float = 0.6
     minimum_segment_pose_count: int = 2
+    maximum_edge_span: int = 2
 
 
 DEFAULT_VIDEO_TRAJECTORY = VideoTrajectoryConfig()
@@ -126,6 +127,29 @@ class VideoOutputConfig:
     length_relative_half_width: float = 0.05
     minimum_ceiling_half_width_cm: float = 6.0
     area_relative_half_width: float = 0.12
+    method: str = "calibrated_video_sparse_manhattan_uncalibrated_interval"
 
 
 DEFAULT_VIDEO_OUTPUT = VideoOutputConfig()
+HANDHELD_VIDEO_OUTPUT = VideoOutputConfig(
+    confidence=0.55,
+    minimum_length_half_width_cm=25.0,
+    length_relative_half_width=0.22,
+    minimum_ceiling_half_width_cm=20.0,
+    area_relative_half_width=0.35,
+    method="handheld_height_prior_uncalibrated_interval",
+)
+
+
+@dataclass(frozen=True, slots=True)
+class VideoNativeScaleConfig:
+    """Disclosed upright-phone camera-height prior for native Camera video."""
+
+    handheld_camera_height_m: float = 1.45
+    minimum_floor_points: int = 8
+    floor_bin_m: float = 0.08
+    camera_floor_clearance_m: float = 0.20
+    world_frame_prefix: str = "native-video-assumed-up"
+
+
+DEFAULT_VIDEO_NATIVE_SCALE = VideoNativeScaleConfig()
