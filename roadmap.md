@@ -58,7 +58,7 @@ Done when: empty pipeline is valid JSON against schema; eval reports red on synt
 
 ## Phase 3 — LiDAR tier
 
-**Status:** partial — portable RoomPlan JSON works; T6a decodes real Record3D, T6b1 builds metric world clouds, and T6b2 extracts floor/ceiling plus Manhattan wall candidates. Record3D openings/IR conversion and USDZ remain.
+**Status:** partial — portable RoomPlan JSON works; T6a–T6b3 decode real Record3D and emit partial interval-bearing rooms, walls, ceilings, areas, and supported openings. Cross-archive registration, interval calibration, repeatability, and USDZ remain.
 
 - Ingest Record3D / RoomPlan / USDZ as available
 - Metric walls, openings, ceiling, area

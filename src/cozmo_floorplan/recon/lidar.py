@@ -29,6 +29,11 @@ from cozmo_floorplan.recon.measurements import (
     lidar_area,
     lidar_length,
 )
+from cozmo_floorplan.recon.record3d_floorplan import (
+    Record3DRoomReconstruction,
+    build_record3d_floorplan,
+)
+from cozmo_floorplan.recon.record3d_openings import detect_record3d_openings
 from cozmo_floorplan.recon.record3d_planes import extract_manhattan_room_candidate
 from cozmo_floorplan.recon.record3d_points import build_metric_point_cloud
 from cozmo_floorplan.recon.record3d_validation import validate_record3d_capture
@@ -47,7 +52,7 @@ def reconstruct_lidar(job: Job) -> FloorPlan:
 
     record3d_sources = discover_record3d_archives(lidar_dir)
     if record3d_sources:
-        details = []
+        reconstructions: list[Record3DRoomReconstruction] = []
         for record3d_source in record3d_sources:
             capture = load_record3d_capture(record3d_source)
             summary = validate_record3d_capture(capture)
@@ -56,22 +61,18 @@ def reconstruct_lidar(job: Job) -> FloorPlan:
                 [pose[4:7] for pose in capture.metadata.poses], dtype=np.float64
             )
             candidate = extract_manhattan_room_candidate(cloud.points_m, cameras_m)
-            details.append(
-                f"{record3d_source.name}: {summary.frame_count} frames, "
-                f"{len(cloud.points_m)} metric voxels from "
-                f"{len(cloud.sampled_frame_indices)} sampled frames, "
-                f"candidate {candidate.width_m:.2f}x{candidate.depth_m:.2f} m, "
-                f"ceiling {candidate.levels.ceiling_height_m:.2f} m, "
-                f"yaw {candidate.yaw_degrees:.1f} degrees from "
-                f"{candidate.vertical_support_columns} vertical columns"
+            openings = detect_record3d_openings(cloud.points_m, candidate)
+            reconstructions.append(
+                Record3DRoomReconstruction(
+                    source=record3d_source,
+                    room=candidate,
+                    openings=openings,
+                    frame_count=summary.frame_count,
+                    sampled_frame_count=len(cloud.sampled_frame_indices),
+                    metric_voxel_count=len(cloud.points_m),
+                )
             )
-        raise ReconstructionError(
-            f"Built metric point clouds for {len(record3d_sources)} Record3D "
-            f"capture(s) and extracted Manhattan plane candidates "
-            f"({'; '.join(details)}). Opening extraction and FloorPlan conversion "
-            "remain; candidate dimensions are diagnostics, not accuracy results.",
-            warning_code="unsupported_tier",
-        )
+        return build_record3d_floorplan(job, tuple(reconstructions))
 
     _raise_missing_lidar_source(lidar_dir)
 

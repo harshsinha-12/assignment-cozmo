@@ -45,7 +45,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 ## Current status
 
-**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, and one-command synthetic reproduction work. Real Record3D archives now produce sampled metric world clouds plus conservative floor/ceiling and Manhattan wall candidates; openings, FloorPlan conversion, and metric video/photos remain.**
+**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, and one-command synthetic reproduction work. Real Record3D archives now emit partial interval-bearing rooms, walls, ceilings, areas, and occupancy-supported opening candidates; cross-scan registration, calibration, and metric video/photos remain.**
 
 See [`roadmap.md`](roadmap.md).
 

@@ -65,7 +65,11 @@ def apply_drift_correction(
         },
     }
     result = _drop_drift_warning(result)
-    if enabled and len(constraints) < len(rooms) - 1:
+    already_disconnected = any(
+        warning.get("code") == "disconnected_rooms"
+        for warning in result.get("warnings", [])
+    )
+    if enabled and len(constraints) < len(rooms) - 1 and not already_disconnected:
         result.setdefault("warnings", []).append(
             {
                 "code": "disconnected_rooms",
@@ -89,8 +93,12 @@ def _correction_notes(*, enabled: bool, applied: bool) -> str:
             "--no-drift-correction."
         )
     if enabled:
-        return "Correction was requested but no shared-opening constraints were available."
-    return "Correction disabled; geometry preserves reconstructed poses for the ablation."
+        return (
+            "Correction was requested but no shared-opening constraints were available."
+        )
+    return (
+        "Correction disabled; geometry preserves reconstructed poses for the ablation."
+    )
 
 
 def _drop_drift_warning(document: FloorPlan) -> FloorPlan:

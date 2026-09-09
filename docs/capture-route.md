@@ -40,7 +40,7 @@ Start at the entry at chest height. Walk each room perimeter, pause two seconds 
 
 In Record3D, cover every wall, the waist-height floor band, and every opening. Keep one session while moving between rooms when possible; otherwise use ordered room names. AirDrop the complete original session into `lidar/`, record the app version/export format, and keep depth, camera poses, and intrinsics—not preview images alone.
 
-If a RoomPlan JSON export is available, name it `roomplan.json` and follow `docs/formats/roomplan-json.md`. **Current boundary:** the CLI reconstructs RoomPlan JSON and validates/decodes original Record3D `.r3d` archives. Raw `.r3d` point-cloud plane extraction is still pending, so it does not yet emit floor-plan geometry.
+If a RoomPlan JSON export is available, name it `roomplan.json` and follow `docs/formats/roomplan-json.md`. **Current boundary:** the CLI reconstructs RoomPlan JSON and emits partial metric FloorPlan geometry from original Record3D `.r3d` archives. Raw `.r3d` intervals and cross-room registration remain unverified until tape/repeat/connector evidence is supplied.
 
 ## Handoff check
 

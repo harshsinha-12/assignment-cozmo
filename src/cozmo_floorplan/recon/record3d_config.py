@@ -52,3 +52,50 @@ class Record3DPlaneConfig:
 
 
 DEFAULT_RECORD3D_PLANES = Record3DPlaneConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class Record3DOpeningConfig:
+    """Occupancy-profile thresholds for supported wall-opening candidates."""
+
+    wall_normal_tolerance_m: float = 0.10
+    profile_bin_m: float = 0.05
+    wall_end_margin_m: float = 0.15
+    door_band_low_m: float = 0.15
+    door_band_high_m: float = 1.80
+    sill_band_high_m: float = 0.65
+    window_band_low_m: float = 0.85
+    window_band_high_m: float = 1.90
+    lintel_band_low_m: float = 2.05
+    ceiling_margin_m: float = 0.10
+    sparse_ratio: float = 0.22
+    supported_ratio: float = 0.30
+    minimum_band_points: int = 3
+    maximum_interruption_bins: int = 1
+    minimum_door_width_m: float = 0.55
+    maximum_door_width_m: float = 1.40
+    minimum_window_width_m: float = 0.40
+    maximum_window_width_m: float = 2.40
+    minimum_opening_height_m: float = 1.75
+    height_bin_m: float = 0.05
+    height_support_ratio: float = 0.15
+    height_support_run_bins: int = 2
+
+
+DEFAULT_RECORD3D_OPENINGS = Record3DOpeningConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class Record3DOutputConfig:
+    """Uncalibrated interval policy for Record3D candidate geometry."""
+
+    confidence: float = 0.80
+    opening_confidence: float = 0.60
+    wall_half_width_cm: float = 5.0
+    ceiling_half_width_cm: float = 2.5
+    opening_width_half_width_cm: float = 5.0
+    opening_height_half_width_cm: float = 7.5
+    area_relative_half_width: float = 0.08
+
+
+DEFAULT_RECORD3D_OUTPUT = Record3DOutputConfig()

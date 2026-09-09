@@ -13,6 +13,16 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T6b3 Record3D partial FloorPlan complete
+
+- Added vectorized segment coordinates, separate opening-profile configuration/algorithm, Record3D-specific uncalibrated measurements, and a dedicated FloorPlan converter. The LiDAR adapter now orchestrates these modules instead of ending in `unsupported_tier`.
+- Door candidates require floor-reaching sparse wall evidence plus a surviving lintel; windows require a sparse middle band plus surviving sill and lintel. Width/height ranges, wall-end margins, and short interruption handling are configurable. A solid-wall regression emits zero openings.
+- Each accepted archive now yields a metric room polygon, four interval-bearing walls, ceiling height, area, supported openings, and capture provenance. Separate archives retain exported world coordinates but remain explicitly unregistered; no adjacency or transform is invented.
+- The private run now emits a schema-valid `partial` JSON/SVG with 3 rooms, 12 walls, and 4 candidates: a 65 cm door in my-room and 110 cm, 95 cm, and 60 cm doors in pooja-room. These labels and dimensions are algorithm outputs pending tape-backed verification, not scored accuracy claims.
+- Suppressed duplicate disconnected-room warnings when the reconstruction already disclosed missing registration. Rendered and visually inspected the private SVG; the three disjoint rooms and four opening marks are legible.
+- Added four focused tests across opening detection/conversion. All 80 tests, Ruff, touched-file formatting, compileall, synthetic reproduction, private JSON/SVG smoke, and `git diff --check` pass. No commit was made.
+- Next: T7b multi-walkthrough ingest and display-rotation normalization. T6 calibration, repeatability, and shared-opening association wait for the connector/repeat/tape capture.
+
 ## 2026-09-09 — T6b2 Record3D room-plane candidates complete
 
 - Added a dedicated Record3D plane-policy config and a pure geometry module with immutable horizontal-level, wall-plane, and room-candidate results.

@@ -40,9 +40,26 @@ The three current private scans all yield four-wall candidates and plausible
 horizontal separation. These are diagnostics, not accuracy results: no official
 gate is scored until tape/laser truth exists.
 
+## Openings and FloorPlan output
+
+T6b3 profiles points near each accepted wall. A floor-reaching sparse band is a
+door candidate only when the wall has surviving lintel support; a middle sparse
+band is a window candidate only when both sill and lintel support survive.
+Configured width ranges, wall-end margins, short-gap bridging, and height-change
+evidence reject unconstrained empty space. Solid-wall synthetic tests must yield
+zero openings.
+
+Accepted rooms now produce `floorplan.json` and `floorplan.svg` with metric room
+polygons, four walls, ceiling height, area, and supported openings. Measurement
+objects use deliberately wider, named `uncalibrated` intervals until benchmark
+ground truth can measure coverage.
+
 ## Current boundary
 
-RGB-D decoding, metric world-cloud generation, and conservative room-plane
-candidates work on the real captures. The CLI still returns structured
-`unsupported_tier` until opening extraction and FloorPlan IR conversion are
-implemented.
+Three separate archives currently produce three rooms, twelve walls, and four
+opening candidates. Their exported world coordinates are preserved, but the
+pipeline does not claim those archives share a registered frame and does not
+invent room adjacency. The result is therefore `partial` with explicit
+low-confidence and disconnected-room warnings. Tape/laser truth, a repeat scan,
+and connector/shared-opening evidence are required before calibration or scored
+accuracy claims.

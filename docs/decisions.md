@@ -4,6 +4,24 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-09 — Preserve separate Record3D world poses without claiming registration
+
+**Context:** The upload contains one `.r3d` archive per room. Each archive has
+metric ARKit poses, but the format provides no shared-session identifier and the
+capture lacks a connector scan or labeled matching doorway. Translating rooms
+into a neat layout would invent adjacency.
+
+**Decision:** Emit every accepted room in its exported Record3D world-xz
+coordinates, detect an opening only from a sparse wall band with surviving
+sill/lintel evidence, and keep the multi-room result `partial` until a shared
+opening association is proven. Use named, deliberately uncalibrated measurement
+intervals rather than copying RoomPlan confidence widths.
+
+**Consequence:** The real command now produces useful JSON/SVG geometry instead
+of a failed stub, while duplicate disconnected warnings are suppressed. Four
+opening candidates are visible for review, but neither they nor the inter-room
+layout count as scored accuracy before tape, repeat, and connector evidence.
+
 ## 2026-09-09 — Wall candidates must bracket the camera path
 
 **Context:** Raw Record3D cloud bounds include furniture and isolated depth

@@ -5,12 +5,12 @@ Hardware eligibility and runtime support are different claims. “Capture” mea
 | Device | Photos capture | Video capture | LiDAR capture | Current accepted input | Measured accuracy |
 | --- | --- | --- | --- | --- | --- |
 | iPhone 15 / 16 non-Pro | yes | yes | no | JPEG; MOV/MP4 ingest | not measured |
-| iPhone Pro / Pro Max with LiDAR | yes | yes | yes | JPEG; MOV/MP4 ingest; RoomPlan JSON reconstructs; `.r3d` metric cloud builds | not measured |
-| Harsh's iPhone 17 Pro | yes | yes | yes | Three real `.r3d` room captures produce metric world clouds; photos/video partial | not measured |
+| iPhone Pro / Pro Max with LiDAR | yes | yes | yes | JPEG; MOV/MP4 ingest; RoomPlan JSON reconstructs; `.r3d` emits partial metric IR | not measured |
+| Harsh's iPhone 17 Pro | yes | yes | yes | Three real `.r3d` room captures produce partial rooms/walls/opening candidates; photos/video partial | not measured |
 | LiDAR iPad Pro | possible, out of walk-in scope | possible, out of walk-in scope | possible | RoomPlan JSON only | not measured |
 | Android | not claimed | not claimed | not claimed | out of scope | not measured |
 
-Raw Record3D archives now pass structural/LZFSE validation and sampled metric world-cloud generation, but still return a structured failure before plane/wall extraction. USDZ remains unsupported. Neither is an accuracy result.
+Raw Record3D archives now pass structural/LZFSE validation, metric world-cloud generation, plane fitting, evidence-gated opening detection, and partial FloorPlan conversion. Separate capture registration and intervals remain unverified without connector/repeat/tape evidence. USDZ remains unsupported. None of this is an accuracy result.
 
 ## Accuracy we will claim (after eval)
 
