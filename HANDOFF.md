@@ -12,10 +12,10 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Completed **T19** end to end: reviewed/committed the frozen before bundle, shipped the declared fallback-status fix, and generated the immutable after bundle plus readable diff.
-- `pipeline_yield` moved exactly as predicted from fail/`partial` to pass/`ok`; CLI exit moved 2 → 0.
-- Explicit successful deterministic fallback now keeps healthy status. Automatic no-key fallback, provider failure, invalid observations, and already-partial geometry remain degraded.
-- Extended verification to enforce artifact hashes, predicted target movement, unchanged non-target gates, and a status-only FloorPlan delta.
+- Completed the media-independent **T10 engineering report draft** in `docs/writeup.md`.
+- The 1,805-word draft covers architecture, tiers/devices, drift, error budget, calibration, agent/tool boundaries, fix loop, evidence tables, and hostile-scene failure modes.
+- Exact current numbers come from the frozen synthetic eval and are labelled as contract evidence, not phone accuracy. Every real-capture table cell remains explicitly pending T3.
+- Refreshed README, TASKS, compliance status, and this handoff so T20 is the next media-independent stage.
 
 ### What is true now
 
@@ -27,6 +27,7 @@ The current agent overwrites the **Current handoff** section at the end of every
 - T19 before is pinned to `523ceea`; the shipped code is pinned to `68acdf6`. The complete bundle is under `data/fix-loop/`.
 - The after run exits 0. Its eval still exits 3 because unrelated repeatability/incumbent evidence is missing, while the selected `pipeline_yield` gate passes.
 - Bundle verification, all 57 tests, `ruff check .`, compileall, and diff checks pass.
+- T10 is structurally drafted but remains `doing` until real LiDAR/video/photo, repeatability, incumbent, calibration, and timing evidence replaces the pending cells.
 
 ### Blockers
 
@@ -37,28 +38,29 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### Next agent should
 
-1. Draft **T10** technical report without filling capture-dependent benchmark numbers.
+1. Execute the media-independent portion of **T20**: verify the README path on a clean environment and tighten the reproduction/compliance mapping without inventing measured rows.
 2. If T3 files are present: implement metric **T7 VO** and/or **T8 photo** reconstruction against them.
 3. Do not run T21 without Xcode.app.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `docs/writeup.md`
+2. `README.md`
 3. `docs/compliance-matrix.md`
-4. `docs/eval-and-accuracy.md`
-5. `docs/code-map.md`
+4. `docs/writeup.md`
+5. `data/fix-loop/README.md`
 
 ### Exact next command
 
 ```text
-Draft T10 in docs/writeup.md from the implemented architecture and frozen synthetic evidence. Leave real-capture benchmark, repeatability, and incumbent values explicitly pending.
+Execute T20a: prove the documented synthetic setup/run/eval/fix-loop path from a clean temporary environment, then update README and compliance with the exact evidence. Do not fill capture-dependent rows.
 ```
 
 ---
 
 ## History
 
+- **2026-09-09** — T10 engineering report draft complete; real benchmark tables remain capture-blocked.
 - **2026-09-09** — T19 completed: predicted fallback-yield fail→pass fix shipped with pinned before/after artifacts and readable diff.
 - **2026-09-09** — T19a declaration and checksum-locked before bundle frozen at commit `523ceea`; fix deliberately pending.
 - **2026-09-09** — T8a per-room photo ingest and honest metric boundary complete.

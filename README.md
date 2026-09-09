@@ -18,7 +18,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 **Human (tomorrow):** capture the benchmark — [`docs/capture-protocol.md`](docs/capture-protocol.md). Drop files in gitignored `data/private/` ([`data/README.md`](data/README.md)). Short list: [`START-TOMORROW.md`](START-TOMORROW.md).
 
-**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). T9 stitch and T8a photo ingest work. Next without captures: **T19 fix-loop before bundle**. Metric adapters wait on tomorrow’s files.
+**Agent:** [`AGENTS.md`](AGENTS.md) → [`HANDOFF.md`](HANDOFF.md) → [`update.md`](update.md) → [`TASKS.md`](TASKS.md). T19 fix-loop and the T10 engineering report draft are complete. Next without captures: the T20 clean-machine/reproduction pass. Metric adapters wait on tomorrow’s files.
 
 ## Repo map
 
@@ -38,12 +38,13 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 | `docs/capture-route.md` | Walk-in protocol (Route 2) |
 | `docs/compliance-matrix.md` | Scored coverage table |
 | `docs/device-matrix.md` | Hardware × tier |
+| `docs/writeup.md` | Six-page-cap technical report draft and evidence tables |
 | `docs/schemas/floorplan.schema.json` | Frozen v0.2 IR: interval measurements + claims objects |
 | `src/` | Modular CLI, RoomPlan reconstruction, eval, and SVG rendering package |
 
 ## Current status
 
-**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, video/photo ingest, paired JSON/SVG, and T16 claims agent/tools work. Metric video/photos and raw Record3D await capture.**
+**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, and the T10 report draft work. Metric video/photos and raw Record3D await capture.**
 
 See [`roadmap.md`](roadmap.md).
 

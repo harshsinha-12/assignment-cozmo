@@ -13,6 +13,14 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T10 technical report engineering draft complete
+
+- Replaced the report stub with a compact 1,805-word draft covering architecture, all three tier designs and devices, drift/ablation, error budget, calibration, claims-agent boundaries, the shipped fix loop, and hostile-scene failure modes.
+- Measured statements are tied to `data/fix-loop/after/eval.json`: 8 walls at 0 cm synthetic median/p95 error, 1/1 opening, 2/2 ceilings, and 15/15 interval coverage at 95% declared confidence.
+- The report explicitly labels those values as synthetic contract evidence, distinguishes the injected 20 → 0 cm drift regression from an already-aligned ablation, and does not claim phone accuracy.
+- Real LiDAR, video, photo, repeatability, multi-room, incumbent, calibration, and timing rows remain visibly pending T3 rather than estimated.
+- Next media-independent stage: T20 clean-machine README/reproduction pass. T10 remains `doing` until real tables replace the pending cells.
+
 ## 2026-09-09 — T19b fallback-status fix shipped
 
 - Reviewed and committed the checksum-locked T19a baseline as `3317339`; all 52 then-current tests and required checks passed.

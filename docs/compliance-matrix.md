@@ -29,7 +29,7 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | R21 | Fix loop: declaration, before, after, diff | `docs/fix-loop.md` + `data/fix-loop/` | checksum-locked fail→pass bundle, pinned source commits, verifier, and readable diff | done |
 | R22 | README 15 min clean machine | `README.md` | — | partial |
 | R23 | Reproduction bundle | `Makefile` + caches | regenerable numbers | missing |
-| R24 | Technical report ≤ 6 pages | `docs/writeup.md` | PDF or md | missing |
-| R25 | Mirrors / glass / wet / low light | report + fallbacks | warnings | missing |
+| R24 | Technical report ≤ 6 pages | `docs/writeup.md` | 1,805-word engineering draft; real benchmark tables pending | partial |
+| R25 | Mirrors / glass / wet / low light | `docs/writeup.md` + capture protocol + structured warnings | mitigations and honest failure policy documented; stress captures pending | partial |
 | R26 | No calls to our infrastructure | `agent/openai_agent.py` + fallback | local processing; disclosed direct OpenAI API or offline rules | done |
 | R27 | Process evidence | git history | commits as we work | doing |
