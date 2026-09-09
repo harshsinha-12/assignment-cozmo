@@ -43,6 +43,7 @@ def test_fallback_uses_tools_and_copies_metric_extent(monkeypatch):
     assert enriched["concealed_flags"][0]["rule_id"] == "CONCEALED_WATER_MIGRATION_001"
     assert enriched["warnings"][-1]["code"] == "agent_fallback"
     assert "provider=deterministic-rules" in enriched["provenance"]["notes"]
+    assert enriched["status"] == "ok"
 
 
 def test_tools_reject_model_supplied_extent_and_unapproved_rule():
@@ -154,3 +155,19 @@ def test_live_failure_rolls_back_then_runs_fallback():
     assert len({item["id"] for item in enriched["damage"]}) == 2
     assert enriched["warnings"][-1]["code"] == "agent_fallback"
     assert "simulated provider outage" in enriched["warnings"][-1]["message"]
+    assert enriched["status"] == "partial"
+
+
+def test_auto_mode_without_api_key_remains_degraded():
+    job, document, _ = _inputs()
+    config = AgentConfig(
+        mode="auto",
+        api_key=None,
+        model="gpt-5-mini",
+        base_url="https://api.openai.com/v1",
+    )
+
+    enriched = enrich_floorplan(job, document, config=config)
+
+    assert enriched["status"] == "partial"
+    assert enriched["warnings"][-1]["code"] == "agent_fallback"

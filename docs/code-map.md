@@ -106,6 +106,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/agent/openai_agent.py` | Stateless OpenAI Responses API function-calling loop with structured tool errors and `store: false`. |
 | `src/cozmo_floorplan/agent/fallback_agent.py` | Deterministic rule agent that uses the exact same mutation tools without network access. |
 | `src/cozmo_floorplan/agent/orchestrator.py` | Selects live/fallback mode transactionally, rolls back partial live mutations, validates output, and records audit metadata. |
+| `src/cozmo_floorplan/agent/status_policy.py` | Separates fallback audit warnings from run-health semantics: explicit successful fallback preserves status, while automatic/provider fallback degrades it. |
 | `src/cozmo_floorplan/agent/__init__.py` | Exposes claims enrichment to the main pipeline. |
 | `docs/formats/damage-observations.md` | Input boundary between calibrated CV/manual proposals and agent classification/policy decisions. |
 
@@ -123,6 +124,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `tests/test_photos.py` | Tests room discovery, the official 2–8 count, corrupt-image rejection, multi-room ordering, and honest metric refusal using generated JPEGs. |
 | `tests/test_fix_loop.py` | Validates the frozen failing gate and ensures checksum verification catches artifact tampering. |
 | `tests/test_agent.py` | Tests fallback and mocked-live agents, metric ownership, rule validation, transactional rollback, and schema-valid claims output. |
+| `tests/test_agent_status_policy.py` | Unit-tests explicit versus automatic fallback status semantics and ensures fallback never upgrades an already-partial run. |
 | `tests/test_stitch.py` | Tests correction-on/off metadata, ablation artifacts, injected 20 cm opening-gap closure, and the drift eval gate. |
 | `tests/test_video.py` | Tests empty video jobs, generated-mp4 frame sampling, pose-sidecar mention, and honest metric refusal. |
 | `tests/conftest.py` | Forces offline fallback during tests so local API keys are never used and tests never spend credits. |

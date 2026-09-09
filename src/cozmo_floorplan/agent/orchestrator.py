@@ -9,6 +9,7 @@ from cozmo_floorplan.agent.fallback_agent import run_fallback_agent
 from cozmo_floorplan.agent.models import AgentRun
 from cozmo_floorplan.agent.observations import load_damage_observations
 from cozmo_floorplan.agent.openai_agent import OpenAIResponsesAgent, ResponseTransport
+from cozmo_floorplan.agent.status_policy import record_fallback
 from cozmo_floorplan.errors import AgentError
 from cozmo_floorplan.io.job import Job
 from cozmo_floorplan.schema import validate_floorplan
@@ -29,7 +30,11 @@ def enrich_floorplan(
     try:
         observations = load_damage_observations(job.root)
     except AgentError as exc:
-        return _with_fallback_warning(document, f"Claims observations were skipped: {exc}")
+        return record_fallback(
+            document,
+            f"Claims observations were skipped: {exc}",
+            degrade_status=True,
+        )
     if not observations:
         return document
 
@@ -45,12 +50,25 @@ def enrich_floorplan(
         except AgentError as exc:
             fallback = run_fallback_agent(job, copy.deepcopy(document), observations)
             fallback_document = _finalize(fallback)
-            return _with_fallback_warning(fallback_document, f"Live claims agent failed; used rules: {exc}")
+            return record_fallback(
+                fallback_document,
+                f"Live claims agent failed; used rules: {exc}",
+                degrade_status=True,
+            )
 
     fallback = run_fallback_agent(job, copy.deepcopy(document), observations)
     fallback_document = _finalize(fallback)
-    reason = "Agent mode requested deterministic fallback" if config.mode == "fallback" else "No OPENAI_API_KEY; used deterministic claims tools"
-    return _with_fallback_warning(fallback_document, reason)
+    explicit_fallback = config.mode == "fallback"
+    reason = (
+        "Agent mode requested deterministic fallback"
+        if explicit_fallback
+        else "No OPENAI_API_KEY; used deterministic claims tools"
+    )
+    return record_fallback(
+        fallback_document,
+        reason,
+        degrade_status=not explicit_fallback,
+    )
 
 
 def _finalize(run: AgentRun) -> dict[str, Any]:
@@ -60,12 +78,3 @@ def _finalize(run: AgentRun) -> dict[str, Any]:
     run.document["provenance"]["notes"] = f"{notes} {audit}".strip()
     validate_floorplan(run.document)
     return run.document
-
-
-def _with_fallback_warning(document: dict[str, Any], message: str) -> dict[str, Any]:
-    warnings = document.setdefault("warnings", [])
-    if not any(item.get("code") == "agent_fallback" for item in warnings):
-        warnings.append({"code": "agent_fallback", "message": message})
-    if document.get("status") == "ok":
-        document["status"] = "partial"
-    return document

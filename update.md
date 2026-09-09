@@ -13,6 +13,11 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T19b fallback-status fix in progress
+
+- T19a was reviewed, verified, and committed as `3317339`.
+- In progress: preserve `status: ok` only for explicitly selected, successfully completed deterministic fallback; keep automatic/provider-failure fallbacks degraded, then generate and verify the frozen `after/` evidence and readable delta.
+
 ## 2026-09-09 — T19a fix-loop before bundle frozen
 
 - Selected the worst measured current failure: `pipeline_yield=fail` because explicit, complete offline claims fallback changes the one-job prediction from `ok` to `partial` (0/1 successful yield).
