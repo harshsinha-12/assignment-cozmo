@@ -1,6 +1,6 @@
 # Video job layout
 
-T7 ingests handheld room walkthroughs without inventing centimetres. Metric visual odometry still needs a validated metric pose/scale path. Until that lands, the adapter samples every video, normalizes display orientation, and returns a structured failure.
+T7 ingests handheld room walkthroughs without inventing centimetres. Metric visual odometry still needs a validated metric pose/scale path. Until that lands, the adapter samples every video, normalizes display orientation, recovers diagnostic scale-free pose segments, and returns a structured failure.
 
 ## Directory
 
@@ -64,3 +64,23 @@ Current real results:
 
 Both pass this internal relative-VO eligibility gate. This proves trackable
 image evidence, not metric scale, wall dimensions, or the official ±3% gate.
+
+## Scale-free trajectory boundary
+
+T7d selects at most 90 frames, reuses the same ORB/fundamental correspondences,
+and estimates an essential matrix per eligible edge. Because native video does
+not provide calibrated intrinsics here, the focal length is a disclosed
+image-size prior (`0.9 × max(width, height)`). Each recovered translation is
+normalized to a unit direction before chaining; the resulting coordinates are
+therefore **unitless**, not metres or centimetres.
+
+A rejected feature or pose edge closes the active trajectory segment. A later
+accepted edge starts a new segment at a local identity pose. The adapter reports
+break and restart counts but does not pretend those independent segments have
+been globally relocalized. A validated metric pose sidecar or known-length
+constraint must supply scale and segment alignment before room geometry can be
+written to the FloorPlan IR.
+
+Current real results: `my-room` recovers 21/89 edges in 10 local segments;
+`pooja-room` recovers 17/89 in 9. Fragmentation is retained as evidence rather
+than bridged with guessed motion.

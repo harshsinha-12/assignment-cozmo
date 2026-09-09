@@ -4,6 +4,24 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-09 — Split video trajectories instead of bridging failed edges
+
+**Context:** A video can contain useful translational runs separated by blur,
+pure rotation, featureless walls, or weak cheirality. Chaining across a rejected
+edge would silently manufacture motion. Native MP4s also lack calibrated camera
+intrinsics and metric scale.
+
+**Decision:** Recover essential-matrix poses only for feature-eligible edges,
+using a disclosed image-size focal prior. Normalize every translation to unit
+length, close the active local segment on any failed edge, and restart later
+evidence in a new identity-anchored segment. Do not claim those segments are
+globally relocalized or metric.
+
+**Consequence:** The two uploaded videos yield 21/89 and 17/89 accepted pose
+edges across 10 and 9 local segments. This proves recoverable relative motion,
+not room dimensions; T7e must validate a scale/alignment source before emitting
+FloorPlan geometry.
+
 ## 2026-09-09 — Gate relative video motion before estimating a trajectory
 
 **Context:** A large raw feature count does not establish usable camera motion.

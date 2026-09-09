@@ -57,9 +57,11 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/recon/photos_config.py` | Official 2–8 photo count, accepted extensions, and minimum image-size settings. |
 | `src/cozmo_floorplan/recon/photos.py` | Photo-tier boundary: validates every room folder and refuses metric output until SfM, adjacency, and scale exist. |
 | `docs/formats/photo-job.md` | Public per-room photo job layout and current metric-reconstruction boundary. |
-| `src/cozmo_floorplan/recon/video_config.py` | Sample/rotation/sidecar policy plus bounded ORB, match, inlier, motion, parallax, coverage, and acceptance thresholds. |
-| `src/cozmo_floorplan/recon/video_tracks.py` | Extracts bounded ORB features and reports ratio matches, fundamental-matrix inliers, motion, homography residual parallax, spatial coverage, and named rejection reasons. |
-| `src/cozmo_floorplan/recon/video.py` | Video-tier adapter: samples every room walkthrough, associates unambiguous sidecars, applies the feature gate, reports audit diagnostics, and refuses uncalibrated centimetres. |
+| `src/cozmo_floorplan/recon/video_config.py` | Sample/rotation/sidecar policy plus immutable feature-gate and scale-free trajectory thresholds. |
+| `src/cozmo_floorplan/recon/video_features.py` | Shared bounded ORB extraction, Hamming ratio matching, and seeded fundamental-matrix correspondence utility used by tracking and pose recovery. |
+| `src/cozmo_floorplan/recon/video_tracks.py` | Converts shared correspondences into motion, homography-residual parallax, spatial-coverage, and named track rejection diagnostics. |
+| `src/cozmo_floorplan/recon/video_trajectory.py` | Recovers assumed-intrinsics essential-matrix poses, chains unitless camera steps, and explicitly splits/restarts trajectories across failed edges. |
+| `src/cozmo_floorplan/recon/video.py` | Video-tier adapter: samples every room walkthrough, associates unambiguous sidecars, runs tracking and segmented relative poses, reports audit diagnostics, and refuses uncalibrated centimetres. |
 | `docs/formats/video-job.md` | Public video job layout and metric boundary. |
 
 ## Stitching and drift correction
@@ -162,6 +164,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `tests/test_stitch.py` | Tests correction-on/off metadata, ablation artifacts, injected 20 cm opening-gap closure, and the drift eval gate. |
 | `tests/test_video.py` | Tests empty/short jobs, multi-video identity, per-video versus ambiguous sidecars, explicit display rotation, generated-MP4 sampling, and honest metric refusal. |
 | `tests/test_video_tracks.py` | Tests accepted multi-depth motion, homography-dominant/pure-rotation rejection, and featureless-frame rejection without crashes. |
+| `tests/test_video_trajectory.py` | Tests two-view rotation/translation-direction recovery, explicit graph breaks and local segment restarts, unitless chaining, and the too-short boundary. |
 | `tests/test_capture_templates.py` | Loads every public handoff template through the production job loader and checks that tiers use separate job ids/directories. |
 | `tests/conftest.py` | Forces offline fallback during tests so local API keys are never used and tests never spend credits. |
 

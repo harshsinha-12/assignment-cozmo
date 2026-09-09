@@ -11,6 +11,7 @@ from cozmo_floorplan.recon.video_config import (
     VideoTrackingConfig,
 )
 from cozmo_floorplan.recon.video_tracks import analyze_video_tracks
+from cozmo_floorplan.recon.video_trajectory import recover_scale_free_trajectory
 
 
 def reconstruct_video(
@@ -55,6 +56,22 @@ def reconstruct_video(
         tracks = analyze_video_tracks(sampled, config=tracking_config)
         if not tracks.accepted_for_relative_vo:
             rejected.append(sampled.identifier)
+            trajectory_note = "trajectory=not-attempted"
+        else:
+            trajectory = recover_scale_free_trajectory(
+                sampled,
+                tracking_config=tracking_config,
+            )
+            if not trajectory.segments:
+                rejected.append(sampled.identifier)
+            trajectory_note = (
+                f"trajectory={trajectory.accepted_edges}/"
+                f"{trajectory.attempted_edges} edges, "
+                f"segments={len(trajectory.segments)}, "
+                f"breaks={trajectory.segment_breaks}, "
+                f"restarts={trajectory.segment_restarts}, "
+                f"focal_prior={trajectory.assumed_focal_length_px:.1f}px"
+            )
         summaries.append(
             f"{sampled.identifier}: {len(sampled.frames)} samples from {relative}, "
             f"{metadata.display_size_px[0]}x{metadata.display_size_px[1]} display, "
@@ -67,7 +84,8 @@ def reconstruct_video(
             f"median_motion={tracks.median_motion_px:.2f}px, "
             f"median_parallax={tracks.median_parallax_px:.2f}px, "
             f"coverage={tracks.median_coverage_fraction:.1%}, "
-            f"rejects={_format_rejections(tracks.rejection_reason_counts)}"
+            f"rejects={_format_rejections(tracks.rejection_reason_counts)}, "
+            f"{trajectory_note}"
             f"{sidecar_note}"
         )
 

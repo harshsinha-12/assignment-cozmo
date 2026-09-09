@@ -14,16 +14,13 @@ from cozmo_floorplan.recon.video_config import (
     DEFAULT_VIDEO_TRACKING,
     VideoTrackingConfig,
 )
+from cozmo_floorplan.recon.video_features import (
+    FrameFeatures,
+    PairCorrespondences,
+    extract_frame_features,
+    match_frame_features,
+)
 from cozmo_floorplan.utils.sampling import evenly_spaced_indices
-
-
-@dataclass(frozen=True, slots=True)
-class FrameFeatures:
-    """ORB observations cached once for one normalized sample."""
-
-    keypoints: tuple[cv2.KeyPoint, ...]
-    descriptors: np.ndarray | None
-    image_size_px: tuple[int, int]
 
 
 @dataclass(frozen=True, slots=True)
@@ -80,11 +77,11 @@ def analyze_video_tracks(
         {index for left_index in left_indices for index in (left_index, left_index + 1)}
     )
     features = {
-        index: _extract_features(video.frames[index], config)
+        index: extract_frame_features(video.frames[index], config)
         for index in required_indices
     }
     pairs = tuple(
-        _pair_diagnostics(index, features[index], features[index + 1], config)
+        analyze_feature_pair(index, features[index], features[index + 1], config)
         for index in left_indices
     )
     eligible_pairs = sum(pair.eligible for pair in pairs)
@@ -112,43 +109,21 @@ def analyze_video_tracks(
     )
 
 
-def _extract_features(
-    frame_rgb: np.ndarray, config: VideoTrackingConfig
-) -> FrameFeatures:
-    gray = cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2GRAY)
-    height, width = gray.shape
-    largest = max(height, width)
-    if largest > config.resize_max_dimension_px:
-        scale = config.resize_max_dimension_px / largest
-        width = max(1, round(width * scale))
-        height = max(1, round(height * scale))
-        gray = cv2.resize(gray, (width, height), interpolation=cv2.INTER_AREA)
-    detector = cv2.ORB_create(
-        nfeatures=config.orb_feature_count,
-        fastThreshold=config.orb_fast_threshold,
-    )
-    keypoints, descriptors = detector.detectAndCompute(gray, None)
-    return FrameFeatures(tuple(keypoints), descriptors, (width, height))
-
-
-def _pair_diagnostics(
+def analyze_feature_pair(
     index: int,
     left: FrameFeatures,
     right: FrameFeatures,
     config: VideoTrackingConfig,
+    correspondences: PairCorrespondences | None = None,
 ) -> PairTrackDiagnostics:
-    matches = _ratio_matches(left.descriptors, right.descriptors, config.ratio_test)
-    if matches:
-        left_points = np.float32([left.keypoints[item.queryIdx].pt for item in matches])
-        right_points = np.float32(
-            [right.keypoints[item.trainIdx].pt for item in matches]
-        )
-    else:
-        left_points = np.empty((0, 2), dtype=np.float32)
-        right_points = np.empty((0, 2), dtype=np.float32)
-    inlier_mask = _fundamental_inliers(left_points, right_points, config)
+    """Build track-quality diagnostics from one reusable pair observation."""
+
+    observed = correspondences or match_frame_features(left, right, config)
+    left_points = observed.left_points_px
+    right_points = observed.right_points_px
+    inlier_mask = observed.fundamental_inliers
     inlier_count = int(np.count_nonzero(inlier_mask))
-    inlier_ratio = inlier_count / len(matches) if matches else 0.0
+    inlier_ratio = inlier_count / observed.match_count if observed.match_count else 0.0
     diagonal = max(1.0, float(np.hypot(*left.image_size_px)))
     motion = _median_distance(left_points, right_points)
     parallax = _homography_residual(
@@ -160,7 +135,7 @@ def _pair_diagnostics(
     reasons = _rejection_reasons(
         len(left.keypoints),
         len(right.keypoints),
-        len(matches),
+        observed.match_count,
         inlier_count,
         inlier_ratio,
         motion / diagonal,
@@ -173,7 +148,7 @@ def _pair_diagnostics(
         right_index=index + 1,
         left_keypoints=len(left.keypoints),
         right_keypoints=len(right.keypoints),
-        matches=len(matches),
+        matches=observed.match_count,
         fundamental_inliers=inlier_count,
         fundamental_inlier_ratio=inlier_ratio,
         median_motion_px=motion,
@@ -181,47 +156,6 @@ def _pair_diagnostics(
         coverage_fraction=coverage,
         eligible=not reasons,
         rejection_reasons=reasons,
-    )
-
-
-def _ratio_matches(
-    left: np.ndarray | None,
-    right: np.ndarray | None,
-    ratio: float,
-) -> tuple[cv2.DMatch, ...]:
-    if left is None or right is None or len(left) < 2 or len(right) < 2:
-        return ()
-    matcher = cv2.BFMatcher(cv2.NORM_HAMMING)
-    candidates = matcher.knnMatch(left, right, k=2)
-    accepted = [
-        first
-        for pair in candidates
-        if len(pair) == 2
-        for first, second in [pair]
-        if first.distance < ratio * second.distance
-    ]
-    return tuple(sorted(accepted, key=lambda item: (item.queryIdx, item.trainIdx)))
-
-
-def _fundamental_inliers(
-    left: np.ndarray,
-    right: np.ndarray,
-    config: VideoTrackingConfig,
-) -> np.ndarray:
-    if len(left) < 8:
-        return np.zeros(len(left), dtype=bool)
-    cv2.setRNGSeed(0)
-    _fundamental, mask = cv2.findFundamentalMat(
-        left,
-        right,
-        cv2.FM_RANSAC,
-        config.ransac_reprojection_threshold_px,
-        0.99,
-    )
-    return (
-        mask.ravel().astype(bool)
-        if mask is not None
-        else np.zeros(len(left), dtype=bool)
     )
 
 

@@ -40,3 +40,17 @@ class VideoTrackingConfig:
 
 
 DEFAULT_VIDEO_TRACKING = VideoTrackingConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class VideoTrajectoryConfig:
+    """Policy for scale-free relative-pose recovery and segment retention."""
+
+    maximum_frame_count: int = 90
+    assumed_focal_length_fraction: float = 0.9
+    minimum_pose_inliers: int = 12
+    minimum_cheirality_ratio: float = 0.6
+    minimum_segment_pose_count: int = 2
+
+
+DEFAULT_VIDEO_TRAJECTORY = VideoTrajectoryConfig()

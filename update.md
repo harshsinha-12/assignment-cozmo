@@ -13,6 +13,25 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T7d scale-free video trajectory complete
+
+- Refactored ORB extraction, ratio matching, and seeded fundamental estimation
+  into `video_features.py`, shared by the T7c gate and T7d pose algorithm.
+- Added essential-matrix relative-pose recovery with an explicit image-size
+  focal prior. Translation directions are normalized and remain unitless.
+- Failed feature or pose edges close the active local trajectory. Later valid
+  evidence restarts at a new identity anchor; disconnected segments are not
+  mislabeled as globally relocalized.
+- Added deterministic two-view pose, segment-break/restart, and short-input
+  tests. Real results: my-room recovers 21/89 edges in 10 segments; pooja-room
+  recovers 17/89 in 9. The CLI remains `unsupported_tier` because no validated
+  metric scale or room geometry exists.
+- Next: T7e validate a metric per-video pose sidecar and align only proven
+  frame/timestamp correspondences before any FloorPlan output.
+- All 89 tests, Ruff, touched-file formatting, compileall, synthetic
+  reproduction, private two-video trajectory smoke, and `git diff --check` pass.
+  No commit was made.
+
 ## 2026-09-09 — T7c video feature-track gate complete
 
 - Added a separate immutable tracking policy and `video_tracks.py` algorithm. It analyzes at most 60 evenly spaced adjacent sample pairs, bounds frames to 640 px, caches ORB features, applies Hamming ratio matching, and uses seeded fundamental/homography RANSAC.

@@ -42,8 +42,12 @@ the container quarter-turn exactly once. Per-video pose sidecars are associated
 by stem; global sidecars are accepted only for a single walkthrough. T7c adds a
 deterministic ORB/fundamental-matrix track gate with motion, homography-residual
 parallax, coverage, and named rejection reasons. Both current videos pass the
-internal relative-VO eligibility ratio. Relative trajectory, metric scale, and
-FloorPlan output remain.
+internal relative-VO eligibility ratio. T7d uses the same correspondences to
+recover essential-matrix rotation and translation direction, chains unit-length
+camera steps within connected runs, and starts a new local segment after every
+failed edge. Image-size-derived focal length is an explicitly unvalidated prior;
+segments are not globally relocalized and their translations are not metres.
+Metric scale, room geometry, and FloorPlan output remain.
 
 ## Tier P — Photos
 
@@ -72,6 +76,6 @@ LiDAR JSON → IR → SVG → eval. Everything else reuses extract + stitch.
 
 **Current implementation:** portable RoomPlan JSON v1 → FloorPlan works against `data/fixtures/roomplan_two_room`. T9 plane-anchors shared openings (shared walls stay with the first owner room) and writes a poses-as-is ablation. See `docs/formats/roomplan-json.md`. T6a validates and decodes real Record3D archives; T6b1 builds deterministic metric world clouds; T6b2 detects floor/ceiling levels and four conservative Manhattan wall candidates; T6b3 adds evidence-gated openings and partial FloorPlan conversion (`docs/formats/record3d.md`). Separate archives are not called registered or accurate without connector and tape evidence. USDZ remains unsupported.
 
-Video: frames are sampled from `video/*.mp4` (`docs/formats/video-job.md`). Metric VO is not implemented; uncalibrated walkthroughs do not emit centimetres.
+Video: frames are sampled from `video/*.mp4` (`docs/formats/video-job.md`). Scale-free segmented VO is implemented, but metric scale and room extraction are not; uncalibrated walkthroughs do not emit centimetres.
 
 Photos: per-room folders and 2–8 decodable images per room are validated (`docs/formats/photo-job.md`). Metric SfM, adjacency inference, and calibrated scale still wait on real captures; ingest does not emit invented centimetres.
