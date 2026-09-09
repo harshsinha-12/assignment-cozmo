@@ -55,8 +55,10 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/recon/record3d_floorplan.py` | Converts per-archive room/opening candidates into shared FloorPlan rooms, walls, openings, provenance, and honest partial-state warnings. |
 | `docs/formats/roomplan-json.md` | Public input contract for the tested RoomPlan JSON adapter. |
 | `docs/formats/record3d.md` | Documents the tested raw Record3D archive contract, decompression path, and current plane-extraction boundary. |
-| `src/cozmo_floorplan/recon/photos_config.py` | Official 2–8 photo count, accepted extensions, and minimum image-size settings. |
-| `src/cozmo_floorplan/recon/photos.py` | Photo-tier boundary: validates every room folder and refuses metric output until SfM, adjacency, and scale exist. |
+| `src/cozmo_floorplan/recon/photos_config.py` | Official ingest limits plus immutable ORB, robust-geometry, within-room, and cross-room overlap thresholds. |
+| `src/cozmo_floorplan/recon/photo_features.py` | Decodes and bounds photos, extracts ORB observations, retains mutual ratio matches, and measures seeded homography/fundamental support and spatial coverage. |
+| `src/cozmo_floorplan/recon/photo_overlap.py` | Builds within-room connected components and conservative cross-room connector candidates with named pair-rejection evidence. |
+| `src/cozmo_floorplan/recon/photos.py` | Photo-tier adapter: validates folders, runs the overlap graph, returns actionable `insufficient_overlap`, and refuses metric output until SfM, adjacency, and scale exist. |
 | `docs/formats/photo-job.md` | Public per-room photo job layout and current metric-reconstruction boundary. |
 | `src/cozmo_floorplan/recon/video_config.py` | Sample/rotation/sidecar policy plus immutable feature-gate, scale-free trajectory, metric-pose validation, and alignment thresholds. |
 | `src/cozmo_floorplan/recon/video_features.py` | Shared bounded ORB extraction, Hamming ratio matching, and seeded fundamental-matrix correspondence utility used by tracking and pose recovery. |
@@ -168,6 +170,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `tests/test_video_tracks.py` | Tests accepted multi-depth motion, homography-dominant/pure-rotation rejection, and featureless-frame rejection without crashes. |
 | `tests/test_video_trajectory.py` | Tests two-view rotation/translation-direction recovery, explicit graph breaks and local segment restarts, unitless chaining, and the too-short boundary. |
 | `tests/test_video_pose_alignment.py` | Tests strict metric-sidecar parsing, units/frame/quaternion rejection, exact frame/time matching, similarity scale recovery, metric positions, and timestamp-mismatch refusal. |
+| `tests/test_photo_overlap.py` | Tests connected transformed views, unrelated-room connector rejection, and featureless images remaining explicit disconnected components. |
 | `tests/test_capture_templates.py` | Loads every public handoff template through the production job loader and checks that tiers use separate job ids/directories. |
 | `tests/conftest.py` | Forces offline fallback during tests so local API keys are never used and tests never spend credits. |
 

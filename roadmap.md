@@ -90,6 +90,11 @@ Done when: a walkthrough clip emits a plan that eval can score.
 
 ## Phase 6 — Photos tier
 
+**Status:** partial — T8a validates 2–8 images per room. T8b builds deterministic
+within-room and cross-room geometric overlap graphs. The current three folders
+all fail connectivity and have no cross-room connector candidate, so SfM waits
+on overlapping reshoots rather than fabricating a model.
+
 - 2–8 stills per room folder, no crash
 - Manhattan / VP regularizer
 - Metric cm with calibrated intervals (tighten when evidence is strong)

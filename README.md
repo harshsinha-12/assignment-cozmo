@@ -45,7 +45,7 @@ Official prompt: [`docs/takehome.md`](docs/takehome.md) (Round 2). What we are b
 
 ## Current status
 
-**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, multi-video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, and one-command synthetic reproduction work. Video now has orientation-aware ingest, ORB/geometric feature gates, segmented scale-free poses, and a strict metric-pose sidecar/alignment path; real Record3D emits partial metric geometry. Video surface extraction/FloorPlan output, cross-scan registration, calibration, and metric photos remain.**
+**Schema, CLI, eval, RoomPlan JSON LiDAR, T9 stitch/ablation, multi-video/photo ingest, paired JSON/SVG, T16 claims agent/tools, T19 fix loop, T10 report draft, and one-command synthetic reproduction work. Video has tracked/segmented pose paths; photos now have deterministic within/cross-room overlap graphs; real Record3D emits partial metric geometry. Video/photo surface extraction, cross-scan registration, scale calibration, and scored accuracy remain.**
 
 See [`roadmap.md`](roadmap.md).
 
@@ -89,7 +89,7 @@ Evaluate the pair with `python -m cozmo_floorplan eval --pred OUT/floorplan.json
 
 Video jobs: put one MP4/MOV per room in `video/` (`docs/formats/video-job.md`). The CLI samples every file, preserves source-frame/timestamp identity, evaluates geometric tracks, and recovers segmented unitless poses. A versioned per-video sidecar can provide validated metric camera positions through exact frame/time matching; native MP4s still exit structurally rather than guessing centimetres.
 
-Photo jobs: put 2–8 decodable images per room under `photos/<room_id>/` (`docs/formats/photo-job.md`). Ingest is ready; metric SfM, adjacency, and scale remain capture-dependent.
+Photo jobs: put 2–8 decodable images per room under `photos/<room_id>/` (`docs/formats/photo-job.md`). The CLI now measures mutual feature/geometric overlap, requires each room graph to connect, and reports cross-room connector candidates before SfM. Metric reconstruction and scale remain pending.
 
 The completed fix-loop bundle is frozen under `data/fix-loop/` and verified with `PYTHONPATH=src python3 -m cozmo_floorplan.fix_loop.verify data/fix-loop`. Its declaration, exact fail→pass result, pinned before/after artifacts, and readable diff are in `docs/fix-loop.md` and `data/fix-loop/diff.md`.
 

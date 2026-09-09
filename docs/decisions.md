@@ -4,6 +4,23 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-09 — Refuse photo SfM before the evidence graph connects
+
+**Context:** Passing the 2–8 file-count contract does not mean the views share
+enough scene content for reconstruction. Starting SfM on isolated viewpoints
+can yield separate models or false matches, while cross-room lookalikes are not
+proof of adjacency.
+
+**Decision:** Build an all-pairs bounded ORB graph first. Require mutual ratio
+matches plus seeded homography/fundamental inliers and spatial coverage. Require
+one connected component per room. Apply stricter thresholds across rooms and
+label surviving links connector candidates only. Fail as
+`insufficient_overlap` before metric reconstruction when these gates fail.
+
+**Consequence:** All three current photo folders are disconnected (4, 6, and 6
+components) and no cross-room candidate survives. This produces an actionable
+reshoot request and prevents a flattering but unreproducible SfM claim.
+
 ## 2026-09-09 — Metric video poses require two correspondence keys
 
 **Context:** A JSON list of positions beside a video is not enough to establish

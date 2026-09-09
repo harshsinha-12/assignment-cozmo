@@ -79,6 +79,31 @@ def test_multi_room_photos_are_validated_without_inventing_centimetres(tmp_path)
     assert [room.identifier for room in rooms] == ["hallway", "room_a"]
     assert [len(room.frames) for room in rooms] == [2, 2]
     assert document["status"] == "failed"
-    assert document["warnings"][0]["code"] == "unsupported_tier"
+    assert document["warnings"][0]["code"] == "insufficient_overlap"
     assert "Validated 4 decodable photos" in document["warnings"][0]["message"]
-    assert "centimetres will not be guessed" in document["warnings"][0]["message"]
+    assert "overlap graph is disconnected" in document["warnings"][0]["message"]
+    assert (
+        "centimetres will not be guessed" in document["warnings"][0]["message"].lower()
+    )
+
+
+def test_connected_rooms_reach_metric_sfm_boundary(tmp_path):
+    job_dir = tmp_path / "connected_rooms"
+    photos_dir = _write_job(job_dir)
+    rng = np.random.default_rng(17)
+    base = rng.integers(0, 256, (360, 480, 3), dtype=np.uint8)
+    base = cv2.GaussianBlur(base, (3, 3), 0)
+    for room in ("room_a", "room_b"):
+        for index in range(2):
+            transform = np.float32([[1.0, 0.0, index * 8.0], [0.0, 1.0, index * 3.0]])
+            image = cv2.warpAffine(base, transform, (480, 360))
+            path = photos_dir / room / f"{index + 1:02d}.jpg"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            assert cv2.imwrite(str(path), image)
+
+    with pytest.raises(ReconstructionError) as raised:
+        reconstruct_photos(load_job(job_dir))
+
+    assert raised.value.warning_code == "unsupported_tier"
+    assert "overlap graph is eligible" in str(raised.value)
+    assert "Metric SfM" in str(raised.value)

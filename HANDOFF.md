@@ -12,17 +12,17 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Completed **T7e**, strict metric video-pose sidecar validation and local-segment similarity alignment.
-- Video sampling now retains exact encoded frame indices and clip-relative timestamps alongside normalized RGB frames.
-- Added separate sidecar I/O and alignment algorithm modules. Metric alignment requires proven frame/time correspondence, non-degenerate motion, and bounded RMSE.
-- Added parser/alignment/integration tests; updated the code map, format docs, compliance row, ADR, roadmap, README, and task queue. No commit was made.
+- Completed **T8b**, deterministic photo overlap and evidence-graph qualification against the real upload.
+- Added separate photo feature/matching utilities, overlap configuration, and graph algorithm modules.
+- Within-room edges build connected components; stricter cross-room matches produce connector candidates only, never asserted adjacency.
+- Added connected/unrelated/featureless synthetic tests; updated the adapter, code map, photo docs, compliance row, ADR, roadmap, README, and task queue. No commit was made.
 
 ### What is true now
 
 - Product: local CLI. Folder in → JSON + SVG out. No Redis, no our servers.
 - Plane-anchored stitch + regenerable `floorplan.ablation-off.json` work on the two-room RoomPlan fixture. Drift gate passes when that ablation is supplied.
 - Video jobs ingest every MP4/MOV in stable order, retain source-frame/time identity, qualify relative-VO evidence, recover disconnected unitless pose segments, and strictly validate/align optional metric camera poses. They do **not** emit wall centimetres yet.
-- Photo jobs validate one folder per room, 2–8 decodable images per folder, and stable room/image metadata. They intentionally remain `unsupported_tier` until metric reconstruction exists.
+- Photo jobs validate one folder per room, 2–8 decodable images, stable identity, and all-pairs geometric overlap. Disconnected evidence now returns actionable `insufficient_overlap` before SfM.
 - Raw Record3D `.r3d` ZIPs now emit schema-valid metric rooms, walls, ceiling heights, areas, and evidence-gated openings. Output stays `partial` because intervals and cross-archive registration are not yet measured.
 - T19 before is pinned to `523ceea`; the shipped code is pinned to `68acdf6`. The complete bundle is under `data/fix-loop/`.
 - The after run exits 0. Its eval still exits 3 because unrelated repeatability/incumbent evidence is missing, while the selected `pipeline_yield` gate passes.
@@ -32,10 +32,11 @@ The current agent overwrites the **Current handoff** section at the end of every
 - With at most 90 selected frames, my-room recovers 21/89 relative-pose edges in 10 local segments and pooja-room recovers 17/89 in 9. The 576 px focal length is an unvalidated image-size prior; unit steps and separate identity anchors are not metric or globally aligned.
 - Metric pose sidecar v1 requires metres, camera-to-world, right-handed y-up, video-start timestamps, increasing source-frame/time keys, finite positions, and unit XYZW quaternions. Segment alignment requires ≥3 exact frame/time matches, trajectory rank ≥2, and ≤0.15 m RMSE.
 - The current private MP4s contain no sidecars, so both report `metric_alignment=not-available`; no scale was inferred.
+- The current photo graphs fail connectivity: drawing-room has 3/21 eligible edges and 4 components, my-room 2/28 and 6, and pooja-room 2/28 and 6. No cross-room connector candidate passes. This is capture evidence, not an accuracy score.
 - The three clouds use 61 frames each and contain 252,694 drawing-room, 224,435 my-room, and 260,653 pooja-room 2.5 cm voxel centroids. The complete private LiDAR command takes about 8 s locally.
 - The private output contains 3 rooms, 12 walls, and 4 opening candidates: one in my-room and three in pooja-room. The SVG was rendered and visually inspected. These candidates are not tape-backed accuracy results.
 - Separate archives preserve their exported world-pose coordinates, but no shared session/door association is invented. T9 records an empty ablation and one disconnected warning rather than claiming correction.
-- All 96 tests, Ruff, touched-file formatting, compileall, synthetic reproduction, private two-video no-sidecar smoke, and diff checks pass. Video exit 2 is intentional because room-surface extraction is still absent.
+- All 100 tests, Ruff, touched-file formatting, compileall, synthetic reproduction, private 23-photo overlap smoke, and diff checks pass. Photo exit 2 is intentional and classified `insufficient_overlap`.
 - T10 is structurally drafted but remains `doing` until real LiDAR/video/photo, repeatability, incumbent, calibration, and timing evidence replaces the pending cells.
 
 ### Blockers
@@ -43,22 +44,23 @@ The current agent overwrites the **Current handoff** section at the end of every
 - Human T3 remainder: drawing-room video, connector/hallway in all tiers, repeat capture, tape/laser GT, two staged damage classes/evidence, and Polycam/magicplan output for two rooms.
 - T6 calibration/repeatability/shared-opening hardening remains blocked on the human capture remainder.
 - T7 metric FloorPlan accuracy still needs sparse metric reconstruction and room-surface extraction; the current captures also lack the optional pose sidecars needed by T7e.
+- T8c metric SfM is blocked on a photo reshoot with overlapping intermediate views and doorway/connector evidence. Do not loosen the evidence thresholds to force the current capture through.
 - T21: full Xcode.app (this machine has Command Line Tools only).
 - Metric video VO and photo SfM/adjacency/interval calibration need the actual media.
 
 ### Next agent should
 
 1. Implement **T7f** synthetic sidecar-backed sparse triangulation and diagnostic floor/wall candidates, without claiming current native MP4 support.
-2. Alternatively start **T8b** photo overlap/feature graph against the 23 uploaded photos; it has direct real evidence now.
+2. After Harsh reshoots photos, rerun T8b; start T8c SfM only if every room graph connects and connector candidates exist.
 3. Keep collecting the missing T3 evidence in parallel; do not score accuracy without tape truth.
 
 ### Read next (max five)
 
 1. `TASKS.md`
-2. `src/cozmo_floorplan/io/video_poses.py`
-3. `src/cozmo_floorplan/recon/video_pose_alignment.py`
-4. `src/cozmo_floorplan/recon/video.py`
-5. `docs/formats/video-job.md`
+2. `src/cozmo_floorplan/recon/photo_features.py`
+3. `src/cozmo_floorplan/recon/photo_overlap.py`
+4. `src/cozmo_floorplan/recon/photos.py`
+5. `docs/formats/photo-job.md`
 
 ### Exact next command
 
@@ -70,6 +72,7 @@ PYTHONPATH=src COZMO_AGENT_MODE=fallback python3 -m cozmo_floorplan run data/pri
 
 ## History
 
+- **2026-09-09** — T8b photo overlap graph complete; all three current rooms are disconnected and have no cross-room connector candidate, so reshoot precedes SfM.
 - **2026-09-09** — T7e strict metric pose-sidecar validation and exact frame/time segment alignment complete; current native MP4s remain unitless.
 - **2026-09-09** — T7d scale-free relative video poses and explicit local segment breaks/restarts complete; T7e metric sidecar validation next.
 - **2026-09-09** — T7c ORB/geometric trackability gate complete on both real videos; T7d relative trajectory next.

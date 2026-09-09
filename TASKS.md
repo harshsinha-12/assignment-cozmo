@@ -23,7 +23,7 @@ those eval inputs.
 | **T10** | **Draft done** | Architecture, tier design, drift, error budget, calibration, agent, fix loop, and known failures are drafted. Final real benchmark tables wait on T3. |
 | **T20** | **T20a/T20b done** | Fresh-venv reproduction and structural compliance audit are verified; final real benchmark bundle and measured coverage remain T3-dependent. |
 | **T17** | **Protocol stage done** | Route 2 operator card, loader-checked per-tier templates, and honest runtime/device matrix ship; measured intervals remain T3-dependent. |
-| T8 remainder | Ingest only (done) | Folder discovery / 2–8 JPEG checks already ship. Metric SfM, scale, adjacency, ±8% walls need T3 photos. |
+| T8 remainder | Overlap measured | Current photo graphs fail connectivity. Metric SfM, scale, adjacency, and ±8% walls need overlapping reshoots. |
 | T7 remainder | Partial media available | Sampling, tracking, and scale-free segmented poses ship. Metric pose/scale, room geometry, and ±3% eval remain. |
 
 **Still evidence-blocked:** measured T17 intervals, T18 Polycam/magicplan,
@@ -44,7 +44,7 @@ advance against the partial upload.
 | T6 | doing | LiDAR export → FloorPlan | — | **present** | T6a–T6b3 raw `.r3d` partial IR works; calibration, repeatability, shared-opening registration, and GT hardening remain |
 | T9 | done | Stitch + drift correction + on/off ablation | T6 | no | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
 | T7 | doing | Video path | T6 | two of three room videos present | T7b–T7e ingest, tracks, unitless poses, and strict optional metric sidecar alignment done; current videos lack sidecars, surface/FloorPlan/±3% remain |
-| T8 | todo | Photos path, 2–8 stills, folder stitch | — | 23 photos present | T8a ingest done; drawing room has 7 and files lack original Camera EXIF after WhatsApp transfer |
+| T8 | doing | Photos path, 2–8 stills, folder stitch | — | 23 photos present but overlap fails | T8a ingest + T8b overlap graph done; current rooms have 4/6/6 components and zero connector candidates; reshoot blocks SfM |
 | T21 | todo | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | Xcode.app | no | Parallel. Scored route stays Route 2 until install works |
 | T17 | doing | Device matrix + capture-route polish | T3 | **yes** (measured intervals) | T17a protocol/templates done; walk-in validation and measured rows wait on T3 |
 | T18 | todo | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | **yes** | Beat/tie ≥ 70% shared dims |
@@ -77,14 +77,15 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 ### Next engineering task
 
 **T7f:** triangulate sparse metric points only for accepted, sidecar-aligned
-segments, then add diagnostic floor/wall-plane candidates. If staying on the
-current native MP4s, start T8b photo overlap/feature graph instead; do not infer
-metric video geometry without a sidecar.
+segments, then add diagnostic floor/wall-plane candidates. T8c SfM is now
+explicitly blocked on an overlapping photo reshoot; do not loosen T8b thresholds
+to force the current evidence to pass.
 
 ---
 
 ## Done
 
+- **2026-09-09 T8b photo overlap graph** — Bounded ORB features, mutual matching, seeded homography/fundamental support, spatial-coverage gates, within-room components, conservative cross-room candidates, synthetic graph tests, and measured real-capture refusal. Current rooms have 4/6/6 components and no connector candidate; no metric claim.
 - **2026-09-09 T7e metric pose sidecar/alignment** — Exact sampled source-frame/timestamp identity, strict versioned metre/camera-to-world sidecars, unit-quaternion validation, per-segment 3D similarity alignment, degeneracy/RMSE rejection, and synthetic metric recovery tests. Current MP4s remain unitless because no sidecars exist.
 - **2026-09-09 T7d scale-free video trajectory** — Shared ORB/fundamental correspondences, assumed-intrinsics essential poses, unit-normalized translation directions, explicit segment breaks/restarts, two-view and graph-break tests, and real two-video diagnostics. No metric claim.
 - **2026-09-09 T7c video feature-track gate** — Bounded ORB extraction, ratio matching, seeded fundamental/homography RANSAC, motion/parallax/coverage gates, named rejection counts, accepted multi-depth synthetic motion, rejected pure rotation/blank frames, and real two-video diagnostics. No metric claim.

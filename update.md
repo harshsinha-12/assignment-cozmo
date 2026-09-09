@@ -13,6 +13,27 @@ Format:
 - Next
 ```
 
+## 2026-09-09 — T8b photo overlap graph complete
+
+- Added separate immutable photo-overlap policy, reusable ORB/mutual-match
+  feature utilities, and a graph algorithm for within-room connectivity and
+  conservative cross-room connector candidates.
+- Each pair records the stronger seeded homography/fundamental support plus
+  match count, inlier ratio, spatial coverage, and named rejection reasons.
+  Cross-room evidence uses stricter thresholds and never becomes adjacency by
+  itself.
+- Added synthetic tests for a connected transformed sequence, unrelated rooms,
+  a featureless disconnected image, and the connected-graph metric boundary.
+- Real result: drawing-room has 3/21 eligible edges and 4 components; my-room
+  2/28 and 6; pooja-room 2/28 and 6. No room pair has a connector candidate.
+  The CLI now returns actionable `insufficient_overlap` instead of proceeding
+  to an unstable SfM model or inventing scale.
+- All 100 tests, Ruff, touched-file formatting, compileall, synthetic
+  reproduction, private 23-photo smoke, and `git diff --check` pass. No commit
+  was made.
+- Next: T7f can proceed synthetically; T8c metric SfM waits on an overlapping
+  photo reshoot with intermediate and doorway/connector views.
+
 ## 2026-09-09 — T7e metric video-pose sidecar complete
 
 - Extended normalized video samples with their exact encoded frame indices and

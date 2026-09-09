@@ -70,6 +70,16 @@ If none exist: output a unitless plan (`units: "relative"`) and a warning. Do **
 
 **Failure modes:** two photos of opposite corners with no overlap, HDR ghosts, HEIC orientation, wide-angle distortion. Fail early with `insufficient_overlap`.
 
+**Current implementation:** T8a validates the folder/count/decode contract.
+T8b extracts bounded ORB features, keeps mutual ratio matches, accepts the
+stronger seeded homography/fundamental support model, and gates pairs on match,
+inlier, ratio, and spatial coverage evidence. It builds connected components
+within each room and treats stronger cross-room pairs only as connector
+candidates—not proven adjacency. The uploaded sets fail: drawing-room has 3/21
+eligible edges and 4 components; my-room 2/28 and 6; pooja-room 2/28 and 6.
+No cross-room pair passes the connector threshold. Metric SfM does not start on
+this capture.
+
 ## Mixed jobs
 
 A restoration walk is often LiDAR on the adjuster’s iPhone plus homeowner JPEGs. Design the normalizer so a job can list `tier: mixed` and the stitcher can use LiDAR as the metric scaffold and photos as texture/evidence only (even if we never implement texture).
@@ -82,4 +92,4 @@ LiDAR JSON → IR → SVG → eval. Everything else reuses extract + stitch.
 
 Video: frames are sampled from `video/*.mp4` (`docs/formats/video-job.md`). Scale-free segmented VO and strict optional metric-pose alignment are implemented, but room extraction is not; uncalibrated walkthroughs do not emit centimetres.
 
-Photos: per-room folders and 2–8 decodable images per room are validated (`docs/formats/photo-job.md`). Metric SfM, adjacency inference, and calibrated scale still wait on real captures; ingest does not emit invented centimetres.
+Photos: per-room folders and 2–8 decodable images per room are validated, and geometric overlap connectivity is measured (`docs/formats/photo-job.md`). The current capture fails that gate; metric SfM, adjacency inference, and calibrated scale remain. No invented centimetres are emitted.
