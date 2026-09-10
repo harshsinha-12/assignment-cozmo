@@ -82,9 +82,19 @@ def run_loaded_job(
 
     if job.tier == "photos":
         try:
-            reconstruct_photos(job)
+            raw = reconstruct_photos(job)
         except ReconstructionError as exc:
             return _structured_failure(job, exc), None
+        ablation_off = apply_drift_correction(raw, enabled=False)
+        corrected = (
+            apply_drift_correction(raw, enabled=True)
+            if drift_correction
+            else ablation_off
+        )
+        primary = enrich_floorplan(job, corrected)
+        if drift_correction and corrected.get("stitch"):
+            return primary, ablation_off
+        return primary, None
 
     failed = build_failed_floorplan(
         job_id=job.job_id,

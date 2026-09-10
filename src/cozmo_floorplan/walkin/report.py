@@ -14,6 +14,7 @@ def render_walkin_summary(report: dict[str, Any]) -> str:
         f"# Walk-in rehearsal — {report['walkin_id']}",
         "",
         f"Overall: **{report['status']}**",
+        f"Selected tiers: {_join(report.get('selected_tiers'))}",
         f"Declared room: `{report['room_id']}`",
         f"Observed rooms: {_join(report.get('observed_rooms'))}",
         f"Benchmark-room collisions: {collision_text}",
@@ -36,8 +37,8 @@ def render_walkin_summary(report: dict[str, Any]) -> str:
             "",
             "## Timed tier runs",
             "",
-            "| Tier | Status | Pipeline | Seconds | Output |",
-            "| --- | --- | --- | ---: | --- |",
+            "| Tier | Status | Pipeline | Geometry ready | Seconds | Output |",
+            "| --- | --- | --- | --- | ---: | --- |",
         ]
     )
     for item in report["runs"]:
@@ -45,8 +46,24 @@ def render_walkin_summary(report: dict[str, Any]) -> str:
         elapsed_text = f"{elapsed:.3f}" if isinstance(elapsed, (int, float)) else ""
         lines.append(
             f"| {item['tier']} | {item['status']} | "
-            f"{item.get('pipeline_status', 'pending')} | {elapsed_text} | "
+            f"{item.get('pipeline_status', 'pending')} | "
+            f"{item.get('geometry_ready', False)} | {elapsed_text} | "
             f"`{item.get('output', '')}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Immediate actions",
+            "",
+            "| Tier | Warning codes | Next action |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for item in report["runs"]:
+        warnings = ", ".join(item.get("warning_codes", [])) or "none"
+        lines.append(
+            f"| {item['tier']} | {warnings} | "
+            f"{item.get('next_action', item.get('detail', 'Inspect output.'))} |"
         )
     lines.extend(
         [

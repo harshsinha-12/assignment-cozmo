@@ -133,6 +133,54 @@ ground_truth: ground_truth.json
     assert all(item["status"] == "complete" for item in report["evaluations"])
 
 
+def test_selected_walkin_tier_ignores_unselected_missing_media(monkeypatch, tmp_path):
+    capture_root = tmp_path / "capture"
+    capture_root.mkdir()
+    truth_text = TRUTH_PATH.read_text(encoding="utf-8")
+    (capture_root / "ground_truth.json").write_text(truth_text, encoding="utf-8")
+    (capture_root / "walkin.yaml").write_text(
+        """schema_version: '1.0.0'
+walkin_id: kitchen-holdout
+room_id: kitchen
+jobs:
+  photos: walkin-photos
+  video: walkin-video
+  lidar: walkin-lidar
+ground_truth: ground_truth.json
+""",
+        encoding="utf-8",
+    )
+    photos = capture_root / "walkin-photos"
+    _write_job(photos, tier="photos", room_id="kitchen")
+    _write_photo(photos / "photos" / "kitchen" / "01.jpg")
+    _write_photo(photos / "photos" / "kitchen" / "02.jpg")
+    truth = json.loads(truth_text)
+    monkeypatch.setattr(
+        runner_module,
+        "run_job_with_ablation",
+        lambda _job: (truth, None),
+    )
+
+    report = run_walkin(
+        capture_root,
+        tmp_path / "output",
+        tiers=("photos",),
+    )
+
+    assert report["status"] == "complete"
+    assert report["selected_tiers"] == ["photos"]
+    assert not report["pending_inputs"]
+    assert {item["tier"] for item in report["runs"]} == {
+        "photos",
+        "photos_2still",
+    }
+    assert all(item["geometry_ready"] for item in report["runs"])
+    input_ids = {item["id"] for item in report["inputs"]}
+    assert "job_photos" in input_ids
+    assert "job_video" not in input_ids
+    assert "job_lidar" not in input_ids
+
+
 def test_two_photo_subset_crash_tests_the_official_floor(tmp_path):
     capture_root = tmp_path / "capture"
     capture_root.mkdir()

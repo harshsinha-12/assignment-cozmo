@@ -4,6 +4,25 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-10 — Walk-in rehearsal follows the evaluator-selected tier
+
+**Context:** The defense selects one of photos, video, or LiDAR. The original
+rehearsal always audited all three, so missing unselected media could leave the
+walk-in `pending_inputs` even when the chosen path was ready. Failed geometry
+also exposed warnings but no concise operator action.
+
+**Decision:** Keep `all` as the full-rehearsal default and add an explicit
+`--tier` / `WALKIN_TIER` selector. Input auditing, holdout collision checks,
+execution, and evaluation apply only to selected tiers. Each timed run reports
+whether rooms and walls were emitted, warning codes, and the next capture
+action. A successful photo reconstruction is now forwarded through the shared
+pipeline instead of falling through, while the photo adapter remains honest
+about its still-unimplemented metric SfM boundary.
+
+**Consequence:** The live harness now matches the examiner's chosen path and
+can drive a fast recapture loop. This is an operational reliability improvement;
+it does not turn a missing room or a non-passing centimetre gate into a pass.
+
 ## 2026-09-10 — Native video emits partial rooms; ±3% waits on tape
 
 **Context:** Four Camera-app MP4s have no ARKit sidecars. A handheld-height

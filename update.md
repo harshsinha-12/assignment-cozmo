@@ -13,6 +13,27 @@ Format:
 - Next
 ```
 
+## 2026-09-10 — T11b evaluator-selected walk-in hardening
+
+- Context: The walk-in is 30% of the take-home and the evaluator chooses one
+  capture tier. The old rehearsal required unrelated missing tiers and gave no
+  concise recapture instruction when geometry was absent.
+- Done: Added `walkin --tier {all,photos,video,lidar}` and
+  `WALKIN_TIER=<tier>` Make support. Selected-tier input audit, holdout checks,
+  timing, and evaluation now match the live path. The summary reports geometry
+  readiness, warning codes, and tier-specific immediate actions. Removed the
+  pipeline fall-through that would discard a future successful photo result.
+  Focused walk-in/photo/video tests pass 25/25; full suite 180/180; Ruff,
+  compileall, synthetic reproduction, selected-video empty-input rehearsal,
+  and `git diff --check` pass.
+- Learned: Media quality remains causal: photos need eight sharp views with at
+  least 60% overlap and shared doorway views; video needs a slow perimeter,
+  corner pauses, and continuous floor/ceiling/wall coverage. The photo adapter
+  still needs metric SfM, so no photo accuracy pass is claimed.
+- Next: Run one genuinely unseen room with tape. Use
+  `make walkin WALKIN_TIER=<chosen-tier>` and recapture immediately when
+  **Geometry ready** is false.
+
 ## 2026-09-10 — Finish-line closeout: cleanup, red test, final benchmark
 
 - Context: The 10:00 check asked whether repository cleanup was committed, the

@@ -10,6 +10,7 @@ BENCHMARK_AGENT_MODE ?= auto
 WALKIN_ROOT ?= data/private/walkin
 WALKIN_OUT ?= out/walkin
 WALKIN_AGENT_MODE ?= auto
+WALKIN_TIER ?= all
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -40,9 +41,9 @@ benchmark:
 
 walkin:
 	@if [ -x $(BIN)/python ]; then \
-		COZMO_AGENT_MODE=$(WALKIN_AGENT_MODE) $(BIN)/python -m cozmo_floorplan walkin $(WALKIN_ROOT) --out $(WALKIN_OUT); \
+		COZMO_AGENT_MODE=$(WALKIN_AGENT_MODE) $(BIN)/python -m cozmo_floorplan walkin $(WALKIN_ROOT) --out $(WALKIN_OUT) --tier $(WALKIN_TIER); \
 	else \
-		PYTHONPATH=src COZMO_AGENT_MODE=$(WALKIN_AGENT_MODE) $(PYTHON) -m cozmo_floorplan walkin $(WALKIN_ROOT) --out $(WALKIN_OUT); \
+		PYTHONPATH=src COZMO_AGENT_MODE=$(WALKIN_AGENT_MODE) $(PYTHON) -m cozmo_floorplan walkin $(WALKIN_ROOT) --out $(WALKIN_OUT) --tier $(WALKIN_TIER); \
 	fi
 
 fmt:

@@ -26,6 +26,8 @@ Tape every wall, the ceiling, and the door while the CLI would be running. Put c
 
 ## One command
 
+For a full three-tier rehearsal:
+
 ```bash
 make walkin
 ```
@@ -36,7 +38,21 @@ Same path without Make:
 python -m cozmo_floorplan walkin data/private/walkin --out out/walkin
 ```
 
-That times the public `run` path on every present tier, crash-tests the official **2-still** photo floor from the first two images, evaluates against tape when `ground_truth.json` exists, and refuses to score if the room ids collide with the benchmark. Open `out/walkin/walkin-summary.md`.
+On evaluator day, rehearse only the tier they selected so absent, unselected media
+cannot obscure the result:
+
+```bash
+make walkin WALKIN_TIER=video
+# Equivalent:
+python -m cozmo_floorplan walkin data/private/walkin --out out/walkin --tier video
+```
+
+Use `photos`, `video`, `lidar`, or `all`. The harness times the same public
+`run` path, evaluates against tape when `ground_truth.json` exists, and refuses
+to score if a selected job reuses a benchmark room. Photo selection also
+crash-tests the official **2-still** floor. Open
+`out/walkin/walkin-summary.md`: **Geometry ready** is the fast go/no-go signal,
+and **Immediate actions** translates warnings into a concrete recapture.
 
 The defense command itself remains one job:
 
@@ -48,4 +64,6 @@ python -m cozmo_floorplan run path/to/job --out path/to/out
 
 ## Status
 
-Infrastructure is in place. Holdout photos, video, LiDAR, and tape are still missing, so a real timed rehearsal has not been scored. Pending inputs stay `pending`; they are never treated as zero.
+Infrastructure and selected-tier rehearsal are in place. Holdout photos, video,
+LiDAR, and tape are still missing, so a real timed rehearsal has not been
+scored. Pending inputs stay `pending`; they are never treated as zero.

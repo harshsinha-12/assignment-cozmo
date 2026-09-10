@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import cv2
@@ -6,9 +7,10 @@ import pytest
 from PIL import Image
 
 from cozmo_floorplan.errors import ReconstructionError
-from cozmo_floorplan.io.job import load_job
+from cozmo_floorplan.io.job import Job, load_job
 from cozmo_floorplan.io.photos import load_photo_rooms
 from cozmo_floorplan.pipeline import run_job
+import cozmo_floorplan.pipeline as pipeline_module
 from cozmo_floorplan.recon.photo_image import load_resized_gray
 from cozmo_floorplan.recon.photos import reconstruct_photos
 from cozmo_floorplan.utils.images import load_display_oriented_bgr
@@ -154,3 +156,34 @@ def test_connected_rooms_reach_metric_sfm_boundary(tmp_path):
     assert raised.value.warning_code == "unsupported_tier"
     assert "overlap graph is eligible" in str(raised.value)
     assert "Metric SfM" in str(raised.value)
+
+
+def test_pipeline_forwards_a_successful_photo_reconstruction(monkeypatch, tmp_path):
+    expected = json.loads(
+        (Path(__file__).parents[1] / "data/fixtures/synthetic_two_room/ground_truth.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    expected["status"] = "partial"
+    expected["provenance"]["tier"] = "photos"
+    job = Job(
+        root=tmp_path,
+        job_id="photo-job",
+        tier="photos",
+        device="iPhone 15",
+        manifest={"job_id": "photo-job", "tier": "photos"},
+        input_refs=("manifest.yaml", "photos/room-a/01.jpg"),
+    )
+    monkeypatch.setattr(pipeline_module, "reconstruct_photos", lambda _job: expected)
+    monkeypatch.setattr(
+        pipeline_module, "apply_drift_correction", lambda document, enabled: document
+    )
+    monkeypatch.setattr(
+        pipeline_module, "enrich_floorplan", lambda _job, document: document
+    )
+
+    document, ablation = pipeline_module.run_loaded_job(job)
+
+    assert document is expected
+    assert document["provenance"]["tier"] == "photos"
+    assert ablation is expected

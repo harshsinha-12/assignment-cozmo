@@ -277,7 +277,7 @@ For the live walk-in, choose photos, video, or LiDAR, follow [docs/capture-route
 python -m cozmo_floorplan run JOB --out OUT
 ```
 
-Measure the room with a laser while the pipeline runs. Set `OPENAI_API_KEY` if live agent calls are available; otherwise the same tools run through the deterministic fallback. Use `python -m cozmo_floorplan run` for the new capture rather than `make benchmark`, which targets my private development benchmark. A rehearsal harness exists (`make walkin`, [docs/walk-in.md](docs/walk-in.md)) for a room that is not `drawing-room`, `my-room`, `pooja-room`, or `connector`.
+Measure the room with a laser while the pipeline runs. Set `OPENAI_API_KEY` if live agent calls are available; otherwise the same tools run through the deterministic fallback. Use `python -m cozmo_floorplan run` for the new capture rather than `make benchmark`, which targets my private development benchmark. A rehearsal harness exists (`make walkin`, [docs/walk-in.md](docs/walk-in.md)) for a room that is not `drawing-room`, `my-room`, `pooja-room`, or `connector`. On evaluator day, `make walkin WALKIN_TIER=video` (or `photos` / `lidar`) checks only the chosen tier and reports geometry readiness plus the exact recapture action.
 
 ## Design in one paragraph
 

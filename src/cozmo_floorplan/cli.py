@@ -89,6 +89,12 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         help="Directory for timed tier artifacts and walk-in status files.",
     )
+    walkin_parser.add_argument(
+        "--tier",
+        choices=("all", "photos", "video", "lidar"),
+        default="all",
+        help="Run all rehearsal tiers or only the evaluator-selected tier.",
+    )
     return parser
 
 
@@ -110,7 +116,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "benchmark":
         return _benchmark_command(args.capture_root, args.out)
     if args.command == "walkin":
-        return _walkin_command(args.capture_root, args.out)
+        return _walkin_command(args.capture_root, args.out, tier=args.tier)
     return int(ExitCode.INTERNAL_ERROR)
 
 
@@ -190,9 +196,10 @@ def _benchmark_command(capture_root: Path, out_dir: Path) -> int:
     return int(ExitCode.OK)
 
 
-def _walkin_command(capture_root: Path, out_dir: Path) -> int:
+def _walkin_command(capture_root: Path, out_dir: Path, *, tier: str = "all") -> int:
     try:
-        report = run_walkin(capture_root, out_dir)
+        tiers = ("photos", "video", "lidar") if tier == "all" else (tier,)
+        report = run_walkin(capture_root, out_dir, tiers=tiers)
     except (CozmoFloorPlanError, OSError, ValueError) as exc:
         print(f"walkin_error={exc}", file=sys.stderr)
         return int(ExitCode.INTERNAL_ERROR)

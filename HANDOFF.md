@@ -12,21 +12,19 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Confirmed the repository cleanup is already committed in `a67f861` and
-  `7c7884a`.
-- Fixed `scripts/install-cozmo-capture.sh --dry-run` so it prints the build and
-  install plan without querying `xcrun devicectl` or waiting for an iPhone.
-- Updated the submission writing to distinguish successful delivery checks from
-  measured accuracy. Better results require higher-overlap stills, a slower and
-  steadier handheld video sweep, and a stable LiDAR perimeter scan with strong
-  surface coverage.
-- Improved the generic Record3D outer-wall selector from exact-peak-only to a
-  conservative 95%-of-peak support band. This uses capture support only and
-  contains no truth, room, or incumbent special case.
-- Final Magicplan head-to-head is 9/12 shared dimensions (75%), passing the
-  official 70% gate.
-- Verification: focused closeout tests pass 9/9; the full suite passes 178/178;
-  `make benchmark` exits successfully with `status=complete pending=0`.
+- Added evaluator-selected walk-in execution with
+  `make walkin WALKIN_TIER=<photos|video|lidar>` / `walkin --tier`. The default
+  remains `all` for a full rehearsal.
+- Selected-tier input audit, holdout collision checks, timing, and evaluation no
+  longer depend on absent unselected media.
+- Added geometry readiness, warning codes, and tier-specific recapture actions
+  to `walkin-summary.md`.
+- Fixed the shared pipeline so a future successful photo reconstruction is
+  returned and enriched rather than discarded. Photo metric SfM is still not
+  implemented and is not called passing.
+- Verification passes: focused walk-in/photo/video tests 25/25; full suite
+  180/180; Ruff; compileall; synthetic reproduction; selected-video empty-input
+  rehearsal; and `git diff --check`.
 
 ### What is true now
 
@@ -44,6 +42,8 @@ The current agent overwrites the **Current handoff** section at the end of every
   (75%).
 - T8c still waits on a connected photo graph (2/2/5/3).
 - Harsh is not shooting T11 or connector LiDAR.
+- Walk-in default is a full three-tier rehearsal; use `WALKIN_TIER` only when
+  mirroring the evaluator's selected tier.
 
 ### Blockers
 
@@ -53,30 +53,32 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### Next agent should
 
-1. Do not claim opening ≤2 cm, ceiling ≤1.5 cm, photo ±8%, or video ±3% from
-   the current benchmark. Head-to-head ≥70% is now supported at 75%.
-2. T8c incremental SfM only if a higher-overlap photo graph connects.
-3. Improve input quality with slower, steadier handheld capture and more
-   overlap; do not loosen evidence gates to force a result.
+1. Capture a genuinely unseen room with tape, then run
+   `make walkin WALKIN_TIER=<chosen-tier>`.
+2. If Geometry ready is false, follow the generated immediate action and
+   recapture before scoring.
+3. Do not claim opening ≤2 cm, ceiling ≤1.5 cm, photo ±8%, or video ±3% from
+   the current benchmark. Head-to-head ≥70% is supported at 75%.
 
 ### Read next (max five)
 
-1. `README.md`
-2. `TASKS.md`
-3. `docs/compliance-matrix.md`
-4. `docs/writeup.md`
-5. `.gitignore`
+1. `docs/walk-in.md`
+2. `docs/capture-route.md`
+3. `TASKS.md`
+4. `README.md`
+5. `docs/writeup.md`
 
 ### Exact next command
 
 ```bash
-git status --short --branch && git log -3 --oneline
+make walkin WALKIN_TIER=lidar
 ```
 
 ---
 
 ## History
 
+- **2026-09-10** — T11b selected-tier walk-in hardening + geometry readiness and recapture actions; holdout media still pending.
 - **2026-09-10** — Finish-line closeout: cleanup committed, installer dry-run fixed (178/178 tests), final benchmark complete with pending=0; head-to-head 75% pass.
 - **2026-09-10** — T20e submission README refresh + local-only capture/IDE/temporary-file cleanup.
 - **2026-09-10** — README Route 1 gallery: app screenshots (room mesh IMG_0151) + CLI SVG/JSON.

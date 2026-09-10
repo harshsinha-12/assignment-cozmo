@@ -25,7 +25,7 @@ Do **not** invent centimetres.
 | **T10** | **Tables filled 2026-09-10** | `docs/writeup.md` §6 has the final `make benchmark` gate table (LiDAR 7.5/30 cm, 9/12 head-to-head, photo/video 0 walls). |
 | **T20** | **README + compliance refreshed** | Submission README leads with install/run/app instructions, both implemented routes, the complete scoring map, and honest current gate results. Private captures, IDE state, superseded notes, and the duplicate PDF are local-only. |
 | **T17** | **Measured matrix filled** | `docs/device-matrix.md` uses harsh-home-01 numbers, not TBD. |
-| **T11** | **Harness done; media pending** | `make walkin` times a holdout room, crash-tests 2 stills, and refuses benchmark-room reuse. Shoot kitchen/guest/bath — not drawing-room/my-room/pooja-room/connector. |
+| **T11** | **Harness hardened; media pending** | `make walkin WALKIN_TIER=<tier>` mirrors evaluator selection, reports geometry readiness/recapture action, crash-tests 2 stills for photos, and refuses benchmark-room reuse. Shoot kitchen/guest/bath — not drawing-room/my-room/pooja-room/connector. |
 | T8 remainder | Full count present | EXIF orientation applied. `make benchmark` photo graphs still connector/drawing/my/pooja = **2/2/5/3**. Do not loosen gates. T8c waits on a connected graph. |
 | T7 remainder | Four MP4s smoked | Native handheld-height scale works on all four clips after display-K fix. 0/4 complete rooms (missing wall/floor/ceiling bands). Openings/stitch coded; ±3% not claimed. |
 
@@ -51,7 +51,7 @@ Do **not** invent centimetres.
 | T18 | done | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | evidence present | Magicplan 2026.35.0; final `make benchmark` LiDAR is **9/12 (75%)**, passing ≥70% |
 | T10 | done | Technical report ≤ 6 pages + benchmark tables | T19 | no | 2026-09-10: 1,889-word report with regenerable gate table |
 | T20 | done | README 15 min + reproduction bundle + compliance matrix | T10 | no | 2026-09-10 submission README refreshed with run formats, scoring status, both routes, and conservative GitHub cleanup |
-| T11 | doing | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | Harness shipped (`make walkin`, `docs/walk-in.md`). Media still needed: eight JPEGs, one MP4, Record3D `.r3d`, tape. Forbidden rooms: drawing-room, my-room, pooja-room, connector |
+| T11 | doing | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | Full and evaluator-selected-tier harness shipped (`make walkin WALKIN_TIER=<tier>`, `docs/walk-in.md`). Media still needed: eight JPEGs, one MP4, Record3D `.r3d`, tape. Forbidden rooms: drawing-room, my-room, pooja-room, connector |
 
 ---
 
@@ -117,6 +117,7 @@ scaffolding. Minor fixes after real captures remain normal and allowed.
 
 ## Done
 
+- **2026-09-10 T11b selected-tier walk-in hardening** — Added `--tier` / `WALKIN_TIER` so the live rehearsal audits, collision-checks, executes, and evaluates only the examiner-selected tier. The summary now exposes geometry readiness, warning codes, and capture-specific next actions. Successful future photo reconstruction is forwarded through the shared pipeline; metric photo SfM remains honestly unimplemented. Full suite passes 180/180; static and synthetic reproduction checks pass.
 - **2026-09-10 T6f/T18 near-peak wall support** — Changed the generic outer-wall rule from exact-peak-only to a conservative 95%-of-peak support band. The final private benchmark improves LiDAR wall median 12.5→7.5 cm, opening median 10→5 cm, and Magicplan head-to-head 8/12→9/12 (75%, pass); wall p95 is 30 cm and remains reported. No official gate threshold, room id, tape value, or incumbent value enters reconstruction.
 - **2026-09-10 finish-line closeout** — Confirmed repository cleanup commits `a67f861` and `7c7884a`; made installer `--dry-run` independent of `CoreDeviceService`; full suite passes 178/178; final `make benchmark` exits successfully with `status=complete pending=0`. Capture-quality follow-up is higher-overlap stills plus slower, steadier handheld video and LiDAR sweeps.
 - **2026-09-10 T20e submission README + repository hygiene** — Refreshed the main README around setup, one-command CLI use, Route 1 app installation, Route 2 capture, input layouts, outputs, scoring coverage, and current non-passing gates. Raw Route 1 captures, Xcode `xcuserdata`, four superseded local notes, and the duplicate hostile-name recruiter PDF are now ignored and removed from Git tracking while their local files remain intact. Canonical evidence, the cleaned JD/PDF, technical docs, and orchestration history remain tracked.

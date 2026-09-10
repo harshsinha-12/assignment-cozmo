@@ -61,4 +61,8 @@ On the laptop we run **one command per job** while you laser the room:
 python -m cozmo_floorplan run path/to/job --out path/to/out
 ```
 
-Do not run `make benchmark` on a walk-in folder. After our own holdout capture, `make walkin` times all three tiers; that rehearsal is documented in `docs/walk-in.md`.
+Do not run `make benchmark` on a walk-in folder. After our own holdout capture,
+`make walkin` times all three tiers. For the evaluator-selected path, run
+`make walkin WALKIN_TIER=video` (or `photos` / `lidar`) first. If **Geometry
+ready** is false, follow the report's immediate action and recapture before
+taping/scoring. The complete rehearsal is documented in `docs/walk-in.md`.

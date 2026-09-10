@@ -31,14 +31,21 @@ from cozmo_floorplan.walkin.rooms import collect_observed_room_ids, forbidden_co
 from cozmo_floorplan.walkin.subset import materialize_two_photo_job
 
 
-def run_walkin(capture_root: str | Path, output_dir: str | Path) -> dict[str, Any]:
+def run_walkin(
+    capture_root: str | Path,
+    output_dir: str | Path,
+    *,
+    tiers: tuple[str, ...] = TIERS,
+) -> dict[str, Any]:
     """Time present tiers and refuse a recapture of the scored benchmark rooms."""
 
+    if not tiers or any(tier not in TIERS for tier in tiers) or len(set(tiers)) != len(tiers):
+        raise ValueError(f"walk-in tiers must be unique values from {', '.join(TIERS)}")
     manifest = load_walkin_manifest(capture_root)
     output = Path(output_dir).resolve()
-    observed = collect_observed_room_ids(manifest)
-    collisions = forbidden_collisions(manifest)
-    inputs = audit_walkin_inputs(manifest)
+    observed = collect_observed_room_ids(manifest, tiers)
+    collisions = forbidden_collisions(manifest, tiers)
+    inputs = audit_walkin_inputs(manifest, tiers=tiers)
     runs: list[dict[str, Any]] = []
     plans: dict[str, dict[str, Any]] = {}
 
@@ -59,37 +66,39 @@ def run_walkin(capture_root: str | Path, output_dir: str | Path) -> dict[str, An
                         + ", ".join(collisions)
                     ),
                 }
-                for tier in TIERS
+                for tier in tiers
             ],
             evaluations=[
                 _pending_evaluation(
                     tier,
                     "Holdout room collided with the scored benchmark; evaluation skipped.",
                 )
-                for tier in TIERS
+                for tier in tiers
             ],
+            selected_tiers=tiers,
         )
         _write_report(report, output)
         return report
 
-    for tier in TIERS:
+    for tier in tiers:
         result, plan = _run_timed_job(tier, manifest.jobs[tier], output / tier)
         runs.append(result)
         if plan is not None:
             plans[tier] = plan
 
-    subset_result, subset_plan = _run_two_photo_subset(
-        manifest.jobs["photos"], output / "photos-2still"
-    )
-    if subset_result is not None:
-        runs.append(subset_result)
-        if subset_plan is not None:
-            plans[TWO_PHOTO_TIER] = subset_plan
+    if "photos" in tiers:
+        subset_result, subset_plan = _run_two_photo_subset(
+            manifest.jobs["photos"], output / "photos-2still"
+        )
+        if subset_result is not None:
+            runs.append(subset_result)
+            if subset_plan is not None:
+                plans[TWO_PHOTO_TIER] = subset_plan
 
     truth, truth_error = _load_optional_floorplan(manifest.truth)
     evaluations = [
         _evaluate_tier(tier, plans.get(tier), truth, truth_error, output / tier)
-        for tier in TIERS
+        for tier in tiers
     ]
     pending_inputs = [item["id"] for item in inputs if item["status"] == "pending"]
     report = _report(
@@ -101,12 +110,17 @@ def run_walkin(capture_root: str | Path, output_dir: str | Path) -> dict[str, An
         runs=runs,
         evaluations=evaluations,
         pending_inputs=pending_inputs,
+        selected_tiers=tiers,
     )
     _write_report(report, output)
     return report
 
 
-def audit_walkin_inputs(manifest: WalkinManifest) -> list[dict[str, Any]]:
+def audit_walkin_inputs(
+    manifest: WalkinManifest,
+    *,
+    tiers: tuple[str, ...] = TIERS,
+) -> list[dict[str, Any]]:
     """Return ready/pending checks for the holdout capture, not the benchmark."""
 
     room_ready = bool(manifest.room_id) and not is_placeholder(manifest.room_id)
@@ -138,7 +152,7 @@ def audit_walkin_inputs(manifest: WalkinManifest) -> list[dict[str, Any]]:
             job_has_capture_media(manifest.jobs[tier], tier),
             f"Add original {tier} capture files under {tier}/. Empty templates are not a walk-in.",
         )
-        for tier in TIERS
+        for tier in tiers
     )
     truth_ready, truth_problem = floorplan_evidence_ready(manifest.truth, minimum_rooms=1)
     checks.append(
@@ -255,6 +269,15 @@ def _run_timed_job(
             "status": "complete",
             "job": job_path.as_posix(),
             "pipeline_status": plan["status"],
+            "geometry_ready": bool(plan.get("rooms")) and bool(plan.get("walls")),
+            "warning_codes": sorted(
+                {
+                    str(warning.get("code", "other"))
+                    for warning in plan.get("warnings", [])
+                    if isinstance(warning, dict)
+                }
+            ),
+            "next_action": _next_action(media_tier, plan),
             "elapsed_s": elapsed,
             "output": artifacts.floorplan_json.as_posix(),
             "detail": "Public run path timed; inspect pipeline_status and evaluation gates.",
@@ -310,12 +333,14 @@ def _report(
     runs: list[dict[str, Any]],
     evaluations: list[dict[str, Any]],
     pending_inputs: list[str] | None = None,
+    selected_tiers: tuple[str, ...] = TIERS,
 ) -> dict[str, Any]:
     return {
         "version": WALKIN_SCHEMA_VERSION,
         "walkin_id": manifest.walkin_id,
         "room_id": manifest.room_id,
         "status": status,
+        "selected_tiers": list(selected_tiers),
         "capture_root": manifest.root.as_posix(),
         "observed_rooms": list(observed),
         "forbidden_collisions": list(collisions),
@@ -338,6 +363,18 @@ def _pending_evaluation(tier: str, detail: str) -> dict[str, Any]:
         "passed": None,
         "detail": detail,
     }
+
+
+def _next_action(tier: str, plan: dict[str, Any]) -> str:
+    if plan.get("rooms") and plan.get("walls"):
+        return "Geometry emitted; evaluate against laser/tape truth."
+    if tier == "photos":
+        return "Recapture eight sharp stills with 60%+ overlap and shared doorway views."
+    if tier == "video":
+        return "Rewalk slowly; pause at corners and keep floor, ceiling, and both wall pairs visible."
+    if tier == "lidar":
+        return "Repeat one slow perimeter scan with every wall, opening, floor band, and ceiling covered."
+    return "Inspect the structured warning before recapture."
 
 
 def _check(

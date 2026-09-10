@@ -16,25 +16,33 @@ def normalize_room_id(value: str) -> str:
     return "-".join(value.strip().lower().replace("_", " ").replace("/", " ").split())
 
 
-def collect_observed_room_ids(manifest: WalkinManifest) -> tuple[str, ...]:
+def collect_observed_room_ids(
+    manifest: WalkinManifest,
+    tiers: tuple[str, ...] | None = None,
+) -> tuple[str, ...]:
     """Return unique normalized room ids visible in the walk-in folder."""
 
     observed: list[str] = []
     if not is_placeholder(manifest.room_id):
         _append_unique(observed, manifest.room_id)
-    for job_path in manifest.jobs.values():
+    selected = tiers or tuple(manifest.jobs)
+    for tier in selected:
+        job_path = manifest.jobs[tier]
         for room_id in _job_room_ids(job_path):
             _append_unique(observed, room_id)
     return tuple(observed)
 
 
-def forbidden_collisions(manifest: WalkinManifest) -> tuple[str, ...]:
+def forbidden_collisions(
+    manifest: WalkinManifest,
+    tiers: tuple[str, ...] | None = None,
+) -> tuple[str, ...]:
     """Return observed room ids that belong to the existing benchmark."""
 
     forbidden = {normalize_room_id(item) for item in manifest.forbidden_room_ids}
     return tuple(
         room_id
-        for room_id in collect_observed_room_ids(manifest)
+        for room_id in collect_observed_room_ids(manifest, tiers)
         if room_id in forbidden
     )
 
