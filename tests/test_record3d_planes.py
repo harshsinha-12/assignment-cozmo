@@ -5,7 +5,10 @@ import pytest
 
 from cozmo_floorplan.errors import ReconstructionError
 from cozmo_floorplan.recon.record3d_config import DEFAULT_RECORD3D_PLANES
-from cozmo_floorplan.recon.record3d_planes import extract_manhattan_room_candidate
+from cozmo_floorplan.recon.record3d_planes import (
+    _outer_supported_peak,
+    extract_manhattan_room_candidate,
+)
 
 CLUTTER_BAND = replace(DEFAULT_RECORD3D_PLANES, outer_wall_support_ratio=0.55)
 
@@ -158,6 +161,22 @@ def test_far_adjacent_room_wall_does_not_expand_the_envelope():
     assert sorted((candidate.width_m, candidate.depth_m)) == pytest.approx(
         [3.5, 5.0], abs=0.12
     )
+
+
+def test_outer_wall_requires_near_peak_support():
+    coordinates = np.asarray([0.00, 0.05, 0.10])
+    counts = np.asarray([57, 56, 52])
+    candidates = np.arange(len(coordinates))
+
+    selected = _outer_supported_peak(
+        coordinates,
+        counts,
+        candidates,
+        "high",
+        DEFAULT_RECORD3D_PLANES,
+    )
+
+    assert selected == 1
 
 
 def test_rejects_capture_without_a_ceiling_candidate():

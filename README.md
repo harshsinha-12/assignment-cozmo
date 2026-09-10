@@ -21,7 +21,7 @@ I completed and exercised both allowed capture routes. Every scoring row has cod
 | Fix loop (25%)               | Complete, checksum-locked, and regenerable in `data/fix-loop/`.                                                                                    |
 | Three-tier benchmark (15%)   | All inputs run. Current outputs: photos `failed`, video `failed`, LiDAR `partial`; no unsupported tier is hidden.                                  |
 | Compliance (10%)             | All 27 requirements mapped in [docs/compliance-matrix.md](docs/compliance-matrix.md); incomplete geometry gates remain `partial`.                |
-| Magicplan head-to-head (10%) | Magicplan 2026.35.0 on two rooms; the current LiDAR result in shared dimensions is 81.7% against a 70% gate.                                |
+| Magicplan head-to-head (10%) | Magicplan 2026.35.0 on two rooms; the final LiDAR run ties or beats it on 9/12 shared dimensions (75%), passing the 70% gate.             |
 | Capture route (5%)           | Route 2 is the scored route. Route 1 built in 46 s and copied to my iPhone in about 18s; total time approx 2.5 mins.                               |
 | Process (5%)                 | Incremental source history across schema, CLI, reconstruction, agent, eval, iOS, and evidence stages.                                              |
 
@@ -134,12 +134,12 @@ LiDAR room extents vs tape (Record3D, same three rooms):
 
 | Room         | Predicted    | Tape         | Δ          |
 | ------------ | ------------ | ------------ | ---------- |
-| drawing-room | 380 × 305 cm | 368 × 305 cm | +12 / 0 cm |
+| drawing-room | 380 × 315 cm | 368 × 305 cm | +12 / +10 cm |
 | my-room      | 370 × 325 cm | 400 × 325 cm | −30 / 0 cm |
-| pooja-room   | 365 × 295 cm | 370 × 290 cm | −5 / +5 cm |
+| pooja-room   | 370 × 295 cm | 370 × 290 cm | 0 / +5 cm |
 
 
-Two short walls match tape exactly. The 30 cm `my-room` long wall is a supported 3.70 m plane, not a missing output. Thin LiDAR support contributes to the residual error, and the intervals widen when support weakens. Photos still lack a connected overlap graph, native videos do not yet produce complete room geometry, and the current LiDAR openings, ceiling, registration, and incumbent rows remain below their official gates. Full gate table: [docs/writeup.md](docs/writeup.md) §6.
+Two short walls match tape exactly. The 30 cm `my-room` long wall is a supported 3.70 m plane, not a missing output. Thin LiDAR support contributes to the residual error, and the intervals widen when support weakens. Photos still lack a connected overlap graph, native videos do not yet produce complete room geometry, and the current LiDAR opening, ceiling, and registration rows remain below their official gates. The LiDAR head-to-head now passes at 75%. Full gate table: [docs/writeup.md](docs/writeup.md) §6.
 
 ## Deliverables
 

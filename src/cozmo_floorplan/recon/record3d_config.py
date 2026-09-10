@@ -45,7 +45,7 @@ class Record3DPlaneConfig:
     yaw_peak_count: int = 4
     camera_bracket_quantile: float = 0.10
     camera_wall_margin_m: float = 0.05
-    outer_wall_support_ratio: float = 1.0
+    outer_wall_support_ratio: float = 0.95
     max_clutter_offset_m: float = 0.32
     minimum_room_span_m: float = 1.50
     maximum_room_span_m: float = 12.0

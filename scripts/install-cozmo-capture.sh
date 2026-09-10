@@ -90,15 +90,23 @@ if [[ "$MODE" == "open-xcode" ]]; then
   exit 0
 fi
 
-if ! command -v xcodebuild >/dev/null 2>&1; then
-  if [[ "$MODE" == "dry-run" ]]; then
+if [[ "$MODE" == "dry-run" ]]; then
+  echo "Cozmo Capture cable install"
+  echo "  team: $TEAM"
+  echo "  mode: $MODE"
+  echo "  phone: not queried during dry-run"
+  if ! command -v xcodebuild >/dev/null 2>&1; then
     echo "dry-run: xcodebuild not on PATH (ok)"
-    echo "project: $PROJECT"
-    echo "team: $TEAM"
-    echo "would: xcodebuild -project ios/CozmoCapture/CozmoCapture.xcodeproj -scheme $SCHEME -destination 'generic/platform=iOS' -allowProvisioningUpdates DEVELOPMENT_TEAM=$TEAM build"
-    echo "would open: open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj"
-    exit 0
   fi
+  echo "project: $PROJECT"
+  echo "would build: xcodebuild -project ios/CozmoCapture/CozmoCapture.xcodeproj -scheme $SCHEME -destination 'generic/platform=iOS' -derivedDataPath out/cozmo-capture-derived -allowProvisioningUpdates DEVELOPMENT_TEAM=$TEAM build"
+  echo "would install: xcrun devicectl device install app --device DEVICE_ID $APP"
+  echo "would open: open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj"
+  echo "elapsed_s=$(elapsed)"
+  exit 0
+fi
+
+if ! command -v xcodebuild >/dev/null 2>&1; then
   fail "xcodebuild not found; install Xcode.app"
 fi
 
@@ -166,18 +174,6 @@ if [[ -n "$CHOSEN_NAME" ]]; then
   echo "  reachable: $REACHABLE"
 else
   echo "  phone: none paired"
-fi
-
-if [[ "$MODE" == "dry-run" ]]; then
-  echo "would build: xcodebuild -project ios/CozmoCapture/CozmoCapture.xcodeproj -scheme $SCHEME -destination 'generic/platform=iOS' -derivedDataPath out/cozmo-capture-derived -allowProvisioningUpdates DEVELOPMENT_TEAM=$TEAM build"
-  if [[ -n "$CHOSEN_ID" ]]; then
-    echo "would install: xcrun devicectl device install app --device $CHOSEN_ID $APP"
-  else
-    echo "would install: (plug in an iPhone first)"
-  fi
-  echo "would open: open -a Xcode ios/CozmoCapture/CozmoCapture.xcodeproj"
-  echo "elapsed_s=$(elapsed)"
-  exit 0
 fi
 
 if [[ "$DEV_MODE" == "disabled" ]]; then

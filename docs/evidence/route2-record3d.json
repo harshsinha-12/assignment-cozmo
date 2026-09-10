@@ -11,21 +11,21 @@
     {
       "id": "drawing-room",
       "label": "drawing room",
-      "area_cm2": 123200.0,
+      "area_cm2": 119700.0,
       "ceiling_cm": 295.414952,
       "walls_cm": []
     },
     {
       "id": "my-room",
       "label": "my room",
-      "area_cm2": 125625.0,
+      "area_cm2": 120250.0,
       "ceiling_cm": 291.696996,
       "walls_cm": []
     },
     {
       "id": "pooja-room",
       "label": "pooja room",
-      "area_cm2": 114000.0,
+      "area_cm2": 109150.0,
       "ceiling_cm": 292.732049,
       "walls_cm": []
     }

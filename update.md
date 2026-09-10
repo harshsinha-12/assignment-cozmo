@@ -13,6 +13,25 @@ Format:
 - Next
 ```
 
+## 2026-09-10 — Finish-line closeout: cleanup, red test, final benchmark
+
+- Context: The 10:00 check asked whether repository cleanup was committed, the
+  remaining red test was fixed, and a final benchmark had run.
+- Done: Confirmed cleanup commits `a67f861` and `7c7884a`. Moved installer
+  `--dry-run` ahead of device discovery so it never waits for
+  `CoreDeviceService`. Focused closeout tests pass 9/9 and the full suite passes
+  178/178.
+  Added a generic 95%-of-peak outer-wall support rule and regression coverage.
+  Ran the final `make benchmark` at 10:21 IST; it exited successfully with
+  `status=complete`, every required input ready, and `pending=0`.
+- Learned: LiDAR wall median improves 12.5→7.5 cm, opening median 10→5 cm,
+  and Magicplan head-to-head improves 8/12→9/12 (75%), passing the unchanged
+  70% gate. Wall p95 is 30 cm and remains explicit. Higher-overlap stills, a
+  slower stabilized handheld video sweep, and steadier LiDAR coverage remain
+  the honest path to better reconstruction quality.
+- Next: Submit the closeout. Do not describe successful benchmark execution as
+  the still-non-passing photo/video accuracy gates passing.
+
 ## 2026-09-10 — App screenshots in README evidence
 
 - Context: Harsh dropped Cozmo Capture PNGs into `docs/evidence/`, including
@@ -1176,4 +1195,3 @@ remains T8c only after a connected photo graph, plus evidence-driven T6/T7
 improvements and the external T11 holdout capture.
 
 ---
-

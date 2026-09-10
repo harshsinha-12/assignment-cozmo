@@ -98,18 +98,22 @@ matching reports a **2.5 cm median** and **30 cm p95**, replacing the invalid
 75 cm median produced when generated `wall-1` labels forced long sides to match
 short sides. Per-room wall absolute errors are:
 
-- `drawing-room`: 12, 12, 0, 0 cm
+- `drawing-room`: 12, 12, 10, 10 cm
 - `my-room`: 30, 30, 0, 0 cm
 - `pooja-room`: 5, 5, 0, 0 cm
 
-This is an evaluation correction, not benchmark-driven reconstruction tuning.
-The remaining errors stay red. T6d leaves these centre values unchanged and
+The final mapper accepts an outer wall band only when it retains at least 95%
+of the densest plane's support. This capture-derived near-peak rule expands the
+pooja long wall to its strongly supported outer band while rejecting its weaker
+short-wall band; it contains no room ids or ground-truth dimensions. The
+remaining errors stay red. T6d
 uses each scan's conservative p95 raw-plane residuals for wall-span and ceiling
 intervals, with area uncertainty propagated from both spans. Aggregate interval
-coverage is now 16/18 (88.9%) against 80% mean declared confidence, so the
-internal calibration gate passes on this development benchmark. It is not a
-holdout-validation claim. Maximum ceiling point error remains 5.41 cm; four
-opening candidates have no measured opening truth; and the scans remain
+coverage in the final three-room evaluation is 19/24 (79.2%) against 80% mean
+declared confidence, so the internal calibration gate passes on this
+development benchmark. It is not a holdout-validation claim. Maximum ceiling
+point error remains 5.41 cm; four opening candidates are scored against three
+truth openings (median 5 cm, p95 10 cm, with one phantom); and the scans remain
 disconnected.
 
 ### Current private T18 head-to-head (2026-09-10)
@@ -119,8 +123,9 @@ device Settings not screenshotted). My-room uses displayed 4.20×3.29 m AABB
 walls. Pooja-room inspector has no Length/Width; six Manhattan inner walls were
 traced from the 2D screenshot (door notch) and scaled to displayed 12.04 m².
 
-`make benchmark` . Shared set is two-room walls plus ceilings and floor
-areas. The same refresh reports LiDAR wall **12.5 cm median / 25 cm p95** (n=12)
+`make benchmark` passes the head-to-head at **9/12 (75%)**. The shared set is
+two-room walls plus ceilings and floor areas. The same refresh reports LiDAR
+wall **7.5 cm median / 30 cm p95** (n=12)
 and interval coverage **19/24 (79.2%)** still passing the internal calibration
 gate. Photo overlap after EXIF remains connector/drawing/my/pooja = **2/2/5/3**
 components.

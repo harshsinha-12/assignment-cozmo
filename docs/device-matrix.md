@@ -14,7 +14,7 @@ Hardware eligibility and runtime support are different claims. “Capture” mea
 
 | Tier | Wall length | Openings | Ceiling | Stitch / footprint | Scale source | Intervals |
 | --- | --- | --- | --- | --- | --- | --- |
-| LiDAR | 12.5 cm median / 25 cm p95, n=12 | 3 matched of 3 truth, 4 predictions; median 10 cm, p95 15 cm | max 5.41 cm, n=3 | rooms not registered (no connector scan); area median rel. error 6.2% | Record3D depth + intrinsics + metric poses | 19/24 covered (79.2%) at 80% declared confidence |
+| LiDAR | 7.5 cm median / 30 cm p95, n=12 | 3 matched of 3 truth, 4 predictions; median 5 cm, p95 10 cm | max 5.41 cm, n=3 | rooms not registered (no connector scan); area median rel. error 6.6% | Record3D depth + intrinsics + metric poses | 19/24 covered (79.2%) at 80% declared confidence |
 | Video | 0 reconstructed walls vs tape (gate ±3%) | occupancy openings in code; 0 vs tape | 0 rooms vs tape | native rooms independently placed | 1.45 m handheld height after floor band (`known_length`); 4/4 clips scaled | 0 measurements in eval |
 | Photos | 0 reconstructed walls vs tape (gate ±8%) | 0 vs tape | 0 rooms vs tape | overlap graphs 2/2/5/3 components; footprint rel. error 1.0 | unscaled until a connected graph + known length | 0 measurements in eval |
 
@@ -22,13 +22,13 @@ LiDAR room extents vs tape:
 
 | Room | Predicted | Tape | Δ L / Δ W |
 | --- | --- | --- | --- |
-| drawing-room | 380 × 305 cm | 368 × 305 cm | +12 / 0 cm |
+| drawing-room | 380 × 315 cm | 368 × 305 cm | +12 / +10 cm |
 | my-room | 370 × 325 cm | 400 × 325 cm | −30 / 0 cm |
-| pooja-room | 365 × 295 cm | 370 × 290 cm | −5 / +5 cm |
+| pooja-room | 370 × 295 cm | 370 × 290 cm | 0 / +5 cm |
 
 Remaining centimetre error is mostly capture quality: fast handheld motion, vibrating video, and thin LiDAR coverage — not a missing pipeline. An experienced operator or a professional camera would get a tighter result from the same software.
 
-Head-to-head (LiDAR vs Magicplan **2026.35.0**, two rooms): **5/12** shared dimensions. Official row is ≥70%.
+Head-to-head (LiDAR vs Magicplan **2026.35.0**, two rooms): **9/12 (75%)** shared dimensions, passing the official ≥70% row.
 
 LiDAR repeat is not in the bundle (repeatability `missing_evidence` on that tier). Photo and video repeats exist; they currently match 0 walls because the primary jobs have not emitted walls.
 
