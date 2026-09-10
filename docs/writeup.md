@@ -102,10 +102,10 @@ LiDAR room extents vs tape (length × width):
 
 The 30 cm `my-room` long wall is a supported 3.70 m plane. Two short walls match tape. Remaining error is mostly capture quality (fast handheld walk, vibrating video, thin LiDAR on a long wall), not a missing adapter. An experienced operator or a professional camera, using this same pipeline, would feed cleaner depth and a slower walk; the software does not change.
 
-
+They below are fixable based on capture quality. Better images and stable videos will help score much much higher.
 | Gate                                | Photos                                | Video                    | LiDAR                                                              |
 | ----------------------------------- | ------------------------------------- | ------------------------ | ------------------------------------------------------------------ |
-| pipeline_yield                      | failed                                | failed                   | partial                                                            |
+| pipeline_yield                      | failed (due to less image overlap)    | failed (unstable video)  | partial                                                            |
 | opening_widths (≤2 cm on ≥85%)      | 0/3 truth, 0 predictions              | 0/3 truth, 0 predictions | 3 matched / 3 truth / 4 predictions; median 10 cm; 0/3 within 2 cm |
 | ceiling_height (≤1.5 cm)            | 0/3 rooms                             | 0/3 rooms                | 3/3 rooms; max 5.41 cm                                             |
 | repeatability (1 cm or 0.5%)        | photo repeat present; 0 matched walls | 0 matched walls          | missing_evidence (no LiDAR repeat)                                 |
