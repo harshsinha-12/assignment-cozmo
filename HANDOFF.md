@@ -22,6 +22,9 @@ The current agent overwrites the **Current handoff** section at the end of every
 - Verification: focused USD/LiDAR/walk-in 21/21; full suite 185/185; Ruff,
   compileall, schema validation, synthetic reproduction, final benchmark, and
   final selected LiDAR walk-in all pass as commands.
+- Reviewer-facing README/report now distinguish capture-sensitive photo/video
+  failures from execution success and describe the professional recapture path;
+  expected gains remain explicitly unmeasured.
 
 ### What is true now
 
@@ -65,6 +68,7 @@ git status --short --branch && git log -3 --oneline
 
 ## History
 
+- **2026-09-10** — Clarified photo overlap/video stability limitations and professional recapture path without changing measured gate statuses.
 - **2026-09-10** — T6g/T11c semantic USD/USDZ ingest + measured mummy-room LiDAR holdout; commands pass, accuracy gates do not.
 - **2026-09-10** — T8c photo SfM + video occupancy envelopes; benchmark video failed→partial (8 walls); photos still disconnected; 182 tests.
 - **2026-09-10** — Finish-line closeout: cleanup committed, installer dry-run fixed (178/178 tests), final benchmark complete with pending=0; head-to-head 75% pass.

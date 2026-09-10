@@ -117,6 +117,7 @@ scaffolding. Minor fixes after real captures remain normal and allowed.
 
 ## Done
 
+- **2026-09-10 capture-quality disclosure** — README and report now state that disconnected still overlap and unstable/incomplete video coverage drive the current photo/video misses. They document a professional 60%+ overlap/stabilized recapture path and the exhausted Room 3D free/export-credit allowance without presenting expected improvement as measured evidence.
 - **2026-09-10 T6g/T11c semantic USD holdout** — Added general `.usd`/`.usda`/`.usdz` semantic room-mesh ingest using metric named wall/door/window extents and transforms; binary crates/packages decode through `usdcat`. Independent `mummy-room` truth is normalized separately from reconstruction. Selected LiDAR walk-in completes with `pending=0`, geometry ready in 0.106 s; measured wall/door/ceiling/area errors remain non-passing. Three USD tests added; full suite 185/185.
 - **2026-09-10 T8c/T7 occupancy envelopes** — Connected photo graphs run incremental SfM with a 1.45 m height prior. Video/photo room fitting falls back to occupancy AABB and densest floor/ceiling bands. Author photos stay disconnected. Video benchmark failed→partial (8 walls, 356 cm median). 182 tests. `make benchmark` pending=0.
 

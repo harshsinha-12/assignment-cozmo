@@ -106,7 +106,14 @@ The final LiDAR mapper accepts an outer wall band only when it retains at least 
 
 The final benchmark command completed successfully with every required input ready and no pending evidence classes. The table below reports accuracy outcomes separately; a completed run does not make a non-passing measurement gate pass. 
 
-The below failure is basically due to the quality of the images and videos taken. The images need to have more overlap, and videos need to have more stability
+The photo/video failures are consistent with the supplied capture quality, not
+an execution failure: the still-image overlap graph remains disconnected, and
+the handheld footage contains unstable motion and incomplete surface coverage.
+A professional operator using at least 60% still overlap, shared doorway views,
+corner pauses, and a slow stabilized video sweep would provide substantially
+stronger reconstruction evidence. With more capture time and renewed Room 3D
+free/export-credit allowance, I would repeat both captures and expect materially better
+measurements; I do not report that expected improvement as a measured pass.
 
 
 | Gate                                | Photos                                | Video                    | LiDAR                                                             |

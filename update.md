@@ -13,6 +13,19 @@ Format:
 - Next
 ```
 
+## 2026-09-10 — Capture-quality limitation wording
+
+- Context: Harsh asked the submission to explain that current photo/video
+  failures followed weak still overlap and unstable handheld footage, and that
+  limited Room 3D free/export-credit capacity prevented another capture cycle.
+- Done: Replaced the informal note with reviewer-facing language in README and
+  the technical report. It specifies 60%+ overlap, shared doorway views, corner
+  pauses, and a slow stabilized sweep as the professional recapture path.
+- Learned: Keep this scoped to photo/video capture-sensitive failures. LiDAR
+  misses and remaining algorithmic limitations have separate measured causes.
+- Next: Do not turn the expected recapture improvement into a pass claim until
+  a new capture is actually evaluated.
+
 ## 2026-09-10 — T6g/T11c semantic USD walk-in measured
 
 - Context: The new holdout was supplied as a 24 KB binary USD crate because

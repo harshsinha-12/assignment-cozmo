@@ -141,6 +141,14 @@ LiDAR room extents vs tape (Record3D, same three rooms):
 
 Two short walls match tape exactly. The 30 cm `my-room` long wall is a supported 3.70 m plane, not a missing output. Thin LiDAR support contributes to the residual error, and the intervals widen when support weakens. Photos still lack a connected overlap graph. Native video now emits two partial rooms and eight walls, but its 356 cm median wall error is not gate-passing. The current LiDAR opening, ceiling, and registration rows also remain below their official gates. The LiDAR head-to-head passes at 75%. Full gate table: [docs/writeup.md](docs/writeup.md) §6.
 
+The current photo/video misses are capture-quality-sensitive: the stills do not
+form a connected overlap graph, and the handheld video is unstable with
+incomplete wall/floor/ceiling coverage. A professional capture with 60%+ still
+overlap, shared doorway views, corner pauses, and a slow stabilized video sweep
+should provide materially stronger evidence. With additional capture time and
+renewed Room 3D free/export-credit allowance, I would recapture and remeasure; the
+submission does not relabel that expected improvement as a measured pass.
+
 ## Deliverables
 
 
