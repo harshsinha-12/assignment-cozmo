@@ -23,6 +23,7 @@ from cozmo_floorplan.io.roomplan import (
     RoomPlanSurface,
     load_roomplan_capture,
 )
+from cozmo_floorplan.io.usd_mesh import discover_usd_room_meshes, load_usd_room_capture
 from cozmo_floorplan.recon.lidar_config import LIDAR_UNCERTAINTY, ROOMPLAN_FILENAMES
 from cozmo_floorplan.recon.measurements import (
     derived_diagnostic,
@@ -50,6 +51,19 @@ def reconstruct_lidar(job: Job) -> FloorPlan:
     source = _find_roomplan_json(lidar_dir)
     if source is not None:
         capture = load_roomplan_capture(source)
+        return _capture_to_floorplan(job, capture)
+
+    usd_sources = discover_usd_room_meshes(lidar_dir)
+    if usd_sources:
+        if len(usd_sources) > 1:
+            raise ReconstructionError(
+                "A LiDAR job must contain one semantic USD/USDZ room export; "
+                f"found {len(usd_sources)}."
+            )
+        capture = load_usd_room_capture(
+            usd_sources[0],
+            room_identifier=_manifest_room_identifier(job),
+        )
         return _capture_to_floorplan(job, capture)
 
     record3d_sources = discover_record3d_archives(lidar_dir)
@@ -153,6 +167,7 @@ def _capture_to_floorplan(job: Job, capture: RoomPlanCapture) -> FloorPlan:
             }
         )
 
+    usd_source = capture.source.suffix.lower() in {".usd", ".usda", ".usdz"}
     document: FloorPlan = {
         "version": FLOORPLAN_SCHEMA_VERSION,
         "units": "cm",
@@ -170,9 +185,17 @@ def _capture_to_floorplan(job: Job, capture: RoomPlanCapture) -> FloorPlan:
             "tier": "lidar",
             "scale_source": "lidar",
             "gravity_source": "device",
-            "pipeline": "cozmo-floorplan/roomplan-json-v1+plane-anchored-stitch",
+            "pipeline": (
+                "cozmo-floorplan/semantic-usd-mesh-v1+plane-anchored-stitch"
+                if usd_source
+                else "cozmo-floorplan/roomplan-json-v1+plane-anchored-stitch"
+            ),
             "inputs": list(job.input_refs),
-            "notes": "Metric RoomPlan surfaces projected from world x-z; T9 snaps shared openings.",
+            "notes": (
+                "Metric semantic USD meshes projected from world x-z; source confidence is unavailable, so intervals use medium confidence."
+                if usd_source
+                else "Metric RoomPlan surfaces projected from world x-z; T9 snaps shared openings."
+            ),
         },
     }
     if stitch_edges:
@@ -369,12 +392,20 @@ def _find_roomplan_json(lidar_dir: Path) -> Path | None:
     return None
 
 
+def _manifest_room_identifier(job: Job) -> str:
+    rooms = job.manifest.get("rooms")
+    if isinstance(rooms, list) and rooms:
+        first = rooms[0]
+        if isinstance(first, str) and first.strip():
+            return first.strip()
+        if isinstance(first, dict):
+            value = first.get("id", first.get("identifier"))
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+    return job.job_id
+
+
 def _raise_missing_lidar_source(lidar_dir: Path) -> None:
-    if any(lidar_dir.glob("*.usdz")):
-        raise ReconstructionError(
-            "USDZ LiDAR export detected, but T6 requires RoomPlan JSON alongside it.",
-            warning_code="unsupported_tier",
-        )
     if (lidar_dir / "metadata").is_file() or (lidar_dir / "metadata.json").is_file():
         raise ReconstructionError(
             "Unpacked Record3D metadata detected; provide the complete original .r3d "

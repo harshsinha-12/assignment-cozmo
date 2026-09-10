@@ -13,6 +13,8 @@ from cozmo_floorplan.pipeline import run_job
 import cozmo_floorplan.pipeline as pipeline_module
 from cozmo_floorplan.recon.photo_image import load_resized_gray
 from cozmo_floorplan.recon.photos import reconstruct_photos
+from cozmo_floorplan.recon.photos_config import PhotoOverlapConfig
+from cozmo_floorplan.schema import validate_floorplan
 from cozmo_floorplan.utils.images import load_display_oriented_bgr
 
 
@@ -136,7 +138,7 @@ def test_multi_room_photos_are_validated_without_inventing_centimetres(tmp_path)
     )
 
 
-def test_connected_rooms_reach_metric_sfm_boundary(tmp_path):
+def test_connected_planar_overlap_still_refuses_guessed_centimetres(tmp_path):
     job_dir = tmp_path / "connected_rooms"
     photos_dir = _write_job(job_dir)
     rng = np.random.default_rng(17)
@@ -153,9 +155,195 @@ def test_connected_rooms_reach_metric_sfm_boundary(tmp_path):
     with pytest.raises(ReconstructionError) as raised:
         reconstruct_photos(load_job(job_dir))
 
-    assert raised.value.warning_code == "unsupported_tier"
+    assert raised.value.warning_code == "low_confidence"
     assert "overlap graph is eligible" in str(raised.value)
-    assert "Metric SfM" in str(raised.value)
+    assert "centimetres will not be guessed" in str(raised.value).lower()
+
+
+def _lookat_camera(eye, target, image_size, focal_fraction=0.9):
+    forward = np.asarray(target, dtype=np.float64) - np.asarray(eye, dtype=np.float64)
+    forward /= np.linalg.norm(forward)
+    down = np.array([0.0, -1.0, 0.0])
+    down = down - forward * float(np.dot(down, forward))
+    down /= np.linalg.norm(down)
+    right = np.cross(down, forward)
+    right /= np.linalg.norm(right)
+    rotation = np.vstack((right, down, forward))
+    translation = -rotation @ np.asarray(eye, dtype=np.float64)
+    width, height = image_size
+    focal = focal_fraction * max(width, height)
+    intrinsic = np.array(
+        [[focal, 0.0, width / 2.0], [0.0, focal, height / 2.0], [0.0, 0.0, 1.0]],
+        dtype=np.float64,
+    )
+    return intrinsic, rotation, translation
+
+
+def _face_texture(seed: int, size: int = 256) -> np.ndarray:
+    rng = np.random.default_rng(seed)
+    image = rng.integers(40, 220, (size, size, 3), dtype=np.uint8)
+    for index in range(24):
+        color = tuple(int(value) for value in rng.integers(0, 255, 3))
+        center = (
+            int(rng.integers(16, size - 16)),
+            int(rng.integers(16, size - 16)),
+        )
+        cv2.circle(image, center, int(rng.integers(6, 22)), color, -1)
+        top_left = (
+            int(rng.integers(0, size - 40)),
+            int(rng.integers(0, size - 40)),
+        )
+        cv2.rectangle(
+            image,
+            top_left,
+            (top_left[0] + 28, top_left[1] + 12),
+            color,
+            2,
+        )
+        cv2.putText(
+            image,
+            str(index),
+            (center[0] - 8, center[1] + 4),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 255),
+            1,
+            cv2.LINE_AA,
+        )
+    return image
+
+
+def _project_points(points, intrinsic, rotation, translation):
+    camera = (rotation @ points.T).T + translation
+    projected = (intrinsic @ camera.T).T
+    valid = camera[:, 2] > 0.15
+    pixels = np.full((len(points), 2), np.nan)
+    pixels[valid] = projected[valid, :2] / projected[valid, 2:3]
+    return pixels, camera[:, 2]
+
+
+def _render_room_view(eye, target, image_size=(480, 360)) -> np.ndarray:
+    width, height = image_size
+    intrinsic, rotation, translation = _lookat_camera(eye, target, image_size)
+    room_w, room_h, room_d = 4.0, 2.7, 3.2
+    faces = {
+        "floor": (
+            np.array(
+                [[0, 0, 0], [room_w, 0, 0], [room_w, 0, room_d], [0, 0, room_d]],
+                dtype=np.float64,
+            ),
+            _face_texture(1),
+        ),
+        "ceiling": (
+            np.array(
+                [
+                    [0, room_h, 0],
+                    [0, room_h, room_d],
+                    [room_w, room_h, room_d],
+                    [room_w, room_h, 0],
+                ],
+                dtype=np.float64,
+            ),
+            _face_texture(2),
+        ),
+        "z0": (
+            np.array(
+                [[0, 0, 0], [0, room_h, 0], [room_w, room_h, 0], [room_w, 0, 0]],
+                dtype=np.float64,
+            ),
+            _face_texture(3),
+        ),
+        "z1": (
+            np.array(
+                [
+                    [0, 0, room_d],
+                    [room_w, 0, room_d],
+                    [room_w, room_h, room_d],
+                    [0, room_h, room_d],
+                ],
+                dtype=np.float64,
+            ),
+            _face_texture(4),
+        ),
+        "x0": (
+            np.array(
+                [[0, 0, 0], [0, 0, room_d], [0, room_h, room_d], [0, room_h, 0]],
+                dtype=np.float64,
+            ),
+            _face_texture(5),
+        ),
+        "x1": (
+            np.array(
+                [
+                    [room_w, 0, 0],
+                    [room_w, room_h, 0],
+                    [room_w, room_h, room_d],
+                    [room_w, 0, room_d],
+                ],
+                dtype=np.float64,
+            ),
+            _face_texture(6),
+        ),
+    }
+    canvas = np.zeros((height, width, 3), dtype=np.uint8)
+    painted = []
+    for corners, texture in faces.values():
+        pixels, depths = _project_points(corners, intrinsic, rotation, translation)
+        if not np.all(np.isfinite(pixels)):
+            continue
+        mean_depth = float(np.mean(depths))
+        src = np.float32(
+            [
+                [0, 0],
+                [texture.shape[1] - 1, 0],
+                [texture.shape[1] - 1, texture.shape[0] - 1],
+                [0, texture.shape[0] - 1],
+            ]
+        )
+        homography = cv2.getPerspectiveTransform(src, pixels.astype(np.float32))
+        warped = cv2.warpPerspective(texture, homography, (width, height))
+        mask = cv2.warpPerspective(
+            np.full(texture.shape[:2], 255, dtype=np.uint8),
+            homography,
+            (width, height),
+        )
+        painted.append((mean_depth, warped, mask))
+    for _depth, warped, mask in sorted(painted, key=lambda item: -item[0]):
+        visible = mask > 0
+        canvas[visible] = warped[visible]
+    return canvas
+
+
+def test_overlapping_metric_stills_emit_a_partial_photo_floorplan(tmp_path):
+    job_dir = tmp_path / "metric_stills"
+    photos_dir = _write_job(job_dir)
+    target = (2.0, 1.25, 3.0)
+    cameras = (
+        (1.35, 1.45, 1.05),
+        (2.00, 1.45, 1.15),
+        (2.65, 1.45, 1.05),
+        (2.00, 1.48, 1.55),
+    )
+    room_dir = photos_dir / "kitchen"
+    room_dir.mkdir(parents=True)
+    for index, eye in enumerate(cameras, start=1):
+        image = _render_room_view(eye, target)
+        assert cv2.imwrite(str(room_dir / f"{index:02d}.jpg"), image)
+
+    document = reconstruct_photos(
+        load_job(job_dir),
+        overlap_config=PhotoOverlapConfig(enable_sift_fallback=False),
+    )
+
+    assert document["status"] in {"ok", "partial"}
+    assert document["provenance"]["tier"] == "photos"
+    assert document["provenance"]["scale_source"] == "known_length"
+    assert len(document["rooms"]) == 1
+    assert len(document["walls"]) == 4
+    widths = [wall["length"]["value"] for wall in document["walls"]]
+    assert all(value > 80 for value in widths)
+    assert document["rooms"][0]["ceiling_height"]["value"] > 200
+    validate_floorplan(document)
 
 
 def test_pipeline_forwards_a_successful_photo_reconstruction(monkeypatch, tmp_path):

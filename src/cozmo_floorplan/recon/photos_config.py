@@ -44,3 +44,44 @@ class PhotoOverlapConfig:
 
 
 DEFAULT_PHOTO_OVERLAP = PhotoOverlapConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class PhotoSfmConfig:
+    """Assumed-intrinsics incremental SfM and handheld-height scale."""
+
+    assumed_focal_length_fraction: float = 0.9
+    minimum_pose_inliers: int = 12
+    minimum_cheirality_ratio: float = 0.55
+    minimum_triangulation_angle_degrees: float = 1.5
+    maximum_reprojection_error_px: float = 3.0
+    minimum_depth_m: float = 0.3
+    maximum_depth_m: float = 20.0
+    voxel_size_m: float = 0.05
+    handheld_camera_height_m: float = 1.45
+    minimum_floor_points: int = 8
+    floor_bin_m: float = 0.08
+    camera_floor_clearance_m: float = 0.20
+    pnp_reprojection_error_px: float = 4.0
+    minimum_pnp_inliers: int = 8
+
+
+DEFAULT_PHOTO_SFM = PhotoSfmConfig()
+
+
+@dataclass(frozen=True, slots=True)
+class PhotoOutputConfig:
+    """Wide uncalibrated intervals for photo-tier centimetres."""
+
+    confidence: float = 0.50
+    minimum_length_half_width_cm: float = 25.0
+    length_relative_half_width: float = 0.18
+    minimum_ceiling_half_width_cm: float = 20.0
+    area_relative_half_width: float = 0.30
+    opening_confidence: float = 0.40
+    opening_width_half_width_cm: float = 20.0
+    opening_height_half_width_cm: float = 30.0
+    method: str = "photo_sfm_handheld_height_uncalibrated_interval"
+
+
+DEFAULT_PHOTO_OUTPUT = PhotoOutputConfig()

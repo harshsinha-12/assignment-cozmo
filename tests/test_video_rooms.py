@@ -89,3 +89,26 @@ def test_cameras_near_one_wall_still_bracket_from_median_path():
 
     assert room.width_m == pytest.approx(4.0, abs=0.15)
     assert room.depth_m == pytest.approx(3.0, abs=0.15)
+
+
+def test_missing_wall_peak_still_brackets_from_point_envelope():
+    points, cameras = _rotated_room(0.0)
+    high_wall = np.isclose(points[:, 0], 2.0)
+    spread = points.copy()
+    spread[high_wall, 0] += np.linspace(0.0, 0.45, int(np.count_nonzero(high_wall)))
+
+    room = fit_video_room_candidate(
+        spread,
+        cameras,
+        surface_config=VideoSurfaceConfig(
+            coordinate_bin_m=0.08,
+            minimum_support_points=80,
+            minimum_support_fraction=0.4,
+            maximum_candidates_per_axis=2,
+            minimum_candidate_separation_m=0.3,
+        ),
+    )
+
+    assert room.width_m == pytest.approx(4.2, abs=0.5)
+    assert room.depth_m == pytest.approx(3.0, abs=0.3)
+    assert room.ceiling_height_m == pytest.approx(2.8, abs=0.1)

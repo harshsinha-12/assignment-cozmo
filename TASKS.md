@@ -25,11 +25,11 @@ Do **not** invent centimetres.
 | **T10** | **Tables filled 2026-09-10** | `docs/writeup.md` §6 has the final `make benchmark` gate table (LiDAR 7.5/30 cm, 9/12 head-to-head, photo/video 0 walls). |
 | **T20** | **README + compliance refreshed** | Submission README leads with install/run/app instructions, both implemented routes, the complete scoring map, and honest current gate results. Private captures, IDE state, superseded notes, and the duplicate PDF are local-only. |
 | **T17** | **Measured matrix filled** | `docs/device-matrix.md` uses harsh-home-01 numbers, not TBD. |
-| **T11** | **Harness hardened; media pending** | `make walkin WALKIN_TIER=<tier>` mirrors evaluator selection, reports geometry readiness/recapture action, crash-tests 2 stills for photos, and refuses benchmark-room reuse. Shoot kitchen/guest/bath — not drawing-room/my-room/pooja-room/connector. |
-| T8 remainder | Full count present | EXIF orientation applied. `make benchmark` photo graphs still connector/drawing/my/pooja = **2/2/5/3**. Do not loosen gates. T8c waits on a connected graph. |
-| T7 remainder | Four MP4s smoked | Native handheld-height scale works on all four clips after display-K fix. 0/4 complete rooms (missing wall/floor/ceiling bands). Openings/stitch coded; ±3% not claimed. |
+| **T11** | **LiDAR holdout measured; photos/video pending** | `mummy-room` semantic USD ran in 0.106 s with geometry ready and `pending=0`; all measured accuracy gates remain non-passing. Selected-tier harness still mirrors evaluator choice. |
+| T8 remainder | Full count present | EXIF orientation + incremental SfM on connected graphs. Author graphs stay **2/2/5/3**; disconnected jobs still fail. Synthetic overlapping stills emit a partial FloorPlan. |
+| T7 remainder | Four MP4s smoked | Native scale 4/4. Occupancy envelope fallback: drawing+pooja now emit rooms (`partial`); connector/my-room spans still rejected. Wall median **356 cm**. ±3% not claimed. |
 
-**Still evidence-blocked:** T11 holdout media (harness is ready; Harsh is not shooting it). T6/T7/T8 can still advance against uploaded media.
+**Still evidence-blocked:** T11 has a measured LiDAR holdout, but no photo/video holdout or repeat LiDAR. T6/T7/T8 can still advance against uploaded media.
 
 ---
 
@@ -44,14 +44,14 @@ Do **not** invent centimetres.
 | T3 | doing | Human benchmark capture | human + Pro phone | **yes — active** | Primary/repeat photos and videos, three room `.r3d`, measurements, damage, and two-room Magicplan summaries are active. Connector LiDAR and measured property placement remain unavailable |
 | T6 | doing | LiDAR export → FloorPlan | — | **present** | T6a–T6f. Conservative 95%-of-peak outer wall bands; final walls 7.5/30 cm. Openings median 5 cm, p95 10 cm. Shared-world pairing coded; nearest pair **5.08 m**. Ceiling max **5.4 cm**. Official opening ≤2 cm and ceiling ≤1.5 cm not claimed. |
 | T9 | done | Stitch + drift correction + on/off ablation | T6 | no | 2026-09-08 plane-anchored snap; shared walls stay with first owner |
-| T7 | doing | Video path | T6 | four MP4s present | T7b–T7h + openings/stitch code. Native scale 4/4; complete rooms 0/4. ±3% not claimed |
-| T8 | doing | Photos path, 2–8 stills, folder stitch | — | present | T8a–T8b3 done. T8c SfM still blocked until post-EXIF overlap is measured and connected |
+| T7 | doing | Video path | T6 | four MP4s present | Occupancy envelopes: 2/4 rooms emit walls (drawing, pooja). Connector/my-room omitted. ±3% not claimed |
+| T8 | doing | Photos path, 2–8 stills, folder stitch | — | present | T8a–T8d: SfM runs after a connected graph. Author capture remains disconnected |
 | T21 | doing | Route 1: thin iOS RoomPlan/ARKit exporter + 10-min install | — | no | T21a–T21g done on Harsh's iPhone 17 Pro. T21h cable card+script done; Harsh device copy **~18 s**. TestFlight declined. Scored route stays Route 2 until the same install is timed on *their* phone |
 | T17 | done | Device matrix + capture-route polish | T3 | measured | 2026-09-10 measured harsh-home-01 intervals in `docs/device-matrix.md` |
 | T18 | done | Head-to-head vs Polycam or magicplan (2 rooms, LiDAR) | T3, T6 | evidence present | Magicplan 2026.35.0; final `make benchmark` LiDAR is **9/12 (75%)**, passing ≥70% |
 | T10 | done | Technical report ≤ 6 pages + benchmark tables | T19 | no | 2026-09-10: 1,889-word report with regenerable gate table |
 | T20 | done | README 15 min + reproduction bundle + compliance matrix | T10 | no | 2026-09-10 submission README refreshed with run formats, scoring status, both routes, and conservative GitHub cleanup |
-| T11 | doing | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | Full and evaluator-selected-tier harness shipped (`make walkin WALKIN_TIER=<tier>`, `docs/walk-in.md`). Media still needed: eight JPEGs, one MP4, Record3D `.r3d`, tape. Forbidden rooms: drawing-room, my-room, pooja-room, connector |
+| T11 | doing | Walk-in rehearsal on a new room, all three tiers | T20 | **yes** | LiDAR `mummy-room` semantic USD + tape rehearsal complete: 0.106 s, geometry ready, accuracy gates fail. Photo/video holdout and LiDAR repeat remain missing. Forbidden rooms: drawing-room, my-room, pooja-room, connector |
 
 ---
 
@@ -77,9 +77,9 @@ Privacy: no faces/docs in git. Large binaries: Git LFS or `data/private/` gitign
 
 ### Next engineering task
 
-T8c: photo SfM after a connected overlap graph. Do not loosen T8b gates
-(current components 2/2/5/3). T10/T17/T20 measured docs are filled. Harsh is
-not shooting T11. Route 2 stays the scored walk-in.
+T8c/T8d: photo SfM is implemented on connected graphs. Do not loosen T8b
+gates (current components 2/2/5/3). Harsh is not shooting T11. Route 2 stays
+the scored walk-in.
 
 ### Media-ready freeze sequence
 
@@ -116,6 +116,9 @@ scaffolding. Minor fixes after real captures remain normal and allowed.
 ---
 
 ## Done
+
+- **2026-09-10 T6g/T11c semantic USD holdout** — Added general `.usd`/`.usda`/`.usdz` semantic room-mesh ingest using metric named wall/door/window extents and transforms; binary crates/packages decode through `usdcat`. Independent `mummy-room` truth is normalized separately from reconstruction. Selected LiDAR walk-in completes with `pending=0`, geometry ready in 0.106 s; measured wall/door/ceiling/area errors remain non-passing. Three USD tests added; full suite 185/185.
+- **2026-09-10 T8c/T7 occupancy envelopes** — Connected photo graphs run incremental SfM with a 1.45 m height prior. Video/photo room fitting falls back to occupancy AABB and densest floor/ceiling bands. Author photos stay disconnected. Video benchmark failed→partial (8 walls, 356 cm median). 182 tests. `make benchmark` pending=0.
 
 - **2026-09-10 T11b selected-tier walk-in hardening** — Added `--tier` / `WALKIN_TIER` so the live rehearsal audits, collision-checks, executes, and evaluates only the examiner-selected tier. The summary now exposes geometry readiness, warning codes, and capture-specific next actions. Successful future photo reconstruction is forwarded through the shared pipeline; metric photo SfM remains honestly unimplemented. Full suite passes 180/180; static and synthetic reproduction checks pass.
 - **2026-09-10 T6f/T18 near-peak wall support** — Changed the generic outer-wall rule from exact-peak-only to a conservative 95%-of-peak support band. The final private benchmark improves LiDAR wall median 12.5→7.5 cm, opening median 10→5 cm, and Magicplan head-to-head 8/12→9/12 (75%, pass); wall p95 is 30 cm and remains reported. No official gate threshold, room id, tape value, or incumbent value enters reconstruction.

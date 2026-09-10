@@ -17,9 +17,9 @@ I completed and exercised both allowed capture routes. Every scoring row has cod
 
 | Scored area                  | Current evidence                                                                                                                                   |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Walk-in (30%)                | One-command CLI, Route 2 operator card, Route 1 iOS app, and holdout rehearsal harness are ready; the unseen-room run happens during the live evaluation. |
+| Walk-in (30%)                | One-command CLI, both capture routes, and selected-tier harness are ready. A separate `mummy-room` semantic-USD holdout ran cold in 0.106 s and emitted geometry; its accuracy gates remain non-passing. |
 | Fix loop (25%)               | Complete, checksum-locked, and regenerable in `data/fix-loop/`.                                                                                    |
-| Three-tier benchmark (15%)   | All inputs run. Current outputs: photos `failed`, video `failed`, LiDAR `partial`; no unsupported tier is hidden.                                  |
+| Three-tier benchmark (15%)   | All inputs run. Current outputs: photos `failed`, video `partial` (8 walls but non-passing accuracy), LiDAR `partial`; no unsupported tier is hidden. |
 | Compliance (10%)             | All 27 requirements mapped in [docs/compliance-matrix.md](docs/compliance-matrix.md); incomplete geometry gates remain `partial`.                |
 | Magicplan head-to-head (10%) | Magicplan 2026.35.0 on two rooms; the final LiDAR run ties or beats it on 9/12 shared dimensions (75%), passing the 70% gate.             |
 | Capture route (5%)           | Route 2 is the scored route. Route 1 built in 46 s and copied to my iPhone in about 18s; total time approx 2.5 mins.                               |
@@ -139,7 +139,7 @@ LiDAR room extents vs tape (Record3D, same three rooms):
 | pooja-room   | 370 × 295 cm | 370 × 290 cm | 0 / +5 cm |
 
 
-Two short walls match tape exactly. The 30 cm `my-room` long wall is a supported 3.70 m plane, not a missing output. Thin LiDAR support contributes to the residual error, and the intervals widen when support weakens. Photos still lack a connected overlap graph, native videos do not yet produce complete room geometry, and the current LiDAR opening, ceiling, and registration rows remain below their official gates. The LiDAR head-to-head now passes at 75%. Full gate table: [docs/writeup.md](docs/writeup.md) §6.
+Two short walls match tape exactly. The 30 cm `my-room` long wall is a supported 3.70 m plane, not a missing output. Thin LiDAR support contributes to the residual error, and the intervals widen when support weakens. Photos still lack a connected overlap graph. Native video now emits two partial rooms and eight walls, but its 356 cm median wall error is not gate-passing. The current LiDAR opening, ceiling, and registration rows also remain below their official gates. The LiDAR head-to-head passes at 75%. Full gate table: [docs/writeup.md](docs/writeup.md) §6.
 
 ## Deliverables
 
@@ -233,7 +233,7 @@ photos-job/                     video-job/                 lidar-job/
 
 - Photos: 2–8 JPEGs per room; the benchmark route requests eight overlapping views.
 - Video: one original 1080p MOV/MP4 walkthrough; calibrated pose sidecars are supported when available.
-- LiDAR: an original Record3D `.r3d`, or portable RoomPlan JSON in `lidar/roomplan.json`.
+- LiDAR: an original Record3D `.r3d`, portable RoomPlan JSON, or a semantic `.usd` / `.usda` / `.usdz` room mesh.
 - Route 1: pass the exported Cozmo Capture ZIP directly; no manual unpacking is required.
 
 Exact contracts: [data/templates/README.md](data/templates/README.md), [docs/formats/photo-job.md](docs/formats/photo-job.md), [docs/formats/video-job.md](docs/formats/video-job.md), and [docs/formats/record3d.md](docs/formats/record3d.md).

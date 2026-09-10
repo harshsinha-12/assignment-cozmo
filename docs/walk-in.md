@@ -20,7 +20,7 @@ Follow `docs/capture-route.md` on that one room:
 | --- | --- |
 | Photos | `data/private/walkin/walkin-photos/photos/<room_id>/` — eight JPEGs |
 | Video | `data/private/walkin/walkin-video/video/walkthrough.mp4` |
-| LiDAR | `data/private/walkin/walkin-lidar/lidar/` — original Record3D `.r3d` |
+| LiDAR | `data/private/walkin/walkin-lidar/lidar/` — Record3D `.r3d`, RoomPlan JSON, or semantic USD/USDZ |
 
 Tape every wall, the ceiling, and the door while the CLI would be running. Put centimetres in `data/private/walkin/measurements.txt`, then a schema-valid `ground_truth.json` before claiming a score. Do not mix this folder with `data/private/benchmark-*` or Route 1 `cozmo-capture-*` jobs.
 
@@ -64,6 +64,11 @@ python -m cozmo_floorplan run path/to/job --out path/to/out
 
 ## Status
 
-Infrastructure and selected-tier rehearsal are in place. Holdout photos, video,
-LiDAR, and tape are still missing, so a real timed rehearsal has not been
-scored. Pending inputs stay `pending`; they are never treated as zero.
+Selected-tier infrastructure is in place. The independent `mummy-room` LiDAR
+rehearsal uses a semantic USD crate plus user-supplied tape truth. It completed
+with `pending=0` in 0.106 seconds and emitted one room, eight wall segments,
+two doors, one window, and an SVG. The scan remained `partial` because its wall
+loop was open. Against 300 × 360 cm tape truth: one wall matched at 16.1 cm
+error, the closest door missed by 4.17 cm, ceiling missed by 7 cm, and footprint
+area missed by 48.2%. These are non-passing gates, not a claimed accuracy win.
+Photo and video holdout media remain absent.

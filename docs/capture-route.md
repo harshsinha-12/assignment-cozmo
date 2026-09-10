@@ -44,7 +44,12 @@ manufacture that sidecar from timestamps or EXIF.
 
 In Record3D, cover every wall, the waist-height floor band, and every opening. Keep one session while moving between rooms when possible; otherwise use ordered room names. AirDrop the complete original session into `lidar/`, record the app version/export format, and keep depth, camera poses, and intrinsics—not preview images alone.
 
-If a RoomPlan JSON export is available, name it `roomplan.json` and follow `docs/formats/roomplan-json.md`. **Current boundary:** the CLI reconstructs RoomPlan JSON and emits partial metric FloorPlan geometry from original Record3D `.r3d` archives. Raw `.r3d` intervals and cross-room registration remain unverified until tape/repeat/connector evidence is supplied.
+If a RoomPlan JSON export is available, name it `roomplan.json` and follow
+`docs/formats/roomplan-json.md`. The CLI also accepts original Record3D `.r3d`
+and semantic `.usd`, `.usda`, or `.usdz` room meshes. Binary USD/USDZ decoding
+uses Pixar `usdcat`; the macOS runtime supplies it. See
+`docs/formats/usd-mesh.md`. Raw `.r3d` intervals and cross-room registration
+remain unverified until tape/repeat/connector evidence is supplied.
 
 ## Handoff
 

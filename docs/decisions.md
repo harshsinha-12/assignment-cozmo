@@ -4,6 +4,44 @@ Newest first. One decision per heading. Do not silently reverse a decision in co
 
 ---
 
+## 2026-09-10 — Accept semantic USD/USDZ without using tape as reconstruction input
+
+**Context:** The independent walk-in capture was available only as a binary
+USD crate; paid Record3D export capacity was exhausted. The crate contains
+metric named Wall, Door, Window, and Floor meshes. Tape measurements were
+provided separately.
+
+**Decision:** Decode `.usd` and `.usdz` through `usdcat`, read `.usda` directly,
+and convert named semantic mesh extents/transforms into the shared RoomPlan-like
+surface representation. Ignore furniture. Treat confidence as medium because
+the source carries no RoomPlan confidence label. Keep tape exclusively in
+`ground_truth.json`; it is never read by reconstruction.
+
+**Consequence:** The holdout now runs cold with geometry and `pending=0`, but
+its open eight-segment wall loop and measured errors remain `partial` and
+non-passing. Format support improved; accuracy was not relabeled.
+
+---
+
+## 2026-09-10 — Photo SfM after a connected graph; occupancy room fallback
+
+**Context:** A walk-in that followed the eight-still protocol could connect and
+still hit `unsupported_tier`. Video rooms failed when a plane peak was missing
+even though points existed around the camera path.
+
+**Decision:** After the overlap graph connects, run incremental SfM with
+assumed intrinsics and the disclosed 1.45 m handheld-height prior. Keep T8b
+gates unchanged. When wall plane peaks are missing, expand an occupancy
+envelope that includes the camera path. Floor/ceiling fallback is the densest
+Y-band, not a high percentile that follows outliers. Do not overlay
+independently scaled photo/video rooms.
+
+**Consequence:** Synthetic overlapping stills emit a partial FloorPlan. Author
+photos stay `insufficient_overlap`. Native video on harsh-home-01 moved
+failed→partial with 8 walls; centimetre gates are not claimed.
+
+---
+
 ## 2026-09-10 — Walk-in rehearsal follows the evaluator-selected tier
 
 **Context:** The defense selects one of photos, video, or LiDAR. The original

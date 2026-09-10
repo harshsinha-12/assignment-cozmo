@@ -78,6 +78,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/geom/rotations.py` | Normalizes Record3D XYZW quaternions and constructs camera-to-world 3D rotation matrices. |
 | `src/cozmo_floorplan/geom/segments.py` | Projects batches of planar points into along-segment and normal coordinates for wall occupancy analysis. |
 | `src/cozmo_floorplan/io/roomplan.py` | Parses the portable single- or multi-room RoomPlan JSON contract into typed immutable capture objects. |
+| `src/cozmo_floorplan/io/usd_mesh.py` | Discovers semantic USD/USDA/USDZ room meshes, decodes binary crates through `usdcat`, and maps named wall/door/window extents and transforms into typed metric surfaces. |
 | `src/cozmo_floorplan/recon/lidar_config.py` | LiDAR confidence scores, uncertainty widths, and recognized RoomPlan filenames. |
 | `src/cozmo_floorplan/recon/measurements.py` | Builds interval-bearing LiDAR and derived diagnostic measurements without treating transforms as exact. |
 | `src/cozmo_floorplan/recon/lidar.py` | Converts RoomPlan surfaces into FloorPlan v0.2 and orchestrates raw Record3D validation, metric clouds, plane fitting, occupancy openings, shared-world opening pairing, and partial IR conversion. |
@@ -93,13 +94,16 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `docs/formats/roomplan-json.md` | Public input contract for the tested RoomPlan JSON adapter. |
 | `docs/formats/cozmo-capture-job.md` | Route 1 job ZIP layout that unpacks into the CLI lidar job folder. |
 | `docs/formats/record3d.md` | Documents the tested raw Record3D archive contract, decompression path, and current plane-extraction boundary. |
+| `docs/formats/usd-mesh.md` | Documents semantic USD/USDA/USDZ input, runtime dependency, confidence boundary, and measured holdout result. |
 | `src/cozmo_floorplan/recon/photos_config.py` | Official ingest limits plus immutable ORB/SIFT, robust-geometry, within-room, and cross-room overlap policies. |
 | `src/cozmo_floorplan/recon/photo_image.py` | Shared grayscale decode and aspect-preserving size bound used by photo feature extractors. |
 | `src/cozmo_floorplan/recon/photo_features.py` | Extracts ORB observations and performs norm-aware mutual matching with seeded homography/fundamental support and spatial coverage. |
 | `src/cozmo_floorplan/recon/photo_sift.py` | Extracts bounded CLAHE-assisted SIFT evidence for indoor pairs that ORB cannot cover safely. |
 | `src/cozmo_floorplan/recon/photo_feature_ensemble.py` | Composes deterministic ORB-first and optional SIFT-fallback feature variants per image. |
 | `src/cozmo_floorplan/recon/photo_overlap.py` | Selects the strongest threshold-passing evidence, builds named connected components, and finds conservative cross-room connector candidates. |
-| `src/cozmo_floorplan/recon/photos.py` | Photo-tier adapter: validates folders, runs the overlap graph, returns actionable `insufficient_overlap`, and refuses metric output until SfM, adjacency, and scale exist. |
+| `src/cozmo_floorplan/recon/photos.py` | Photo-tier adapter: overlap graph, then incremental SfM / handheld-height scale / Manhattan envelope when connected; disconnected stills stay `insufficient_overlap`. |
+| `src/cozmo_floorplan/recon/photo_sfm.py` | Assumed-intrinsics two-view init, PnP, triangulation, y-up conversion, and 1.45 m scale. |
+| `src/cozmo_floorplan/recon/photo_floorplan.py` | Converts accepted photo rooms into independently placed partial FloorPlan JSON. |
 | `docs/formats/photo-job.md` | Public per-room photo job layout and current metric-reconstruction boundary. |
 | `src/cozmo_floorplan/recon/video_config.py` | Immutable video ingest, tracking, trajectory, sidecar alignment, triangulation, surface, room-envelope, and candidate-output policies. |
 | `src/cozmo_floorplan/recon/video_features.py` | Shared bounded ORB extraction, Hamming ratio matching, and seeded fundamental-matrix correspondence utility used by tracking and pose recovery. |
@@ -108,7 +112,7 @@ This is the maintained guide to what each implementation file owns. Update it wh
 | `src/cozmo_floorplan/recon/video_pose_alignment.py` | Fits an orientation-preserving 3D similarity per local trajectory segment using exact source-frame/timestamp matches and rejects sparse, degenerate, or high-RMSE alignments. |
 | `src/cozmo_floorplan/recon/video_triangulation.py` | Triangulates robust correspondences only inside accepted metric segments using v1.1 calibrated projection matrices, then filters depth, reprojection error, ray angle, and voxel duplicates. |
 | `src/cozmo_floorplan/recon/video_surfaces.py` | Finds support-qualified horizontal and vertical coordinate bands in sparse y-up video points. |
-| `src/cozmo_floorplan/recon/video_rooms.py` | Searches Manhattan yaw and requires floor, ceiling, and walls on both sides of the median camera path before defining a room envelope. |
+| `src/cozmo_floorplan/recon/video_rooms.py` | Searches Manhattan yaw; plane peaks first, then occupancy envelopes that include the camera path; floor/ceiling fallback is the densest Y band. |
 | `src/cozmo_floorplan/recon/video_native_scale.py` | Builds an in-memory y-up unit sidecar from the longest VO segment and scales it with a disclosed 1.45 m handheld-height prior after a floor band exists. |
 | `src/cozmo_floorplan/recon/video_openings.py` | Reuses occupancy-profile door/window detection on sparse video rooms with wider bins; solid walls still emit zero openings. |
 | `src/cozmo_floorplan/recon/video_measurements.py` | Builds interval-bearing video lengths, areas, and opening widths with explicitly uncalibrated candidate-stage uncertainty. |
@@ -265,7 +269,6 @@ This is the maintained guide to what each implementation file owns. Update it wh
 
 Later tasks add real modules only when they contain working behavior:
 
-- Metric SfM, Manhattan regularization, scale, and calibrated intervals inside `recon/photos.py` once real capture evidence exists.
 - Additional `geom/` modules — point-cloud and plane operations as required.
 
 Do not create empty placeholders for these directories. Add each one with its implementing task and document its files here.

@@ -37,6 +37,17 @@ class PhotoMatchEvidence:
     coverage_fraction: float
 
 
+@dataclass(frozen=True, slots=True)
+class PhotoCorrespondences:
+    """Geometric inlier point pairs in the winning feature variant's image."""
+
+    left: PhotoFeatures
+    right: PhotoFeatures
+    left_points_px: np.ndarray
+    right_points_px: np.ndarray
+    evidence: PhotoMatchEvidence
+
+
 def extract_photo_features(path: Path, config: PhotoOverlapConfig) -> PhotoFeatures:
     """Decode, resize, and describe a photo using bounded ORB features."""
 
@@ -102,6 +113,70 @@ def match_photo_features(
         geometric_model=model,
         geometric_inlier_ratio=geometric_count / len(matches),
         coverage_fraction=coverage,
+    )
+
+
+def match_photo_correspondences(
+    left: PhotoFeatures,
+    right: PhotoFeatures,
+    config: PhotoOverlapConfig,
+) -> PhotoCorrespondences:
+    """Return geometric-inlier coordinates alongside the overlap evidence."""
+
+    if left.method != right.method or left.norm_type != right.norm_type:
+        raise ValueError("photo feature methods must match")
+    ratio_test = (
+        config.sift_ratio_test if left.method == "sift_clahe" else config.ratio_test
+    )
+    matches = _mutual_ratio_matches(
+        left.descriptors,
+        right.descriptors,
+        ratio_test,
+        left.norm_type,
+    )
+    empty = np.empty((0, 2), dtype=np.float64)
+    if not matches:
+        evidence = PhotoMatchEvidence(0, 0, 0, 0, "none", 0.0, 0.0)
+        return PhotoCorrespondences(left, right, empty, empty, evidence)
+    left_points = np.float32([left.keypoints[item[0]].pt for item in matches])
+    right_points = np.float32([right.keypoints[item[1]].pt for item in matches])
+    threshold = (
+        config.sift_ransac_reprojection_threshold_px
+        if left.method == "sift_clahe"
+        else config.ransac_reprojection_threshold_px
+    )
+    homography_mask = _homography_inliers(left_points, right_points, threshold)
+    fundamental_mask = _fundamental_inliers(left_points, right_points, threshold)
+    homography_count = int(np.count_nonzero(homography_mask))
+    fundamental_count = int(np.count_nonzero(fundamental_mask))
+    if homography_count >= fundamental_count:
+        model = "homography"
+        geometric_mask = homography_mask
+    else:
+        model = "fundamental"
+        geometric_mask = fundamental_mask
+    geometric_count = int(np.count_nonzero(geometric_mask))
+    coverage = _coverage(
+        left_points[geometric_mask],
+        right_points[geometric_mask],
+        left.image_size_px,
+        right.image_size_px,
+    )
+    evidence = PhotoMatchEvidence(
+        matches=len(matches),
+        homography_inliers=homography_count,
+        fundamental_inliers=fundamental_count,
+        geometric_inliers=geometric_count,
+        geometric_model=model,
+        geometric_inlier_ratio=geometric_count / len(matches) if matches else 0.0,
+        coverage_fraction=coverage,
+    )
+    return PhotoCorrespondences(
+        left=left,
+        right=right,
+        left_points_px=np.asarray(left_points[geometric_mask], dtype=np.float64),
+        right_points_px=np.asarray(right_points[geometric_mask], dtype=np.float64),
+        evidence=evidence,
     )
 
 

@@ -8,9 +8,9 @@ Status: `missing` | `partial` | `done`. Fill during implementation. This file is
 | --- | --- | --- | --- | --- |
 | R1 | Choose one capture route | `docs/capture-route.md` + `docs/capture-route-route1.md` + `data/templates/` | Route 2 operator card (Camera + Record3D). Route 1 cable install without TestFlight | done |
 | R2 | Device matrix | `docs/device-matrix.md` | Hardware eligibility plus measured harsh-home-01 intervals (2026-09-10) | done |
-| R3 | Photos tier, 2–8 stills, no depth/poses, per-room folders, whole-property stitch | `io/photos.py` + `recon/photo_overlap.py` + `recon/photos.py` | Ingest, EXIF orientation, overlap graph; 2–8 stills per room; stitch follows a connected graph | partial |
-| R4 | Video tier, handheld walkthrough | `recon/video.py` + `recon/video_native_scale.py` + `recon/video_openings.py` | Native MP4 ingest, skip-span VO, handheld-height scale (4/4 clips), occupancy openings | partial |
-| R5 | LiDAR tier, depth+poses+intrinsics | `io/record3d.py` + `recon/lidar.py` | Record3D → partial metric FloorPlan; walls 7.5/30 cm; intervals 19/24 | partial |
+| R3 | Photos tier, 2–8 stills, no depth/poses, per-room folders, whole-property stitch | `io/photos.py` + `recon/photo_overlap.py` + `recon/photo_sfm.py` + `recon/photos.py` | Ingest, overlap graph, incremental SfM on connected graphs; author 2/2/5/3 still disconnected | partial |
+| R4 | Video tier, handheld walkthrough | `recon/video.py` + `recon/video_native_scale.py` + `recon/video_rooms.py` | Native scale 4/4; occupancy envelopes emit drawing+pooja rooms (`partial`); ±3% not claimed | partial |
+| R5 | LiDAR tier, depth+poses+intrinsics | `io/record3d.py` + `io/usd_mesh.py` + `recon/lidar.py` | Record3D and semantic USD/USDZ → metric FloorPlan; benchmark walls 7.5/30 cm; independent USD holdout emits geometry | partial |
 | R6 | Per-room: walls, ceiling, area, openings | schema + lidar recon | LiDAR emits walls, ceilings, areas, opening candidates on the current scans | partial |
 | R7 | Stitched multi-room adjacency | `stitch/constraints.py` + `stitch/pose_graph.py` | Shared-opening SE(2) snap + ablation on RoomPlan; LiDAR rooms share an ARKit frame when openings face | partial |
 | R8 | Damage regions, class + metric extent | `agent/openai_agent.py` + `agent/tools.py` | Live/fallback `damage[]`; staged two-class observations on my-room | done |

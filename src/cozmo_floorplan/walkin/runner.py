@@ -13,6 +13,7 @@ from cozmo_floorplan.eval.evaluator import evaluate_floorplans
 from cozmo_floorplan.eval.io import load_floorplan, write_evaluation
 from cozmo_floorplan.io.artifacts import write_run_artifacts
 from cozmo_floorplan.io.output import write_json_atomic, write_text_atomic
+from cozmo_floorplan.io.usd_mesh import USD_EXTENSIONS
 from cozmo_floorplan.pipeline import run_job_with_ablation
 from cozmo_floorplan.recon.lidar_config import ROOMPLAN_FILENAMES
 from cozmo_floorplan.recon.photos_config import DEFAULT_PHOTO_INGEST, PHOTO_EXTENSIONS
@@ -215,6 +216,7 @@ def job_has_capture_media(job_path: Path, tier: str) -> bool:
             and path.name != ".gitkeep"
             and (
                 path.suffix.lower() == ".r3d"
+                or path.suffix.lower() in USD_EXTENSIONS
                 or path.name.lower() in names
             )
             for path in lidar_dir.iterdir()

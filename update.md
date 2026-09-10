@@ -13,6 +13,37 @@ Format:
 - Next
 ```
 
+## 2026-09-10 — T6g/T11c semantic USD walk-in measured
+
+- Context: The new holdout was supplied as a 24 KB binary USD crate because
+  further Record3D export was unavailable. Independent measurements describe
+  `mummy-room` as 300 × 360 cm, 290 cm ceiling, and an 80 × 210 cm door.
+- Done: Added semantic `.usd` / `.usda` / `.usdz` ingestion. Named wall, door,
+  and window extents/transforms become the shared metric IR; furniture is
+  ignored and binary stages decode through `usdcat`. Normalized measurements
+  into a schema-valid ground truth separately. `make walkin WALKIN_TIER=lidar`
+  completes with `pending=0`, geometry ready in 0.106 s. Added three USD tests;
+  full suite passes 185/185, plus Ruff, compileall, schema validation, synthetic
+  reproduction, and final `make benchmark` (`complete`, `pending=0`).
+- Learned: The USD emits eight wall segments, two doors, one window, and an
+  open-loop convex hull. Against tape, one wall matches at 16.1 cm error, the
+  closest door at 4.17 cm, ceiling at 7 cm, and area at 48.2%. These gates fail;
+  this is a format/cold-run improvement, not an accuracy pass.
+- Next: Submit the measured evidence honestly. A second LiDAR capture would be
+  needed for repeatability; photo/video holdout evidence remains absent.
+
+## 2026-09-10 — T8c photo SfM + video occupancy envelopes
+
+- Context: Walk-in photos/video would still fail even on a good capture. No
+  reshoot. `_best_yaw` annotation also unpacked 4 values from a 3-tuple type.
+- Done: Incremental photo SfM after a connected overlap graph, handheld-height
+  scale, occupancy wall envelopes, densest-band floor/ceiling fallback. Full
+  suite 182/182. `make benchmark` complete pending=0.
+- Learned: Author photos stay disconnected (`insufficient_overlap`). Video
+  moved failed→partial (drawing+pooja, 8 walls) but wall median is 356 cm;
+  ±3% is not claimed. LiDAR unchanged 7.5/30 cm, head-to-head 75%.
+- Next: Do not loosen overlap gates. LiDAR is still the live centimetre path.
+
 ## 2026-09-10 — T11b evaluator-selected walk-in hardening
 
 - Context: The walk-in is 30% of the take-home and the evaluator chooses one

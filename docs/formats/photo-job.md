@@ -42,6 +42,8 @@ connector↔pooja-room, but no room graph is fully connected. The CLI therefore
 still returns `insufficient_overlap`, now naming isolated images where possible.
 These are graph diagnostics, not metric accuracy.
 
-Current boundary: metric SfM, adjacency verification, walls, and scale are not
-implemented. A connected graph would advance to `unsupported_tier`; it would
-not cause invented centimetres.
+Current boundary: a connected overlap graph with recoverable parallax runs
+incremental SfM, a disclosed 1.45 m handheld-height prior, and a Manhattan
+envelope. Planar overlap without parallax returns `low_confidence`. The current
+private rooms remain disconnected, so they still return `insufficient_overlap`.
+Cross-room photo rooms are independently placed; they are not overlaid.

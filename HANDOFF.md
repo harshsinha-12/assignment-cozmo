@@ -12,73 +12,61 @@ The current agent overwrites the **Current handoff** section at the end of every
 
 ### What changed this session
 
-- Added evaluator-selected walk-in execution with
-  `make walkin WALKIN_TIER=<photos|video|lidar>` / `walkin --tier`. The default
-  remains `all` for a full rehearsal.
-- Selected-tier input audit, holdout collision checks, timing, and evaluation no
-  longer depend on absent unselected media.
-- Added geometry readiness, warning codes, and tier-specific recapture actions
-  to `walkin-summary.md`.
-- Fixed the shared pipeline so a future successful photo reconstruction is
-  returned and enriched rather than discarded. Photo metric SfM is still not
-  implemented and is not called passing.
-- Verification passes: focused walk-in/photo/video tests 25/25; full suite
-  180/180; Ruff; compileall; synthetic reproduction; selected-video empty-input
-  rehearsal; and `git diff --check`.
+- Added general semantic `.usd`, `.usda`, and `.usdz` LiDAR input. Binary
+  crates/packages decode through `usdcat`; named wall/door/window metric meshes
+  share the RoomPlan surface-to-IR path. Furniture meshes are ignored.
+- Converted the separately supplied `mummy-room` measurements into schema-valid
+  holdout truth without exposing them to reconstruction.
+- Selected LiDAR walk-in completes with `pending=0`, geometry ready in 0.106 s.
+  It remains `partial` and its accuracy gates fail.
+- Verification: focused USD/LiDAR/walk-in 21/21; full suite 185/185; Ruff,
+  compileall, schema validation, synthetic reproduction, final benchmark, and
+  final selected LiDAR walk-in all pass as commands.
 
 ### What is true now
 
 - Product: local CLI. Folder or Cozmo Capture ZIP in → JSON + SVG out.
-- Scored walk-in is Route 2. Route 1 cable install is documented (~18 s on
-  Harsh's phone).
-- README covers every official scoring row. The cleanup, automated test suite,
-  and final benchmark execution all pass without runner/test failures.
-- LiDAR openings exist but **miss the ≤2 cm gate**. Ceiling **misses ≤1.5 cm**.
-  Do not add unobserved wall centimetres (my-room 3.70 m plane is supported).
-- The 10:21 benchmark reports photo/video pipeline outputs as `failed` and LiDAR
-  as `partial`; those are measured capture/accuracy outcomes, not execution
-  failures. LiDAR wall median/p95 is 7.5/30 cm, opening median/p95 is 5/10 cm,
-  interval calibration passes 19/24, and Magicplan head-to-head passes at 9/12
-  (75%).
-- T8c still waits on a connected photo graph (2/2/5/3).
-- Harsh is not shooting T11 or connector LiDAR.
-- Walk-in default is a full three-tier rehearsal; use `WALKIN_TIER` only when
-  mirroring the evaluator's selected tier.
+- Scored walk-in is Route 2. Semantic USD/USDZ is now accepted in addition to
+  Record3D and RoomPlan JSON.
+- Latest benchmark: photos `failed` (disconnected). Video `partial` (drawing
+  + pooja rooms, 8 walls, median error 356 cm — ±3% not claimed). LiDAR
+  `partial`, walls 7.5/30 cm, openings median 5 cm, head-to-head 9/12 (75%).
+- Independent `mummy-room` USD holdout: 16.1 cm one matched wall, 4.17 cm
+  closest door, 7 cm ceiling, 48.2% area error. Do not call these passing.
 
 ### Blockers
 
-- Connector LiDAR before any cross-room snap. Do not pair 80 cm bedroom doors
-  across 5+ m.
-- T8c waits on a connected photo graph (2/2/5/3). Do not loosen gates.
+- Connector LiDAR before any cross-room snap.
+- Author photo graphs remain disconnected (2/2/5/3). Do not loosen T8b gates.
+- LiDAR repeat, photo holdout, and video holdout remain unavailable.
 
 ### Next agent should
 
-1. Capture a genuinely unseen room with tape, then run
-   `make walkin WALKIN_TIER=<chosen-tier>`.
-2. If Geometry ready is false, follow the generated immediate action and
-   recapture before scoring.
-3. Do not claim opening ≤2 cm, ceiling ≤1.5 cm, photo ±8%, or video ±3% from
-   the current benchmark. Head-to-head ≥70% is supported at 75%.
+1. Do not claim the semantic USD holdout passes accuracy; it only proves cold
+   format ingest, geometry output, evaluation, and timing.
+2. Do not claim photo ±8% or video ±3% from harsh-home-01.
+3. Preserve the separation between USD reconstruction and tape truth.
 
 ### Read next (max five)
 
-1. `docs/walk-in.md`
-2. `docs/capture-route.md`
-3. `TASKS.md`
-4. `README.md`
-5. `docs/writeup.md`
+1. `docs/formats/usd-mesh.md`
+2. `docs/walk-in.md`
+3. `docs/writeup.md`
+4. `TASKS.md`
+5. `README.md`
 
 ### Exact next command
 
 ```bash
-make walkin WALKIN_TIER=lidar
+git status --short --branch && git log -3 --oneline
 ```
 
 ---
 
 ## History
 
-- **2026-09-10** — T11b selected-tier walk-in hardening + geometry readiness and recapture actions; holdout media still pending.
+- **2026-09-10** — T6g/T11c semantic USD/USDZ ingest + measured mummy-room LiDAR holdout; commands pass, accuracy gates do not.
+- **2026-09-10** — T8c photo SfM + video occupancy envelopes; benchmark video failed→partial (8 walls); photos still disconnected; 182 tests.
 - **2026-09-10** — Finish-line closeout: cleanup committed, installer dry-run fixed (178/178 tests), final benchmark complete with pending=0; head-to-head 75% pass.
 - **2026-09-10** — T20e submission README refresh + local-only capture/IDE/temporary-file cleanup.
 - **2026-09-10** — README Route 1 gallery: app screenshots (room mesh IMG_0151) + CLI SVG/JSON.

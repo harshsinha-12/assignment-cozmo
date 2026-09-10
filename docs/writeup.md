@@ -37,11 +37,11 @@ Every scalar measurement travels as a value, unit, interval, confidence, method,
 Route 2 is the scored capture route. Route 1 is a free Personal-Team cable install (`docs/capture-route-route1.md`); TestFlight is not used. Switch the scored route only if that install is timed under ten minutes on Cozmo's phone. Until then a non-engineer uses the native Camera app for photos/video and Record3D on LiDAR-equipped Pro devices; the exact walk and hand-off layout are in `docs/capture-route.md`.
 
 
-| Tier   | Devices                        | Evidence and scale                                          | Implementation                                                | Measured (harsh-home-01, 2026-09-10)                                                                                                                   |
-| ------ | ------------------------------ | ----------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Tier   | Devices                        | Evidence and scale                                          | Implementation                                                | Measured (harsh-home-01, 2026-09-10)                                                                                                                 |
+| ------ | ------------------------------ | ----------------------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | LiDAR  | iPhone 15/16/17 Pro or Pro Max | Record3D depth + poses + intrinsics; RoomPlan JSON          | Partial metric rooms, openings, support-conditioned intervals | Walls 7.5 cm median / 30 cm p95, n=12; ceiling max 5.41 cm, n=3; openings 3 matched, median 5 cm; intervals 19/24 (79.2%) at 80% declared confidence |
-| Video  | Any iPhone 15+                 | Handheld MP4; ARKit sidecar or 1.45 m handheld-height prior | 2 Hz ingest, skip-span VO, occupancy openings, native scale   | 4/4 clips scale; 0 reconstructed wall lengths vs tape                                                                                                  |
-| Photos | Any iPhone 15+                 | 2–8 stills per room; no depth or poses                      | EXIF-oriented ingest, overlap graph, 2–8 enforcement          | Overlap components connector/drawing/my/pooja = 2/2/5/3; 0 reconstructed walls                                                                         |
+| Video  | Any iPhone 15+                 | Handheld MP4; ARKit sidecar or 1.45 m handheld-height prior | 2 Hz ingest, skip-span VO, occupancy openings, native scale   | 4/4 clips scale; 0 reconstructed wall lengths vs tape                                                                                                |
+| Photos | Any iPhone 15+                 | 2–8 stills per room; no depth or poses                      | EXIF-oriented ingest, overlap graph, 2–8 enforcement          | Overlap components connector/drawing/my/pooja = 2/2/5/3; 0 reconstructed walls                                                                       |
 
 
 LiDAR is the build-order anchor because its metric observations make geometry errors easier to isolate. Video targets ±3% wall error and photos ±8%, with openings, ceiling, stitch, and interval calibration scored at every tier. Device-level numbers: `docs/device-matrix.md`.
@@ -88,39 +88,48 @@ If a live call times out, fails, or makes an incomplete tool sequence, its parti
 
 Synthetic contract (not device accuracy): two-room RoomPlan fixture, yield `ok`, wall median/p95 0 cm (n=8), openings 1/1 within 2 cm, ceilings 2/2 at 0 cm, intervals 15/15 at 95% declared confidence, drift ablation present.
 
-Private benchmark `harsh-home-01`, regenerable with `make benchmark` (2026-09-10). Pipeline: LiDAR `partial`; photos/video `failed`. Inputs: 3+ rooms, all three tiers, my-room photo repeat, video repeat, two-class damage, tape, Magicplan **2026.35.0**. No LiDAR repeat. No connector scan.
+Private benchmark `harsh-home-01`, regenerable with `make benchmark` (2026-09-10). Pipeline: LiDAR/video `partial`; photos `failed`. Video emits two rooms and eight walls but misses its accuracy gates. Inputs: 3+ rooms, all three tiers, my-room photo repeat, video repeat, two-class damage, tape, Magicplan **2026.35.0**. No LiDAR repeat. No connector scan.
 
 LiDAR room extents vs tape (length × width):
 
 
-| Room         | Predicted    | Tape         | Δ L / Δ W  |
-| ------------ | ------------ | ------------ | ---------- |
+| Room         | Predicted    | Tape         | Δ L / Δ W    |
+| ------------ | ------------ | ------------ | ------------ |
 | drawing-room | 380 × 315 cm | 368 × 305 cm | +12 / +10 cm |
-| my-room      | 370 × 325 cm | 400 × 325 cm | −30 / 0 cm |
-| pooja-room   | 370 × 295 cm | 370 × 290 cm | 0 / +5 cm |
+| my-room      | 370 × 325 cm | 400 × 325 cm | −30 / 0 cm   |
+| pooja-room   | 370 × 295 cm | 370 × 290 cm | 0 / +5 cm    |
 
 
 The 30 cm `my-room` long wall is a supported 3.70 m plane. Two short walls match tape. Remaining error is mostly capture quality (fast handheld walk, vibrating video, thin LiDAR on a long wall), not a missing adapter. The same pipeline should perform better with eight sharp stills per room at higher overlap, a slower stabilized handheld video sweep, and a steady LiDAR perimeter pass that keeps each wall in view from multiple positions.
 
 The final LiDAR mapper accepts an outer wall band only when it retains at least 95% of the densest plane's support. That conservative, capture-derived rule moved the pooja long wall onto a strongly supported adjacent band without using room ids, tape values, incumbent values, or the official gate threshold. It improved the Magicplan comparison from 8/12 to 9/12 while leaving the 30 cm supported my-room miss visible.
 
-The final benchmark command completed successfully with every required input ready and no pending evidence classes. The table below reports accuracy outcomes separately; a completed run does not make a non-passing measurement gate pass.
+The final benchmark command completed successfully with every required input ready and no pending evidence classes. The table below reports accuracy outcomes separately; a completed run does not make a non-passing measurement gate pass. 
+
+The below failure is basically due to the quality of the images and videos taken. The images need to have more overlap, and videos need to have more stability
 
 
-| Gate                                | Photos                                | Video                    | LiDAR                                                              |
-| ----------------------------------- | ------------------------------------- | ------------------------ | ------------------------------------------------------------------ |
-| pipeline_yield                      | failed (due to less image overlap)    | failed (unstable video)  | partial                                                            |
-| opening_widths (≤2 cm on ≥85%)      | 0/3 truth, 0 predictions              | 0/3 truth, 0 predictions | 3 matched / 3 truth / 4 predictions; median 5 cm; 0/3 within 2 cm  |
-| ceiling_height (≤1.5 cm)            | 0/3 rooms                             | 0/3 rooms                | 3/3 rooms; max 5.41 cm                                             |
-| repeatability (1 cm or 0.5%)        | photo repeat present; 0 matched walls | 0 matched walls          | missing_evidence (no LiDAR repeat)                                 |
-| drift_accountability                | missing_evidence                      | missing_evidence         | ablation present; footprint on=off (349,100 cm²); method `none`    |
-| photo stitch (±8% footprint)        | 0 rooms; footprint rel. error 1.0     | n/a                      | n/a                                                                |
-| tier walls (photo ±8%, video ±3%)   | 0/12 walls                            | 0/12 walls               | 7.5 cm median / 30 cm p95, n=12; area median rel. error 6.6%       |
-| interval_calibration                | 0 measurements                        | 0 measurements           | 19/24 (79.2%) at 80% declared confidence — pass                    |
-| head-to-head vs Magicplan 2026.35.0 | n/a                                   | n/a                      | 9/12 (75%); pass vs gate ≥70%                                      |
+| Gate                                | Photos                                | Video                    | LiDAR                                                             |
+| ----------------------------------- | ------------------------------------- | ------------------------ | ----------------------------------------------------------------- |
+| pipeline_yield                      | failed (disconnected overlap)         | partial (drawing+pooja)  | partial                                                           |
+| opening_widths (≤2 cm on ≥85%)      | 0/3 truth, 0 predictions              | 0/3 truth, 0 predictions | 3 matched / 3 truth / 4 predictions; median 5 cm; 0/3 within 2 cm |
+| ceiling_height (≤1.5 cm)            | 0/3 rooms                             | 0/3 rooms matched        | 3/3 rooms; max 5.41 cm                                            |
+| repeatability (1 cm or 0.5%)        | photo repeat present; 0 matched walls | 0 matched walls          | missing_evidence (no LiDAR repeat)                                |
+| drift_accountability                | missing_evidence                      | missing_evidence         | ablation present; footprint on=off (349,100 cm²); method `none`   |
+| photo stitch (±8% footprint)        | 0 rooms; footprint rel. error 1.0     | n/a                      | n/a                                                               |
+| tier walls (photo ±8%, video ±3%)   | 0/12 walls                            | 8 walls, median 356 cm   | 7.5 cm median / 30 cm p95, n=12; area median rel. error 6.6%      |
+| interval_calibration                | 0 measurements                        | 4/12 (33%) — fail        | 19/24 (79.2%) at 80% declared confidence — pass                   |
+| head-to-head vs Magicplan 2026.35.0 | n/a                                   | n/a                      | 9/12 (75%); pass vs gate ≥70%                                     |
 
 
 Timing on my Mac: README synthetic path 28.37 s; Cozmo Capture signed iPhoneOS build 46 s, device copy ~18 s.
+
+Separate walk-in rehearsal (not part of `harsh-home-01`): a semantic USD crate
+for unseen `mummy-room` plus independent 300 × 360 × 290 cm measurements ran
+through `make walkin WALKIN_TIER=lidar` in 0.106 seconds with `pending=0` and
+geometry ready. The output stayed `partial`: one wall matched at 16.1 cm error,
+the closest door at 4.17 cm, ceiling at 7 cm, and area at 48.2%. This proves a
+cold USD ingest/run/eval path, not a passing centimetre result.
 
 The shipped fix loop targeted a real evaluator failure in the synthetic pipeline. Before the fix, the deterministic claims agent completed 7 tool calls, 2 damage records, 1 concealed flag and 2 scope lines, but an audit warning unconditionally downgraded `status` from `ok` to `partial`. The prediction was `pipeline_yield` 0% → 100% for this one-job case with no geometry or calibration change. After separating warning audit from health semantics, the CLI moved exit 2 → 0 and yield moved fail → pass exactly as predicted. Parsed FloorPlans differ only in top-level status; every non-target gate is identical. Checksummed, regenerable artifacts and the readable diff are in `data/fix-loop/`.
 
@@ -134,4 +143,4 @@ The shipped fix loop targeted a real evaluator failure in the synthetic pipeline
 - **Disconnected or cyclic properties:** return partial connectivity when the opening graph is insufficient; use real ablations to justify any global optimizer.
 - **Handheld capture quality:** fast walks, vibrating video, and thin LiDAR on a long wall dominate the remaining centimetre error. The same codebase, with a slower Pro-class scan, is what an experienced operator or a professional camera would run.
 
-Walk-in posture: they follow `docs/capture-route.md` and run `python -m cozmo_floorplan run JOB --out OUT` on a cold room. Route 1 is a cable install (`docs/capture-route-route1.md`) if a Mac with Xcode is available. Remaining reconstruction work is photo SfM on a connected overlap graph, complete video rooms, and LiDAR openings/cross-room registration — not JSON presentation.
+Walk-in posture: they follow `docs/capture-route.md` and run `python -m cozmo_floorplan run JOB --out OUT` on a cold room. Route 1 is a cable install (`docs/capture-route-route1.md`) if a Mac with Xcode is available. Connected overlapping stills now run SfM; author stills remain disconnected. Video can emit a partial plan from a complete sweep. LiDAR remains the live centimetre path.

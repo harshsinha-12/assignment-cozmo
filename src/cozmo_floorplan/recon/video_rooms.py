@@ -53,20 +53,18 @@ def fit_video_room_candidate(
         for item in diagnose_video_planes(points_m, config=surface_config)
         if item.axis == "y"
     ]
-    floor = _strongest(
-        [
-            item
-            for item in horizontal
-            if item.coordinate_m <= camera_y - config.camera_level_clearance_m
-        ],
+    floor = _horizontal_band(
+        horizontal,
+        points_m[:, 1],
+        camera_y,
+        config,
         "floor",
     )
-    ceiling = _strongest(
-        [
-            item
-            for item in horizontal
-            if item.coordinate_m >= camera_y + config.camera_level_clearance_m
-        ],
+    ceiling = _horizontal_band(
+        horizontal,
+        points_m[:, 1],
+        camera_y,
+        config,
         "ceiling",
     )
     height = ceiling.coordinate_m - floor.coordinate_m
@@ -77,11 +75,15 @@ def fit_video_room_candidate(
             warning_code="low_confidence",
         )
 
-    yaw, local_cameras, local_planes = _best_yaw(
+    yaw, local, local_cameras, local_planes = _best_yaw(
         points_m, camera_positions_m, config, surface_config
     )
-    x_low, x_high = _bracketing_pair(local_planes, local_cameras[:, 0], "x", config)
-    z_low, z_high = _bracketing_pair(local_planes, local_cameras[:, 1], "z", config)
+    x_low, x_high = _bracketing_pair(
+        local_planes, local_cameras[:, 0], local[:, 0], "x", config
+    )
+    z_low, z_high = _bracketing_pair(
+        local_planes, local_cameras[:, 1], local[:, 2], "z", config
+    )
     width = x_high.coordinate_m - x_low.coordinate_m
     depth = z_high.coordinate_m - z_low.coordinate_m
     _validate_span(width, "x", config)
@@ -114,7 +116,7 @@ def _best_yaw(
     cameras_m: np.ndarray,
     config: VideoRoomConfig,
     surface_config: VideoSurfaceConfig,
-) -> tuple[float, np.ndarray, tuple[VideoPlaneCandidate, ...]]:
+) -> tuple[float, np.ndarray, np.ndarray, tuple[VideoPlaneCandidate, ...]]:
     best: tuple[int, float, np.ndarray, tuple[VideoPlaneCandidate, ...]] | None = None
     for yaw in np.arange(0.0, 90.0, config.yaw_step_degrees):
         rotation = _planar_rotation(float(yaw))
@@ -135,12 +137,16 @@ def _best_yaw(
             "Video points have no Manhattan wall orientation candidate.",
             warning_code="low_confidence",
         )
-    return best[1], best[2], best[3]
+    local = points_m.copy()
+    rotation = _planar_rotation(best[1])
+    local[:, (0, 2)] = points_m[:, (0, 2)] @ rotation.T
+    return best[1], local, best[2], best[3]
 
 
 def _bracketing_pair(
     planes: tuple[VideoPlaneCandidate, ...],
     camera_values: np.ndarray,
+    point_values: np.ndarray,
     axis: str,
     config: VideoRoomConfig,
 ) -> tuple[VideoPlaneCandidate, VideoPlaneCandidate]:
@@ -156,7 +162,100 @@ def _bracketing_pair(
         for item in candidates
         if item.coordinate_m >= camera_center + config.camera_wall_margin_m
     ]
-    return _strongest(low, f"{axis}-low wall"), _strongest(high, f"{axis}-high wall")
+    try:
+        return (
+            _strongest(low, f"{axis}-low wall"),
+            _strongest(high, f"{axis}-high wall"),
+        )
+    except ReconstructionError:
+        return _occupancy_pair(point_values, camera_values, axis, config, label=axis)
+
+
+def _horizontal_band(
+    horizontal: list[VideoPlaneCandidate],
+    values: np.ndarray,
+    camera_y: float,
+    config: VideoRoomConfig,
+    label: str,
+) -> VideoPlaneCandidate:
+    if label == "floor":
+        plane_candidates = [
+            item
+            for item in horizontal
+            if item.coordinate_m <= camera_y - config.camera_level_clearance_m
+        ]
+        side = values[values <= camera_y - config.camera_level_clearance_m]
+    else:
+        plane_candidates = [
+            item
+            for item in horizontal
+            if item.coordinate_m >= camera_y + config.camera_level_clearance_m
+        ]
+        side = values[values >= camera_y + config.camera_level_clearance_m]
+    try:
+        return _strongest(plane_candidates, label)
+    except ReconstructionError:
+        if len(side) < 8:
+            raise
+        return VideoPlaneCandidate(
+            kind="horizontal",
+            axis="y",
+            coordinate_m=_densest_coordinate(side),
+            support_points=int(len(side)),
+            support_fraction=float(len(side) / max(len(values), 1)),
+        )
+
+
+def _densest_coordinate(values: np.ndarray, bin_m: float = 0.08) -> float:
+    keys = np.round(values / bin_m) * bin_m
+    unique, counts = np.unique(np.round(keys, 6), return_counts=True)
+    return float(unique[int(np.argmax(counts))])
+
+
+def _occupancy_pair(
+    values: np.ndarray,
+    camera_values: np.ndarray,
+    axis: str,
+    config: VideoRoomConfig,
+    *,
+    label: str,
+) -> tuple[VideoPlaneCandidate, VideoPlaneCandidate]:
+    finite = values[np.isfinite(values)]
+    if len(finite) < 16:
+        raise ReconstructionError(
+            f"Sparse video points do not support a camera-bracketing {label} wall pair.",
+            warning_code="low_confidence",
+        )
+    margin = config.camera_wall_margin_m
+    low_value = min(
+        float(np.quantile(finite, config.camera_bracket_quantile)),
+        float(np.min(camera_values) - margin),
+    )
+    high_value = max(
+        float(np.quantile(finite, 1.0 - config.camera_bracket_quantile)),
+        float(np.max(camera_values) + margin),
+    )
+    if high_value - low_value < config.minimum_room_span_m:
+        raise ReconstructionError(
+            f"Sparse video points do not support a camera-bracketing {label} wall pair.",
+            warning_code="low_confidence",
+        )
+    return (
+        VideoPlaneCandidate(
+            kind="wall",
+            axis=axis,
+            coordinate_m=low_value,
+            support_points=int(len(finite)),
+            support_fraction=1.0,
+        ),
+        VideoPlaneCandidate(
+            kind="wall",
+            axis=axis,
+            coordinate_m=high_value,
+            support_points=int(len(finite)),
+            support_fraction=1.0,
+        ),
+    )
 
 
 def _strongest(
